@@ -6,3 +6,24 @@
 /* v3 private portal / pricing & profit */
 .priceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}.productSaleCard,.profitTableWrap{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:20px}.productSaleCard h3{margin:12px 0 5px}.productSaleCard p{color:#71809d;margin:0 0 18px}.saleNumbers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.saleNumbers>div{background:#f6f8fc;border-radius:12px;padding:12px}.saleNumbers span,.sellField span{display:block;font-size:11px;color:#71809d;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.saleNumbers b{font-size:20px}.sellField{margin-top:12px}.sellField input{width:100%;box-sizing:border-box;margin-top:6px;border:1px solid #d7dfed;border-radius:12px;padding:12px;font:inherit;font-weight:800}.profitPreview{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#ecfdf5;color:#087f5b}.profitPreview strong{font-size:18px}.buyBtn{width:100%;margin-top:14px;border:0;border-radius:12px;padding:13px;background:linear-gradient(90deg,#2563eb,#7c3aed);color:white;font-weight:800;cursor:pointer}.pageTitle small{color:#546cff;font-weight:900;letter-spacing:.1em}.pageTitle h1{margin:5px 0}.pageTitle p{color:#71809d}.profitSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.profitSummary div{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px}.profitSummary span{display:block;color:#71809d;font-size:12px}.profitSummary strong{display:block;font-size:24px;margin-top:5px}.profitTable{width:100%;border-collapse:collapse}.profitTable th,.profitTable td{text-align:left;padding:13px 10px;border-bottom:1px solid #edf1f7}.profitTable th{font-size:11px;color:#71809d;text-transform:uppercase}.profitPositive{color:#087f5b;font-weight:900}.privateLoginNote{margin-top:18px;text-align:center;color:#71809d;font-size:12px}.navLinkBtn{width:100%}.sectionPad{padding:28px}.topBack{color:#667085;font-weight:700;border:0;background:none;cursor:pointer;margin-bottom:18px}.noPublicHome{min-height:100vh}
 @media(max-width:900px){.priceGrid,.profitSummary{grid-template-columns:1fr}.profitTableWrap{overflow:auto}.sectionPad{padding:18px}}
+
+/* v4 light 3ABBILO portal */
+.loginPage{background:linear-gradient(135deg,#f7f9ff 0%,#eef5ff 48%,#f7f3ff 100%);color:#14213d}
+.loginGlow{background:radial-gradient(circle,#7c3aed24,transparent 66%);top:-260px;right:-100px}
+.loginBox{background:rgba(255,255,255,.94);border:1px solid #dfe7f4;box-shadow:0 24px 70px #51658b1f}
+.loginBox .brand{color:#13213f}
+.loginBox h1{color:#13213f}.loginBox>p{color:#657491}
+.loginBox label{color:#33415f}.loginBox input{background:#f9fbff;border-color:#d7e0ee;color:#13213f}
+.loginBox input::placeholder{color:#98a4ba}.loginBox input:focus{border-color:#6375ff;box-shadow:0 0 0 3px #6375ff1a;background:#fff}
+.loginSecure{color:#7b88a3}.loginError{background:#fff0f2;color:#c93650;border:1px solid #ffd6dc}
+.loading{background:#f4f7fc;color:#17233f}
+.appShell{background:#f6f8fc;color:#14213d}
+.side{background:#fff;color:#14213d;border-right:1px solid #e4e9f2;box-shadow:8px 0 28px #3341550a}
+.sideTop .brand{color:#14213d}.sideTop button{color:#14213d}
+.accountMini{background:#f6f8ff;border-color:#e2e7f2}.accountMini span{color:#74809a}
+.side nav button,.logout{color:#66738d}.side nav button.active{background:linear-gradient(90deg,#e9f1ff,#f0eaff);color:#3159d8}.side nav button:hover,.logout:hover{background:#f1f5fb;color:#25395f}
+.appTop{border-bottom-color:#e5eaf2}.menuBtn{background:#fff;border:1px solid #e2e7ef;color:#1f2f4f}
+.welcome{background:linear-gradient(120deg,#ffffff,#f1f6ff 52%,#f6efff);color:#14213d;border:1px solid #e1e7f2;box-shadow:0 14px 34px #52658112}
+.welcome p{color:#687894}.pill{color:#4e69e8}.walletHero{background:linear-gradient(135deg,#356ff6,#7751ed);border:0;color:#fff;box-shadow:0 16px 34px #5366d32b}.walletHero span{color:#dce5ff}.walletHero a{color:#c7ffed}
+.quickGrid>div,.dashSection{box-shadow:0 8px 22px #3341550a}.quickGrid>div{cursor:pointer}.serviceMini article{cursor:pointer;background:#fff}
+@media(max-width:850px){.side{box-shadow:12px 0 34px #3341551a}}
