@@ -27,3 +27,47 @@
 .welcome p{color:#687894}.pill{color:#4e69e8}.walletHero{background:linear-gradient(135deg,#356ff6,#7751ed);border:0;color:#fff;box-shadow:0 16px 34px #5366d32b}.walletHero span{color:#dce5ff}.walletHero a{color:#c7ffed}
 .quickGrid>div,.dashSection{box-shadow:0 8px 22px #3341550a}.quickGrid>div{cursor:pointer}.serviceMini article{cursor:pointer;background:#fff}
 @media(max-width:850px){.side{box-shadow:12px 0 34px #3341551a}}
+
+
+/* v5 3ABBILO violet brand theme */
+:root{--brand:#7c3aed;--brand-dark:#6d28d9;--brand-light:#ede9fe;--brand-accent:#a855f7;--brand-bg:#f8f7fc}
+.loginPage{background:linear-gradient(135deg,#faf9ff 0%,#f5f1ff 48%,#fbf8ff 100%)}
+.loginGlow{background:radial-gradient(circle,#7c3aed2b,transparent 66%)}
+.loginIcon,.avatar{background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.loginBox input:focus{border-color:#7c3aed;box-shadow:0 0 0 3px #7c3aed1a}
+.loginSubmit,.buyBtn{background:linear-gradient(90deg,#7c3aed,#a855f7)}
+.side nav button.active{background:linear-gradient(90deg,#ede9fe,#f5edff);color:#6d28d9}
+.appTop small,.dashSection small,.pageTitle small{color:#7c3aed}
+.welcome{background:linear-gradient(120deg,#ffffff,#f8f5ff 52%,#f2eaff)}
+.pill{color:#7c3aed}
+.walletHero{background:linear-gradient(135deg,#6d28d9,#a855f7);box-shadow:0 16px 34px #7c3aed2b}
+.quickGrid svg{color:#7c3aed}
+.serviceMini article>svg:first-child{background:#f1eafe;color:#7c3aed}
+
+
+/* v6 3ABBILO orange + navy logo theme */
+:root{--brand:#ff8a00;--brand-dark:#f97316;--brand-light:#fff3e6;--brand-accent:#ff7a00;--brand-navy:#0f2d5c;--brand-bg:#f8fafc}
+.brand{display:inline-flex;align-items:center;gap:0;letter-spacing:0}
+.brand img{display:block;width:158px;height:auto;object-fit:contain}
+.sideTop .brand img{width:145px}
+.loginBox .brand img{width:175px}
+.foot img{width:150px}
+.brand span,.brand b{display:none!important}
+.loginIcon,.avatar{background:linear-gradient(135deg,#ff8a00,#f97316)}
+.loginPage{background:#f8fafc;color:#0f172a}
+.loginGlow{background:radial-gradient(circle,#ff8a0030,transparent 65%)}
+.loginBox{background:#fff;border-color:#e7eaf0;box-shadow:0 30px 80px #0f172a14}
+.loginBox>p{color:#64748b}.loginBox label{color:#334155}.loginBox input{background:#fff;color:#0f172a;border-color:#d9e0ea}.loginBox input:focus{border-color:#ff8a00;box-shadow:0 0 0 3px #ff8a0020}
+.loginSubmit{background:linear-gradient(90deg,#ff8a00,#f97316)}.loginSecure{color:#64748b}
+.side nav button.active{background:linear-gradient(90deg,#fff3e6,#fff8f0);color:#e86500}
+.appTop small,.dashSection small{color:#f97316}.quickGrid svg{color:#ff8a00}
+.welcome{background:linear-gradient(120deg,#0f2d5c,#163f7a 58%,#ff8a00)}
+.pill{color:#ffd7ad}.walletHero a{color:#ffe0b8}
+.serviceMini article>svg:first-child{background:#fff3e6;color:#f97316}
+.priceCard .saleIcon{background:#fff3e6;color:#f97316}
+.profitStat.highlight{background:#fff8ef;border-color:#fed7aa}
+.profitStat.highlight b{color:#ea580c}
+.primary,.signin{background:linear-gradient(90deg,#ff8a00,#f97316)}
+.eyebrow{color:#f97316}.copy h1 em{background:linear-gradient(90deg,#ff8a00,#f97316,#0f2d5c);-webkit-background-clip:text;color:transparent}
+.banner{background:radial-gradient(circle at 85% 40%,#ff8a00,#f97316 38%,#0f2d5c 72%)}
+.light{color:#ffe0b8}.orb svg{color:#ffb347}.steps b{color:#f97316}
