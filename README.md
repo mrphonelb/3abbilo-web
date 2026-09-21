@@ -16,3 +16,9 @@ Set environment variable:
 VITE_API_BASE_URL=https://api.3abbilo.com
 
 This first package contains the public homepage shell. Sign-in points to /login, which will be connected to the Dealer/Shop application in the next implementation stage.
+
+## v4 changes
+- Private portal: `/` is the sign-in page.
+- Sign in uses **email + password** and sends `{ email, password }` to the wholesale auth API.
+- Light login and light Dealer/Shop dashboard theme.
+- Dealer and Shop profit screens remain included.
