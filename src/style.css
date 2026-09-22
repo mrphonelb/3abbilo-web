@@ -119,3 +119,16 @@
 /* V9 compact product catalog + recharge popup */
 .catalogGrid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}.catalogProduct{padding:10px;border-radius:15px;text-align:center}.catalogProduct img,.catalogFallback{height:118px;border-radius:11px;object-fit:contain}.catalogProduct b{font-size:12px;line-height:1.25;margin:9px 3px 3px;white-space:normal;min-height:30px;display:flex;align-items:center;justify-content:center}.compactModal{width:min(430px,100%);padding:28px 22px 22px;border-radius:22px}.popupTitle{text-align:center;padding:0 35px 8px}.popupTitle img{width:58px;height:58px;object-fit:contain;border-radius:12px;margin-bottom:7px}.popupTitle h2{font-size:20px;margin:0 0 10px}.popupField{display:block;text-align:center;font-size:12px;font-weight:900;margin:14px 0}.popupField select,.popupField input{display:block;width:100%;height:56px;box-sizing:border-box;margin-top:8px;padding:0 16px;border:1px solid #d9dde5;border-radius:14px;background:#fff;color:#20242c;font:inherit;font-size:14px;font-weight:500;outline:none}.popupField select:focus,.popupField input:focus{border-color:#ff8a00;box-shadow:0 0 0 3px #ff8a0018}.popupAction{width:100%;height:54px;border:0;border-radius:14px;background:#ff8a00;color:#fff;font-weight:900;font-size:14px;margin-top:4px}.popupAction:disabled{opacity:.72}.compactModal .checkoutPending{margin-top:12px}.compactModal .modalClose{background:transparent;color:#111;right:13px;top:13px}
 @media(max-width:1300px){.catalogGrid{grid-template-columns:repeat(5,1fr)}}@media(max-width:1050px){.catalogGrid{grid-template-columns:repeat(4,1fr)}}@media(max-width:800px){.catalogGrid{grid-template-columns:repeat(3,1fr)}}@media(max-width:520px){.catalogGrid{grid-template-columns:repeat(2,1fr)}.catalogProduct img,.catalogFallback{height:105px}}
+\n/* V10 compact catalog, centered popup and simplified dashboard */
+.catalogGrid{grid-template-columns:repeat(auto-fill,145px);gap:14px;align-items:start;justify-content:start}
+.catalogProduct{width:145px;padding:0;overflow:hidden;border-radius:14px;text-align:center}
+.catalogProduct img,.catalogFallback{display:block;width:145px;height:145px;object-fit:cover;border-radius:13px 13px 0 0;background:#fff8f2}
+.catalogProduct b{padding:0 7px 7px;margin:8px 0 0;min-height:32px;font-size:12px;line-height:1.25}
+.compactModal{text-align:center}
+.popupTitle,.popupField{text-align:center}
+.popupField select,.popupField input{text-align:center;text-align-last:center;padding-left:38px;padding-right:38px}
+.popupField select option{text-align:center}
+.checkoutPending{justify-content:center;text-align:center}
+.appTop h2{margin:0}
+.welcome h1{margin:0}
+@media(max-width:520px){.catalogGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.catalogProduct{width:100%}.catalogProduct img,.catalogFallback{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover}}
