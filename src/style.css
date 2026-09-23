@@ -142,3 +142,8 @@
 .priceBox{width:min(100%,320px);margin:7px auto;padding:9px 11px;border-radius:11px;font-size:12px}.priceBox>div{margin:3px 0}.priceBox label{margin:6px 0}.priceBox input{margin-top:3px;padding:7px}
 .popupAction{height:44px;border-radius:11px;margin-top:2px}.compactModal .checkoutPending{margin-top:7px;font-size:11px;padding:7px 9px}
 .shopPricingGrid{display:grid;gap:12px}.shopPricingCard{display:grid;grid-template-columns:1fr 150px 90px;gap:12px;align-items:end;background:#fff;border:1px solid #e6e9ef;border-radius:14px;padding:14px}.shopPricingCard>div{display:flex;flex-direction:column;gap:4px}.shopPricingCard span{font-size:12px;color:#71809d}.shopPricingCard label{font-size:12px;font-weight:800}.shopPricingCard input{width:100%;box-sizing:border-box;margin-top:5px;padding:9px;border:1px solid #d9dde5;border-radius:9px}.shopPricingCard button{height:38px;border:0;border-radius:9px;background:#ff8a00;color:white;font-weight:800}@media(max-width:700px){.shopPricingCard{grid-template-columns:1fr}}
+
+/* V13 monthly profit directly under available balance */
+.monthlyProfitMini{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
+.monthlyProfitMini span{font-size:10px!important;letter-spacing:.09em;opacity:.82}
+.monthlyProfitMini b{font-size:14px;color:#fff;font-weight:800}
