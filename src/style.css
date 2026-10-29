@@ -176,3 +176,23 @@
 
 /* eSIM unified category */
 .esimModeSwitch{display:flex;gap:10px;margin:16px 0 20px;flex-wrap:wrap}.esimModeSwitch button{border:1px solid #ff8a00;background:#fff;color:#0f2d5c;padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer}.esimModeSwitch button.active{background:#ff8a00;color:white}
+
+/* 3ABBILO vertical category cards and roomier responsive product tiles */
+.categoryGrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.categoryGrid>button{min-height:205px;flex-direction:column;justify-content:center;text-align:center;gap:12px;padding:22px 12px}
+.categoryGrid>button>div:nth-child(2){width:100%}
+.categoryGrid>button>svg:last-child{display:none}
+.categoryIcon{width:86px;height:86px;flex:0 0 86px;border-radius:22px;margin:auto}
+.categoryIcon svg{width:43px;height:43px}
+.categoryGrid h3{font-size:19px;line-height:1.2;margin:0 0 6px}
+.categoryGrid p{font-size:12px}
+.categoryGrid small{font-size:12px}
+.catalogGrid{grid-template-columns:repeat(auto-fill,minmax(164px,164px));gap:20px 22px}
+.catalogProduct{width:164px}
+.catalogProduct img,.catalogFallback{width:164px;height:164px}
+.catalogProduct b{font-size:13px;min-height:36px}
+.esimProductGrid{display:grid;grid-template-columns:repeat(2,minmax(0,220px));gap:22px;margin-top:20px}
+.esimProductGrid button{background:white;border:1px solid #fdba74;border-radius:18px;min-height:250px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;color:#ff8a00;cursor:pointer;padding:20px}
+.esimProductGrid strong{color:#0f2d5c;font-size:20px}.esimProductGrid span{color:#64748b;font-size:12px;text-align:center}
+@media(max-width:1050px){.categoryGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.categoryGrid>button{min-height:175px;padding:15px 8px}.categoryIcon{width:66px;height:66px;flex-basis:66px}.categoryIcon svg{width:34px;height:34px}.categoryGrid h3{font-size:16px}.categoryGrid p{font-size:11px}.catalogGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.catalogProduct{width:100%}.catalogProduct img,.catalogFallback{width:100%;height:auto;aspect-ratio:1/1}.esimProductGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.esimProductGrid button{min-height:200px}.esimProductGrid strong{font-size:16px}}
