@@ -10,7 +10,14 @@ function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abb
 function productImage(p){return p?.key?'/product-images/'+encodeURIComponent(p.key):''}
 function ProductTile({p,onOpen}){const img=productImage(p);return <button className="catalogProduct" onClick={()=>onOpen(p)}>{img?<img src={img} alt={p.title||p.name||''} loading="lazy"/>:<div className="catalogFallback"><Package/></div>}<b>{p.title||p.name||p.key}</b></button>}
 function offerLabel(o){return o.displayName||o.name||String(o.offerId||o.id||'Option').replaceAll('_',' ')}
+function TelcoPreviewModal({p,close}){
+ const [detail,setDetail]=useState(null),[error,setError]=useState(''),[option,setOption]=useState(''),[phone,setPhone]=useState(''),[selling,setSelling]=useState('');
+ useEffect(()=>{let active=true;fetch(API+'/api/telco/product/'+encodeURIComponent(p.key),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Packages unavailable');if(active)setDetail(d.product)}).catch(e=>{if(active)setError(e.message)});return()=>{active=false}},[p.key]);
+ const chosen=detail?.options?.find(x=>String(x.id||x.value||x.option_id)===option);
+ return <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&close()}><div className="productModal compactModal"><button className="modalClose" onClick={close}><X size={21}/></button><div className="popupTitle"><h2>{p.title}</h2></div>{error&&<div className="catalogNotice error">{error}</div>}{!detail&&!error&&<div className="catalogNotice">Loading available packages…</div>}{detail&&<><label className="popupField">Choose Package<select value={option} onChange={e=>setOption(e.target.value)}><option value="">Choose package</option>{(detail.options||[]).map((x,i)=><option key={i} value={String(x.id||x.value||x.option_id||i)}>{x.name||x.title||x.label||'Package'}{Number.isFinite(Number(x.price))?' — $'+Number(x.price).toFixed(2):''}</option>)}</select></label><label className="popupField">Customer phone / account number<input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Enter customer number"/></label><label className="popupField">Selling Price ($)<input type="number" min="0" step="0.01" value={selling} onChange={e=>setSelling(e.target.value)}/></label><div className="catalogNotice">Live wholesale pricing and purchase are not enabled for this service yet. No wallet charge will be made.</div><button className="popupAction" disabled>Purchase unavailable</button></>}</div></div>
+}
 function ProductModal({p,close}){
+ if(p.supplier==='onezone')return <TelcoPreviewModal p={p} close={close}/>;
  const isQuantity=p.type==='quantity';
  const groups=p.groups?Object.entries(p.groups):[];
  const[firstGroup,setFirstGroup]=useState(groups[0]?.[0]||'');
