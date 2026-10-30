@@ -1,22 +1,13 @@
-# 3ABBILO Frontend
-Modern React/Vite frontend foundation for 3abbilo.com.
+# 3ABBILO integration stage — NOT a live deployment
 
-## Local
-npm install
-npm run dev
+This is a source-code component, not a complete all-services integration.
 
-## Build
-npm run build
+## Included
+- `wholesale/service-capabilities.js`: fail-closed service capability registry for the existing FazerCards and Extra4Card routes.
 
-## Render Static Site
-Build command: npm install && npm run build
-Publish directory: dist
+## Not included / not yet safe to enable
+- Alfa, Touch, Ogero/DSL, Wise, Mobi, Sodetel, Terranet, CARFAX, Gift Cards, eSIM supplier quote, validation, purchase, and order reconciliation.
+- Dealer pricing configuration (user will supply later).
+- End-to-end Daftra balance and product stock reconciliation for these new services.
 
-Set environment variable:
-VITE_API_BASE_URL=https://api.3abbilo.com
-
-## v4 changes
-- Private portal: `/` is the sign-in page.
-- Sign in uses **email + password** and sends `{ email, password }` to the wholesale auth API.
-- Light login and light Dealer/Shop dashboard theme.
-- Dealer and Shop profit screens remain included.
+Do not deploy this archive as a complete application. It does not change the current working frontend or backend and cannot activate missing services.
