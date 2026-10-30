@@ -11,6 +11,8 @@ function productImage(p){return p?.key?'/product-images/'+encodeURIComponent(p.k
 function ProductTile({p,onOpen}){const img=productImage(p);return <button className="catalogProduct" onClick={()=>onOpen(p)}>{img?<img src={img} alt={p.title||p.name||''} loading="lazy"/>:<div className="catalogFallback"><Package/></div>}<b>{p.title||p.name||p.key}</b></button>}
 function offerLabel(o){return o.displayName||o.name||String(o.offerId||o.id||'Option').replaceAll('_',' ')}
 function ProductModal({p,close}){
+ const supported=p.supplier==='fazer'||p.supplier==='extra4card';
+ if(!supported)return <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&close()}><div className="productModal compactModal"><button className="modalClose" onClick={close}><X size={21}/></button><div className="popupTitle"><h2>{p.title}</h2></div><div className="catalogNotice error">This service is not yet connected to 3ABBILO's live purchase backend. Purchasing is disabled to protect your wallet. Game and Chat Top-Ups remain available.</div><button className="popupSecondary" onClick={close}>Close</button></div></div>;
  const isQuantity=p.type==='quantity';
  const groups=p.groups?Object.entries(p.groups):[];
  const[firstGroup,setFirstGroup]=useState(groups[0]?.[0]||'');
