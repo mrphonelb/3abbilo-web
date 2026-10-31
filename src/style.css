@@ -208,3 +208,20 @@
 /* Popup visibility fix: render portals above the application layout. */
 body>.modalShade{position:fixed!important;inset:0!important;z-index:2147483000!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(15,23,42,.68)!important;padding:16px!important;overflow-y:auto!important;}
 body>.modalShade>.productModal{position:relative!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;max-height:min(92dvh,900px)!important;overflow-y:auto!important;}
+
+/* 3ABBILO live-service popup refinements */
+.servicePopup{width:min(520px,100%);max-height:92dvh;overflow-y:auto;padding:25px 24px 24px}
+.servicePopup .popupTitle h2{font-size:19px;line-height:1.3}
+.servicePopup .popupField{margin:12px 0;font-weight:800;font-size:12px;color:#152035}
+.servicePopup .popupField input,.servicePopup .popupField select{height:49px;font-size:14px}
+.servicePopup .servicePrice{width:100%;border-top:1px solid #e9edf4;padding-top:16px;margin-top:18px}
+.servicePopup .servicePrice .sellLine{justify-content:center;gap:12px;flex-wrap:wrap}
+.servicePopup .servicePrice .sellLine span{margin:0;color:#65758a}
+.servicePopup .servicePrice .sellLine input{width:105px;min-height:40px;font-size:17px;color:#111827}
+.servicePopup .servicePrice .quickSell button{font-size:12px;padding:10px 2px;border-radius:9px}
+.servicePopup .catalogNotice{font-size:12px;line-height:1.5;margin-top:15px}
+.servicePopup .serviceReceipt{text-align:center;padding:14px 0 6px;color:#123d30}
+.servicePopup .serviceReceipt svg{color:#16a34a}
+.servicePopup .serviceReceipt h3{margin:8px 0}
+.servicePopup .serviceReceipt p{font-size:13px;color:#627286}
+@media(max-width:520px){.servicePopup{padding:20px 15px}.servicePopup .servicePrice .quickSell{gap:4px}.servicePopup .servicePrice .quickSell button{font-size:11px}}
