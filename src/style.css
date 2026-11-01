@@ -237,3 +237,38 @@ body>.modalShade>.productModal{position:relative!important;display:block!importa
 @media(max-width:650px){.esimPopup{max-height:94dvh}.esimPopupPlans{max-height:39dvh}}
 
 .orderEsimQr {display:block;width:140px;height:140px;max-width:100%;object-fit:contain;margin:8px 0;border-radius:8px;}
+
+
+/* Unified 3ABBILO purchase result, shared by all digital services */
+.unifiedReceipt{display:flex;flex-direction:column;gap:12px;text-align:left;margin:16px 0 0;max-height:min(72vh,650px);overflow-y:auto;overscroll-behavior:contain;padding:0 3px 4px;color:#15213b}
+.receiptHeading{display:flex;align-items:center;gap:13px;padding:14px;border-radius:13px;background:#fff8ec;border:1px solid #fed7aa;color:#92400e}
+.receiptHeading.receiptSuccess{background:#edfcf5;border-color:#bbf7d0;color:#166534}
+.receiptHeading.receiptFailed{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
+.receiptHeading svg{flex-shrink:0}.receiptHeading h3{margin:0 0 3px;font-size:18px;color:inherit}.receiptHeading p{margin:0;font-size:12px;line-height:1.5;color:inherit}
+.receiptRow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid #e9edf3;padding:7px 0;font-size:13px}
+.receiptRow span{color:#65748b;min-width:115px}.receiptRow strong{font-weight:800;max-width:70%;overflow-wrap:anywhere;text-align:right}
+.receiptDelivery{border:1px solid #d6e4f6;background:#f7faff;border-radius:12px;padding:13px;overflow-wrap:anywhere}
+.receiptDelivery small{display:block;color:#475569;font-weight:800;margin-bottom:8px}
+.receiptCode{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.receiptCode strong{font-size:16px;letter-spacing:.03em;word-break:break-all}
+.receiptCode button,.receiptTextButton{background:#0f2d5c;color:white;border:0;border-radius:8px;padding:9px 12px;font-weight:800;cursor:pointer}
+.receiptLinks{display:flex;gap:9px;flex-wrap:wrap}
+.receiptLinks a,.receiptQr a{display:inline-flex;text-decoration:none;background:#fff2df;border:1px solid #fdba74;color:#9a3412;border-radius:9px;padding:10px 12px;font-size:13px;font-weight:800}
+.receiptQr img{display:block;margin:10px auto;max-width:190px;max-height:190px;object-fit:contain;background:#fff;padding:6px;border-radius:8px}
+.receiptNote{background:#f4f7fc;padding:12px 13px;border:1px solid #dae2ef;border-radius:10px;color:#405474;font-size:12px;line-height:1.6}
+.receiptNoteError{background:#fff1f2;color:#9f1239;border-color:#fecdd3}
+.receiptCopyNotice{margin:0;color:#166534;font-size:12px;font-weight:700}
+.unifiedReceipt .popupAction{margin-top:6px;flex-shrink:0}
+@media(max-width:540px){.unifiedReceipt{max-height:68vh}.receiptRow{font-size:12px}.receiptCode strong{font-size:14px}}
+
+.orderResultLink{display:block;margin-top:5px;color:#d46100;background:none;border:0;padding:2px 0;font-size:12px;font-weight:800;text-decoration:underline;cursor:pointer;text-align:left}
+.orderResultModal{max-width:560px}
+
+/* Purchase redirect: keep delivery receipts in My Orders, not in checkout popups. */
+.orderLandingNotice{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin:12px 0 20px;border:1px solid #d8e7e0;border-radius:12px;background:#f4faf7;color:#173e30;}
+.orderLandingNotice svg{flex-shrink:0;margin-top:2px;}
+.orderLandingNotice div{display:flex;flex-direction:column;gap:3px;}
+.orderLandingNotice strong{font-weight:750;}
+.orderLandingNotice span{font-size:13px;line-height:1.5;}
+.ordersTable tr.orderRecentlyPlaced{background:rgba(60,173,113,.085);}
+@media(max-width:600px){.orderLandingNotice{margin:10px 0 16px;padding:12px;}}
