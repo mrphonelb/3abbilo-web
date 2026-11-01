@@ -65,7 +65,7 @@ function ServiceModal({p,close,branch=false}){
  }
  const price=Number(selling),cost=Number(quote?.account_cost||0),profit=price-cost;
  const priceFixed=Boolean(quote?.fixed_selling_price);
- const ready=!!detail?.purchase_available&&!branch&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost;
+ const ready=!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost;
  const fieldInput=(field)=>field.type==='select'?<select value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)}>
    <option value="">Choose {field.label}</option>{(field.options||[]).map((o,i)=>{const id=typeof o==='string'?o:String(o.id||o.value||'');return <option value={id} key={id||i}>{typeof o==='string'?o:o.label||o.name||id}</option>})}</select>
   :<input type={field.type==='number'?'number':'text'} min={field.min} max={field.max} maxLength={field.maxLength} value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)} placeholder={'Enter '+field.label}/>;
@@ -84,9 +84,9 @@ function ServiceModal({p,close,branch=false}){
      {isBill&&<button className="popupSecondary" disabled={busy||!values.phone} onClick={check}>{busy?'Checking…':'Fetch Bill'}</button>}
      {verified&&<div className="validationOk"><ShieldCheck size={17}/><span>{isBill?(verified.available?'Bill found · $'+Number(verified.full_amount_usd).toFixed(2):'No payable bill found'):(verified.year_make||verified.message||'Vehicle checked')}</span></div>}
      {quote&&<div className="sellCompact servicePrice"><div className="sellLine">{!branch&&<span>Cost <strong>${cost.toFixed(2)}</strong></span>}<b>Selling Price</b><input type="number" step="0.01" min={cost} readOnly={priceFixed} value={selling} onChange={e=>setSelling(e.target.value)} />{!branch&&<span>Profit <strong>${Number.isFinite(profit)?profit.toFixed(2):'0.00'}</strong></span>}</div>{!priceFixed&&<div className="quickSell">{[-1,-.5,0,.5,1].map(d=>{const base=Number(quote.recommended_selling_price||cost);const amt=Math.max(cost,Math.round((base+d)*100)/100);return <button type="button" key={d} onClick={()=>setSelling(amt.toFixed(2))}>${amt.toFixed(2)}</button>})}</div>}</div>}
-     {detail.purchase_available&&!branch&&ready&&phase===1?<button className="popupAction" onClick={()=>setPhase(2)}>Recharge Now</button>:null}
-     {detail.purchase_available&&!branch&&ready&&phase===2?<button className="popupAction" disabled={busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
-     {(!detail.purchase_available||branch)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
+     {detail.purchase_available&&ready&&phase===1?<button className="popupAction" onClick={()=>setPhase(2)}>Recharge Now</button>:null}
+     {detail.purchase_available&&ready&&phase===2?<button className="popupAction" disabled={busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
+     {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
     </>}
     {error&&<div className="catalogNotice error">{error}</div>}
    </>}
