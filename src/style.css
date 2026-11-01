@@ -228,3 +228,12 @@ body>.modalShade>.productModal{position:relative!important;display:block!importa
 
 /* Wholesale eSIM plan selection and scrolling */
 .esimPopup{max-height:min(92vh,900px);overflow-y:auto}.esimPopupPlans{max-height:42vh;overflow-y:auto;overscroll-behavior:contain}.esimPopupPlan{width:100%;background:#fff;text-align:center;cursor:pointer;font:inherit;color:inherit}.esimPopupPlan.selected{border:2px solid #ff8a00;background:#fff8ed}.esimCheckout{padding-top:12px}.esimPopup .checkoutPending{margin-top:12px}
+
+/* Wholesale eSIM checkout: independently scrollable plans and visible checkout. */
+.esimPopup { max-height:min(92dvh,900px); overflow-y:auto; overscroll-behavior:contain; }
+.esimPopupPlans { max-height: min(43dvh, 460px); overflow-y:auto; min-height:0; overscroll-behavior:contain; }
+.esimCheckout { position:relative; z-index:1; padding:12px 0 6px; }
+.esimPopupPlan { scroll-margin-block:12px; }
+@media(max-width:650px){.esimPopup{max-height:94dvh}.esimPopupPlans{max-height:39dvh}}
+
+.orderEsimQr {display:block;width:140px;height:140px;max-width:100%;object-fit:contain;margin:8px 0;border-radius:8px;}
