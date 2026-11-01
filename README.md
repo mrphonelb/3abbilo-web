@@ -1,13 +1,19 @@
-# 3ABBILO integration stage — NOT a live deployment
+# 3ABBILO — Dealer and Shop Digital Services
 
-This is a source-code component, not a complete all-services integration.
+This repository contains the customer-facing 3ABBILO web application.
 
-## Included
-- `wholesale/service-capabilities.js`: fail-closed service capability registry for the existing FazerCards and Extra4Card routes.
+## Local development
 
-## Not included / not yet safe to enable
-- Alfa, Touch, Ogero/DSL, Wise, Mobi, Sodetel, Terranet, CARFAX, Gift Cards, eSIM supplier quote, validation, purchase, and order reconciliation.
-- Dealer pricing configuration (user will supply later).
-- End-to-end Daftra balance and product stock reconciliation for these new services.
+1. Install dependencies: `npm install`
+2. Create a local `.env` file based on `.env.example`.
+3. Set `VITE_API_BASE_URL` to the wholesale API's public base URL.
+4. Start development: `npm run dev`
+5. Generate a production build: `npm run build`
 
-Do not deploy this archive as a complete application. It does not change the current working frontend or backend and cannot activate missing services.
+## White-label presentation
+
+Customer-facing navigation, messages, branch labels, and service receipts must use 3ABBILO branding. Internal accounting mappings, supplier APIs, credentials, and reconciliation logic belong exclusively in the backend and must not be bundled into the browser application.
+
+The wholesale API applies customer-response filtering to hide internal accounting identifiers and internal integration names. This does **not** change the seller identity required on legal invoices or third-party receipts; review those documents and any linked supplier-hosted pages separately before launch.
+
+Always test login, dealer shop creation, branch accounts, wallet balances, product purchases, order status and result popups in staging before deploying publicly.
