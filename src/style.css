@@ -225,3 +225,6 @@ body>.modalShade>.productModal{position:relative!important;display:block!importa
 .servicePopup .serviceReceipt h3{margin:8px 0}
 .servicePopup .serviceReceipt p{font-size:13px;color:#627286}
 @media(max-width:520px){.servicePopup{padding:20px 15px}.servicePopup .servicePrice .quickSell{gap:4px}.servicePopup .servicePrice .quickSell button{font-size:11px}}
+
+/* Wholesale eSIM plan selection and scrolling */
+.esimPopup{max-height:min(92vh,900px);overflow-y:auto}.esimPopupPlans{max-height:42vh;overflow-y:auto;overscroll-behavior:contain}.esimPopupPlan{width:100%;background:#fff;text-align:center;cursor:pointer;font:inherit;color:inherit}.esimPopupPlan.selected{border:2px solid #ff8a00;background:#fff8ed}.esimCheckout{padding-top:12px}.esimPopup .checkoutPending{margin-top:12px}
