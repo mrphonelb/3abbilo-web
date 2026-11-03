@@ -207,7 +207,7 @@ function PurchaseResult({orderId,initial=null,branch=false,onClose}){
  return <div className="unifiedReceipt" aria-live="polite">
    <div className={'receiptHeading '+(success?'receiptSuccess':failed?'receiptFailed':'receiptPending')}>
     {pending?<RefreshCw size={28} className="spin"/>:<ShieldCheck size={28}/>}
-    <div><h3>{success?'Purchase successful':failed?'Purchase failed':'Order received — processing'}</h3><p>{success?'Supplier confirmed and invoice recorded':failed?'Please review the order details below':String(order?.supplier_status||'').match(/complete|success|delivered|fulfilled/i)?'Supplier completed — Daftra invoice pending. Do not repurchase.':'Do not purchase again while confirmation is pending'}</p></div>
+    <div><h3>{success&&['alfa_bill','touch_bill','ogero_bill'].includes(String(order?.product_key||''))?'Bill Paid Successfully':success?'Purchase successful':failed?'Purchase failed':'Order received — processing'}</h3><p>{success?'Supplier confirmed and invoice recorded':failed?'Please review the order details below':String(order?.supplier_status||'').match(/complete|success|delivered|fulfilled/i)?'Supplier completed — Daftra invoice pending. Do not repurchase.':'Do not purchase again while confirmation is pending'}</p></div>
    </div>
    {Number.isSafeInteger(numericId)&&numericId>0&&<div className="receiptRow"><span>Order number</span><strong>#{numericId}</strong></div>}
    {(order?.package_name||order?.product_title)&&<div className="receiptRow"><span>Product</span><strong>{order.package_name||order.product_title}</strong></div>}
@@ -240,6 +240,14 @@ function alfaNumberStatus(value){
  const alfa=prefix==='71'?(digit===0||digit>=6):(digit>=1&&digit<=5);
  if(digits.length<8)return 'incomplete';
  return alfa?'alfa':'touch';
+}
+function billNotice(result){
+ if(result?.bill_status==='already_paid')return 'This bill has already been paid.';
+ if(result?.bill_status==='unavailable')return 'No unpaid bill is available for this number.';
+ const message=String(result?.message||'');
+ if(/already\s*(?:been\s*)?paid|previously\s*paid|bill\s*(?:is\s*)?paid/i.test(message))return 'This bill has already been paid.';
+ if(/bill\s*(?:is\s*)?not\s*available|no\s*(?:outstanding|unpaid|pending|payable)\s*bills?|bill\s*not\s*found|no\s*bills?/i.test(message))return 'No unpaid bill is available for this number.';
+ return message||'No unpaid bill is available for this number.';
 }
 function ServiceModal({p,close,branch=false}){
  const [detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
@@ -278,7 +286,7 @@ function ServiceModal({p,close,branch=false}){
  const hasOptions=isGift||['standard','dsl_card','ushare','gift','validity','internet','sodetel_plan'].includes(kind);
  const options=isSodetel?moreOptions:(detail?.options||[]);
  const needsPhone=isCard&&values.method==='direct';
- const validFields=fields.every(x=>String(values[x.key]||'').trim())&&(!needsPhone||String(values.phone||'').trim())&&(!telcoCredit||phoneStatus===telcoProvider)&&(!isCard||Boolean(values.method))&&(!isBill||Boolean(verified?.available&&verified?.bill_ticket)&&phoneStatus===telcoProvider)&&(!isCarfax||verified?.ok===true);
+ const validFields=fields.every(x=>String(values[x.key]||'').trim())&&(!needsPhone||String(values.phone||'').trim())&&(!telcoCredit||phoneStatus===telcoProvider)&&(!isCard||Boolean(values.method))&&(!isBill||Boolean(verified?.available&&verified?.bill_ticket)&&(telcoProvider==='ogero'?/^(?:0\d{6,8}|961\d{6,9})$/.test(String(values.phone||'').replace(/\D/g,'')):phoneStatus===telcoProvider))&&(!isCarfax||verified?.ok===true);
  // On package or credit change, fetch a fresh server-authoritative wholesale quote.
  useEffect(()=>{let active=true;setQuote(null);setSelling('');setPhase(1);
   if(!detail||(!offer&&!isCredit&&!isCarfax&&!isBill))return;
@@ -310,13 +318,13 @@ function ServiceModal({p,close,branch=false}){
  },[p.key,values.identifier,values.service,isSodetel]);
  async function check(){setBusy(true);setError('');setVerified(null);try{
   const r=await fetch(path+'/check',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify(isCarfax?{vin:values.vin,report_type:values.report_type}:{phone:values.phone})});
-  const d=await r.json();if(!r.ok)throw Error(d.error||'Could not verify details');setVerified(d.result||{});if(isBill&&!d.result?.available&&!d.result?.requires_otp)setError(d.result?.message||'No payable bill found');if(isCarfax&&!d.result?.ok)setError(d.result?.message||'Vehicle could not be verified');
+  const d=await r.json();if(!r.ok){const message=String(d.error||'Could not verify details');const normalized=billNotice({message});throw Error(isBill&&normalized!==message&&normalized!=='No unpaid bill is available for this number.'?normalized:message)}setVerified(d.result||{});if(isBill&&!d.result?.available&&!d.result?.requires_otp)setError(billNotice(d.result));if(isCarfax&&!d.result?.ok)setError(d.result?.message||'Vehicle could not be verified');
  }catch(e){setError(e.message)}finally{setBusy(false)}}
  async function verifyOtp(){if(!verified?.bill_ticket||!billOtp)return;
   setBusy(true);setError('');try{
    const r=await fetch(path+'/bill-otp',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({bill_ticket:verified.bill_ticket,otp:billOtp})});
    const d=await r.json();if(!r.ok)throw Error(d.error||'Could not verify bill OTP');
-   setVerified(d.result||{});setBillOtp('');if(!d.result?.available&&!d.result?.requires_otp)setError(d.result?.message||'No payable bill found');
+   setVerified(d.result||{});setBillOtp('');if(!d.result?.available&&!d.result?.requires_otp)setError(billNotice(d.result));
   }catch(e){setError(e.message)}finally{setBusy(false)}
  }
  async function purchase(){if(!detail?.purchase_available||!quote||busy)return;
@@ -331,6 +339,7 @@ function ServiceModal({p,close,branch=false}){
  const price=Number(selling),cost=Number(quote?.account_cost||0),profit=price-cost;
  const priceFixed=Boolean(quote?.fixed_selling_price)||isBill;
  const telcoBill=isBill&&['alfa','touch'].includes(telcoProvider);
+ const billPhoneValid=telcoBill?phoneStatus===telcoProvider:(isBill&&telcoProvider==='ogero'?/^(?:0\d{6,8}|961\d{6,9})$/.test(String(values.phone||'').replace(/\D/g,'')):Boolean(values.phone));
  const billUsd=Number(verified?.full_amount_usd||0);
  const billLbp=Number(verified?.original_total_lbp||verified?.payment_amount_lbp||0);
  const billEstimatedSupplier=Number(quote?.estimated_dealer_cost);
@@ -354,10 +363,10 @@ function ServiceModal({p,close,branch=false}){
      {isUshare&&<label className="ushareCreditRow"><span className="ushareCreditLeft"><input type="checkbox" checked={values.add_activation_credit===true} onChange={e=>{update('add_activation_credit',e.target.checked);setQuote(null);setSelling('')}}/><span>Add $1 Alfa Credit</span></span><strong className="ushareCreditCost">{values.add_activation_credit===true?(quote&&Number.isFinite(ushareBaseCost)?'$'+Math.max(0,Number(quote.account_cost)-ushareBaseCost).toFixed(2):'—'):'Optional'}</strong></label>}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
-     {isBill&&<button className="popupSecondary" disabled={busy||phoneStatus!==telcoProvider} onClick={check}>{busy?'Checking…':'Get Bill'}</button>}
+     {isBill&&<button className="popupSecondary" disabled={busy||!billPhoneValid} onClick={check}>{busy?'Checking…':'Get Bill'}</button>}
      {isBill&&verified?.requires_otp&&<label className="popupField">Bill Verification Code<input value={billOtp} inputMode="numeric" maxLength={10} onChange={e=>setBillOtp(e.target.value.replace(/\D/g,''))} placeholder="Enter SMS verification code"/></label>}
      {isBill&&verified?.requires_otp&&<button className="popupSecondary" disabled={busy||!billOtp} onClick={verifyOtp}>{busy?'Verifying…':'Verify Bill Code'}</button>}
-     {verified&&!telcoBill&&<div className="validationOk"><ShieldCheck size={17}/><span>{isBill?(verified.requires_otp?'A verification code is required':verified.available?'Bill found · $'+Number(verified.full_amount_usd).toFixed(2):(verified.message||'No payable bill found')):(verified.ok?(verified.year_make||verified.message||'Vehicle checked'):(verified.message||'Vehicle verification failed'))}</span></div>}
+     {verified&&(!isBill||verified.available||verified.requires_otp)&&!telcoBill&&<div className="validationOk"><ShieldCheck size={17}/><span>{isBill?(verified.requires_otp?'A verification code is required':verified.available?'Bill found · $'+Number(verified.full_amount_usd).toFixed(2):(verified.message||'No payable bill found')):(verified.ok?(verified.year_make||verified.message||'Vehicle checked'):(verified.message||'Vehicle verification failed'))}</span></div>}
      {telcoBill&&verified?.available&&<div className="billPaymentSummary">
       {!branch&&quote&&<><div className="billPaymentRow"><span>Cost</span><strong>{billEstimatedCost!=null?'$'+billEstimatedCost.toFixed(2):'Pending confirmation'}</strong></div><div className="billPaymentRow"><span>Profit</span><strong>{billEstimatedCost!=null?'$'+(billUsd-billEstimatedCost).toFixed(2):'Pending confirmation'}</strong></div></>}
       {billLbp>0&&<div className="billPaymentRow billPaymentLbp"><span>Bill in LBP</span><strong>LBP {billLbp.toLocaleString('en-US',{maximumFractionDigits:0})}</strong></div>}
