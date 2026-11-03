@@ -42,7 +42,7 @@ function PackagePicker({options,value,onChange,placeholder='Choose package',pric
    const face=Number(raw.base),sell=Number(raw.selling);
    const cleanName=offerLabel(o).replace(/\s*[-–—]\s*(?:Credit:\s*)?\$[\d.]+\s*$/i,'').trim();
    if(raw.base!=null&&raw.selling!=null&&Number.isFinite(face)&&face>0&&Number.isFinite(sell)&&sell>0)
-    return `${cleanName} (Credit: $${face.toFixed(2)}) — $${sell.toFixed(2)}`;
+    return `${cleanName} ($${face.toFixed(2)}) — $${sell.toFixed(2)}`;
    if(raw.selling!=null&&Number.isFinite(sell)&&sell>0)return `${cleanName} — $${sell.toFixed(2)}`;
   }
   const price=raw&&typeof raw==='object'?raw.value:raw;
