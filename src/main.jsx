@@ -63,8 +63,10 @@ function branchCashPrice(price){
  const step=value<5?.5:value<20?1:value<40?5:10;
  return (Math.ceil((value-1e-9)/step)*step).toFixed(2);
 }
-function BranchSellingPrice({value,onChange,minimum,retail,locked=false}){
- const base=Number(branchCashPrice(retail)),floor=Number(minimum||0);
+// Alfa/Touch Credits: round the cost upward to the next $0.50, then add $0.50.
+function creditCashPrice(cost){return ((Math.ceil((Number(cost)-1e-9)*2)+1)/2).toFixed(2)}
+function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=false}){
+ const base=Number(credit?creditCashPrice(Math.max(Number(minimum||0),Number(retail||0))):branchCashPrice(retail)),floor=Number(minimum||0);
  const display=Number.isFinite(Number(value))?value:'';
  const deltas=[-1,-.5,0,.5,1];
  return <div className="sellCompact branchSellingPrice">
@@ -130,9 +132,9 @@ function GiftSellingPrice({value,onChange,minimum,retail,showProfit=false}){
  </div>;
 }
 
-function WholesaleSellingPrice({value,onChange,minimum,retail,showProfit=true}){
+function WholesaleSellingPrice({value,onChange,minimum,retail,showProfit=true,credit=false}){
  const floor=Number(minimum||0);
- const base=Number(branchCashPrice(Math.max(floor,Number(retail||0))));
+ const base=Number(credit?creditCashPrice(floor):branchCashPrice(Math.max(floor,Number(retail||0))));
  return <div className="sellCompact branchSellingPrice wholesaleSellingPrice">
   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(2)}</strong></span>}</div>
   <div className="branchPriceSteps" aria-label="Suggested service selling prices">{[-1,-.5,0,.5,1].map(delta=>{
@@ -275,7 +277,7 @@ function ServiceModal({p,close,branch=false}){
   if(isSodetel){q.set('identifier',values.identifier||'');q.set('service',values.service||'')}
   if(isCarfax)q.set('report_type',values.report_type||'1');
   if(isBill)q.set('bill_ticket',verified.bill_ticket);
-  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isGift&&!d.quote.fixed_selling_price?giftCashPrice(Number(branch?(d.quote.recommended_selling_price??d.quote.account_cost??0):(d.quote.account_cost||0))):!isBill&&!d.quote.fixed_selling_price?branchCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
+  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isCredit?creditCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):isGift&&!d.quote.fixed_selling_price?giftCashPrice(Number(branch?(d.quote.recommended_selling_price??d.quote.account_cost??0):(d.quote.account_cost||0))):!isBill&&!d.quote.fixed_selling_price?branchCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
    .catch(e=>{if(active)setError(e.message)});},isCredit?170:0);
   return()=>{active=false;clearTimeout(timer)};
  },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,verified?.bill_ticket,detail]);
@@ -327,7 +329,7 @@ function ServiceModal({p,close,branch=false}){
      {isBill&&verified?.requires_otp&&<button className="popupSecondary" disabled={busy||!billOtp} onClick={verifyOtp}>{busy?'Verifying…':'Verify Bill Code'}</button>}
      {verified&&<div className="validationOk"><ShieldCheck size={17}/><span>{isBill?(verified.requires_otp?'A verification code is required':verified.available?'Bill found · $'+Number(verified.full_amount_usd).toFixed(2):(verified.message||'No payable bill found')):(verified.ok?(verified.year_make||verified.message||'Vehicle checked'):(verified.message||'Vehicle verification failed'))}</span></div>}
      {isBill&&quote&&!branch&&<div className="catalogNotice">Estimated dealer cost: ${Number(quote.estimated_dealer_cost??quote.account_cost).toFixed(2)} · Estimated profit: ${Number(quote.estimated_dealer_profit??0).toFixed(2)}. The full bill is temporarily reserved; actual dealer cost is confirmed after supplier payment and any discount difference is returned to your wallet.</div>}
-     {quote&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill}/>)}
+     {quote&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed} credit={isCredit}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill} credit={isCredit}/>)}
      {detail.purchase_available&&phase===1?<button className="popupAction" disabled={!ready||busy} onClick={()=>setPhase(2)}>Recharge Now</button>:null}
      {detail.purchase_available&&phase===2?<button className="popupAction" disabled={!ready||busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
      {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
