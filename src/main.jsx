@@ -84,6 +84,20 @@ function GameSellingPrice({value,onChange,minimum,retail,showProfit=false}){
  </div>;
 }
 
+// Gift card suggestions: rounded cashier price, independent of supplier debit.
+function GiftSellingPrice({value,onChange,minimum,retail,showProfit=false}){
+ const floor=Number(minimum||0);
+ const base=Number(gameCashPrice(Math.max(floor,Number(retail||0))));
+ return <div className="sellCompact branchSellingPrice giftSellingPrice">
+  <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
+  <div className="branchPriceSteps" aria-label="Suggested gift card selling prices">{[-1,-.5,0,.5,1].map(delta=>{
+   const target=Math.round((base+delta)*100)/100;
+   const allowed=Number.isFinite(target)&&target>0&&target+1e-9>=floor;
+   return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(value)-target)<.005?'active':''} onClick={()=>onChange(target.toFixed(2))}><strong>${target.toFixed(target%1===0?0:2)}</strong></button>;
+  })}</div>
+ </div>;
+}
+
 // Chat app cash collection: the recharge amount is the center suggestion.
 // Adjusting the selling price never changes quantity or supplier debit.
 function ChatSellingPrice({value,onChange,minimum,amount,showProfit=false}){
@@ -200,7 +214,7 @@ function ServiceModal({p,close,branch=false}){
   if(isSodetel){q.set('identifier',values.identifier||'');q.set('service',values.service||'')}
   if(isCarfax)q.set('report_type',values.report_type||'1');
   if(isBill)q.set('bill_ticket',verified.bill_ticket);
-  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(branch&&!isBill&&!isGift&&!d.quote.fixed_selling_price?branchCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
+  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isGift&&!d.quote.fixed_selling_price?gameCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):branch&&!isBill&&!d.quote.fixed_selling_price?branchCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
    .catch(e=>{if(active)setError(e.message)});},isCredit?170:0);
   return()=>{active=false;clearTimeout(timer)};
  },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,verified?.bill_ticket,detail]);
@@ -245,16 +259,16 @@ function ServiceModal({p,close,branch=false}){
      {isCard&&(detail.provider==='alfa'?<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now<span>Recharge Code</span></button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge<span>To a Number</span></button></div></div>:<label className="popupField">Recharge Method<select value={values.method||''} onChange={e=>update('method',e.target.value)}><option value="">Choose method</option><option value="code">Buy Now — Recharge Code</option><option value="direct">Direct Recharge</option></select></label>)}
      {fields.map(x=><label className="popupField" key={x.key}>{x.label}{fieldInput(x)}</label>)}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
-     {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>branch?o.retail_price??o.price:null}/></div>}
+     {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(o.retail_price??o.recommended_selling_price??o.price??null):(branch?o.retail_price??o.price:null)}/></div>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
      {isBill&&<button className="popupSecondary" disabled={busy||!values.phone} onClick={check}>{busy?'Checking…':'Fetch Bill'}</button>}
      {isBill&&verified?.requires_otp&&<label className="popupField">Bill Verification Code<input value={billOtp} inputMode="numeric" maxLength={10} onChange={e=>setBillOtp(e.target.value.replace(/\D/g,''))} placeholder="Enter SMS verification code"/></label>}
      {isBill&&verified?.requires_otp&&<button className="popupSecondary" disabled={busy||!billOtp} onClick={verifyOtp}>{busy?'Verifying…':'Verify Bill Code'}</button>}
      {verified&&<div className="validationOk"><ShieldCheck size={17}/><span>{isBill?(verified.requires_otp?'A verification code is required':verified.available?'Bill found · $'+Number(verified.full_amount_usd).toFixed(2):(verified.message||'No payable bill found')):(verified.ok?(verified.year_make||verified.message||'Vehicle checked'):(verified.message||'Vehicle verification failed'))}</span></div>}
      {isBill&&quote&&!branch&&<div className="catalogNotice">Estimated dealer cost: ${Number(quote.estimated_dealer_cost??quote.account_cost).toFixed(2)} · Estimated profit: ${Number(quote.estimated_dealer_profit??0).toFixed(2)}. The full bill is temporarily reserved; actual dealer cost is confirmed after supplier payment and any discount difference is returned to your wallet.</div>}
-     {quote&&!(branch&&isGift)&&(branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed}/>:<div className="sellCompact servicePrice"><div className="sellLine"><span>{isBill?'Reserved':'Cost'} <strong>${cost.toFixed(2)}</strong></span><b>Selling Price</b><input type="number" step="0.01" min={cost} readOnly={priceFixed} value={selling} onChange={e=>setSelling(e.target.value)} />{!isBill&&<span>Profit <strong>${Number.isFinite(profit)?profit.toFixed(2):'0.00'}</strong></span>}</div>{!priceFixed&&<div className="quickSell">{Array.from(new Set([-1,-.5,0,.5,1].map(d=>Math.max(cost,Math.round((Number(quote.recommended_selling_price||cost)+d)*100)/100).toFixed(2)))).map(amt=><button type="button" key={amt} onClick={()=>setSelling(amt)}>${amt}</button>)}</div>}</div>)}
-          {detail.purchase_available&&ready&&phase===1?<button className="popupAction" onClick={()=>setPhase(2)}>Recharge Now</button>:null}
-     {detail.purchase_available&&ready&&phase===2?<button className="popupAction" disabled={busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
+     {quote&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed}/>:<div className="sellCompact servicePrice"><div className="sellLine"><span>{isBill?'Reserved':'Cost'} <strong>${cost.toFixed(2)}</strong></span><b>Selling Price</b><input type="number" step="0.01" min={cost} readOnly={priceFixed} value={selling} onChange={e=>setSelling(e.target.value)} />{!isBill&&<span>Profit <strong>${Number.isFinite(profit)?profit.toFixed(2):'0.00'}</strong></span>}</div>{!priceFixed&&<div className="quickSell">{Array.from(new Set([-1,-.5,0,.5,1].map(d=>Math.max(cost,Math.round((Number(quote.recommended_selling_price||cost)+d)*100)/100).toFixed(2)))).map(amt=><button type="button" key={amt} onClick={()=>setSelling(amt)}>${amt}</button>)}</div>}</div>)}
+     {detail.purchase_available&&phase===1?<button className="popupAction" disabled={!ready||busy} onClick={()=>setPhase(2)}>Recharge Now</button>:null}
+     {detail.purchase_available&&phase===2?<button className="popupAction" disabled={!ready||busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
      {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
     </>}
     {error&&<div className="catalogNotice error">{error}</div>}
