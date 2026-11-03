@@ -319,3 +319,5 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .alfaCreditAmountHeading{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;flex-wrap:wrap}
 .alfaCreditAmountCost{font-size:12px;font-weight:600;color:#0f2d5c;white-space:nowrap}
 .alfaCreditAmountCost strong{font-weight:800}
+
+.billPaymentSummary{border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin:12px 0;background:#fff}.billPaymentRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0;font-size:13px}.billPaymentRow strong{font-weight:800;text-align:right}
