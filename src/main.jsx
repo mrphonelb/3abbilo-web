@@ -63,8 +63,9 @@ function branchCashPrice(price){
  const step=value<5?.5:value<20?1:value<40?5:10;
  return (Math.ceil((value-1e-9)/step)*step).toFixed(2);
 }
-// Alfa/Touch Credits: round the cost upward to the next $0.50, then add $0.50.
-function creditCashPrice(cost){return ((Math.ceil((Number(cost)-1e-9)*2)+1)/2).toFixed(2)}
+// Alfa/Touch Credits: round account cost up to the nearest $0.50, then add $1.00.
+// Five cashier suggestions span +/- $1.00 around this default in $0.50 steps.
+function creditCashPrice(cost){return ((Math.ceil((Number(cost)-1e-9)*2)+2)/2).toFixed(2)}
 function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=false}){
  const base=Number(credit?creditCashPrice(Math.max(Number(minimum||0),Number(retail||0))):branchCashPrice(retail)),floor=Number(minimum||0);
  const display=Number.isFinite(Number(value))?value:'';
