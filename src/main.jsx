@@ -41,11 +41,11 @@ function PackagePicker({options,value,onChange,placeholder='Choose package',pric
 
 // Rounded checkout suggestion for branch cash collection. Product/package retail
 // prices remain unchanged; only the starting amount collected is rounded up.
-// Below $5: next $0.50; $5–<$20: next $1; $20–<$100: next $5; $100+: next $10.
+// Below $5: next $0.50; $5–<$20: next $1; $20–<$40: next $5; $40+: next $10.
 function branchCashPrice(price){
  const value=Number(price);
  if(!Number.isFinite(value)||value<=0)return '0.00';
- const step=value<5?.5:value<20?1:value<100?5:10;
+ const step=value<5?.5:value<20?1:value<40?5:10;
  return (Math.ceil((value-1e-9)/step)*step).toFixed(2);
 }
 function BranchSellingPrice({value,onChange,minimum,retail,locked=false}){
@@ -68,7 +68,7 @@ function BranchSellingPrice({value,onChange,minimum,retail,locked=false}){
 function gameCashPrice(price){
  const amount=Number(price);
  if(!Number.isFinite(amount)||amount<=0)return '0.00';
- const step=amount<5?.5:amount<20?1:10;
+ const step=amount<5?.5:amount<20?1:amount<40?5:10;
  return (Math.ceil((amount-1e-9)/step)*step).toFixed(2);
 }
 function GameSellingPrice({value,onChange,minimum,retail,showProfit=false}){
