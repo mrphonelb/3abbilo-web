@@ -308,3 +308,9 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .branchPriceSteps button.active{background:#fff1e2;border-width:2px;}
 .branchPriceSteps button:disabled{opacity:.35;border-color:#e2e8f0;cursor:not-allowed;}
 @media(max-width:370px){.branchPriceSteps{gap:4px}.branchPriceSteps button{padding:6px 1px}.branchPriceSteps button strong{font-size:11px}}
+
+.alfaCreditError{font-size:11px;color:#c62828;margin:-6px 0 8px;text-align:center;font-weight:700}
+.alfaCreditShortcuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:0 0 9px}
+.alfaCreditShortcuts button{min-width:0;padding:9px 2px;border:1px solid #ff8a00;border-radius:9px;background:#fff;color:#0f2d5c;font-size:12px;font-weight:800;cursor:pointer}
+.alfaCreditShortcuts button.selected{background:#fff2e5;color:#db6800;border-width:2px}
+.alfaCreditCost{text-align:center;font-size:12px;color:#0f2d5c;margin:4px 0 8px}

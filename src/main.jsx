@@ -220,6 +220,15 @@ function PurchaseResult({orderId,initial=null,branch=false,onClose}){
  </div>;
 }
 
+function alfaNumberStatus(value){
+ const digits=String(value||'').replace(/\D/g,'').replace(/^961/,'');
+ if(digits.length<3)return 'incomplete';
+ const prefix=digits.slice(0,2),digit=Number(digits[2]);
+ if(!['03','70','76','78','79','81','71'].includes(prefix))return 'invalid';
+ if(digits.length>8)return 'invalid';
+ const alfa=prefix==='71'?digit>=6:digit<=5;
+ return alfa?'alfa':'touch';
+}
 function ServiceModal({p,close,branch=false}){
  const [detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
  const [values,setValues]=useState({method:'direct'}),[offer,setOffer]=useState(''),[quote,setQuote]=useState(null);
@@ -243,11 +252,14 @@ function ServiceModal({p,close,branch=false}){
  const kind=detail?.kind||'';
  const isBill=kind==='bill',isCarfax=kind==='carfax',isSodetel=kind==='sodetel_plan',isGift=kind==='gift_card';
  const isCredit=kind==='credit';
+ const alfaCredit=isCredit&&detail?.provider==='alfa';
+ const phoneField=fields.find(x=>/phone|number|recipient/i.test(x.key||''));
+ const phoneStatus=alfaCredit?alfaNumberStatus(values[phoneField?.key||'phone']):'incomplete';
  const isCard=kind==='standard',isDsl=kind==='dsl_card';
  const hasOptions=isGift||['standard','dsl_card','ushare','gift','validity','internet','sodetel_plan'].includes(kind);
  const options=isSodetel?moreOptions:(detail?.options||[]);
  const needsPhone=isCard&&values.method==='direct';
- const validFields=fields.every(x=>String(values[x.key]||'').trim())&&(!needsPhone||String(values.phone||'').trim())&&(!isCard||Boolean(values.method))&&(!isBill||Boolean(verified?.available&&verified?.bill_ticket))&&(!isCarfax||verified?.ok===true);
+ const validFields=fields.every(x=>String(values[x.key]||'').trim())&&(!needsPhone||String(values.phone||'').trim())&&(!alfaCredit||(phoneStatus==='alfa'&&String(values[phoneField?.key||'phone']||'').replace(/\D/g,'').length>=8))&&(!isCard||Boolean(values.method))&&(!isBill||Boolean(verified?.available&&verified?.bill_ticket))&&(!isCarfax||verified?.ok===true);
  // On package or credit change, fetch a fresh server-authoritative wholesale quote.
  useEffect(()=>{let active=true;setQuote(null);setSelling('');setPhase(1);
   if(!detail||(!offer&&!isCredit&&!isCarfax&&!isBill))return;
@@ -290,7 +302,7 @@ function ServiceModal({p,close,branch=false}){
  }
  const price=Number(selling),cost=Number(quote?.account_cost||0),profit=price-cost;
  const priceFixed=Boolean(quote?.fixed_selling_price)||isBill;
- const ready=!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost;
+ const ready=!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost&&(!alfaCredit||(phoneStatus==='alfa'&&Number(values.amount)>=1&&Number(values.amount)<=99));
  const fieldInput=(field)=>field.type==='select'?<select value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)}>
    <option value="">Choose {field.label}</option>{(field.options||[]).map((o,i)=>{const id=typeof o==='string'?o:String(o.id||o.value||'');return <option value={id} key={id||i}>{typeof o==='string'?o:o.label||o.name||id}</option>})}</select>
   :<input type={field.type==='number'?'number':'text'} min={field.min} max={field.max} maxLength={field.maxLength} value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)} placeholder={'Enter '+field.label}/>;
@@ -302,7 +314,7 @@ function ServiceModal({p,close,branch=false}){
    <>
     {!loading&&detail&&<>
      {isCard&&(detail.provider==='alfa'?<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now</button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge</button></div></div>:<label className="popupField">Recharge Method<select value={values.method||''} onChange={e=>update('method',e.target.value)}><option value="">Choose method</option><option value="code">Buy Now — Recharge Code</option><option value="direct">Direct Recharge</option></select></label>)}
-     {fields.map(x=><label className="popupField" key={x.key}>{x.label}{fieldInput(x)}</label>)}
+     {fields.map(x=><div key={x.key}><label className="popupField">{x.label}{alfaCredit&&x.key==='amount'?<input type="number" min="1" max="99" step="1" value={values.amount||''} onChange={e=>{const v=e.target.value;update('amount',v!==''&&(Number(v)<1||Number(v)>99)?'':v)}} onBlur={()=>{if(values.amount!==''&&(!Number.isInteger(Number(values.amount))||Number(values.amount)<1||Number(values.amount)>99))update('amount','')}} placeholder="Enter credit amount"/>:fieldInput(x)}</label>{alfaCredit&&x.key===phoneField?.key&&phoneStatus==='touch'&&<div className="alfaCreditError" role="alert">This is not an Alfa number.</div>}{alfaCredit&&x.key===phoneField?.key&&phoneStatus==='invalid'&&<div className="alfaCreditError" role="alert">Enter a valid Alfa number.</div>}{alfaCredit&&x.key==='amount'&&<><div className="alfaCreditShortcuts">{[1,2,3,4,5,10,15,20,25,30].map(n=><button type="button" key={n} className={Number(values.amount)===n?'selected':''} onClick={()=>update('amount',String(n))}>${n}</button>)}</div>{!branch&&<div className="alfaCreditCost">Your Cost: <strong>{quote?'$'+Number(quote.account_cost).toFixed(2):'—'}</strong></div>}</>}</div>)}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
      {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(branch?o.retail_price:(o.account_cost??null)):(detail.provider==='alfa'&&o.credit_value!=null?{base:o.credit_value,selling:branch?o.retail_price:o.account_cost,sortValue:o.credit_value}:(branch?o.retail_price??o.price??null:((detail.provider==='alfa'||detail.provider==='touch')?o.account_cost??null:null)))}/></div>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
