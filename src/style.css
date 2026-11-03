@@ -314,3 +314,8 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .alfaCreditShortcuts button{min-width:0;padding:9px 2px;border:1px solid #ff8a00;border-radius:9px;background:#fff;color:#0f2d5c;font-size:12px;font-weight:800;cursor:pointer}
 .alfaCreditShortcuts button.selected{background:#fff2e5;color:#db6800;border-width:2px}
 .alfaCreditCost{text-align:center;font-size:12px;color:#0f2d5c;margin:4px 0 8px}
+
+/* Alfa Credits: show account-specific price beside the amount heading. */
+.alfaCreditAmountHeading{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;flex-wrap:wrap}
+.alfaCreditAmountCost{font-size:12px;font-weight:600;color:#0f2d5c;white-space:nowrap}
+.alfaCreditAmountCost strong{font-weight:800}
