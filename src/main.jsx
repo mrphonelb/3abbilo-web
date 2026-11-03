@@ -47,7 +47,7 @@ function PurchaseResult({orderId,initial=null,branch=false,onClose}){
  return <div className="unifiedReceipt" aria-live="polite">
    <div className={'receiptHeading '+(success?'receiptSuccess':failed?'receiptFailed':'receiptPending')}>
     {pending?<RefreshCw size={28} className="spin"/>:<ShieldCheck size={28}/>}
-    <div><h3>{success?'Purchase successful':failed?'Purchase failed':'Order received — processing'}</h3><p>{success?'Supplier confirmation received':failed?'Please review the order details below':'Do not purchase again while confirmation is pending'}</p></div>
+    <div><h3>{success?'Purchase successful':failed?'Purchase failed':'Order received — processing'}</h3><p>{success?'Supplier confirmed and invoice recorded':failed?'Please review the order details below':String(order?.supplier_status||'').match(/complete|success|delivered|fulfilled/i)?'Supplier completed — Daftra invoice pending. Do not repurchase.':'Do not purchase again while confirmation is pending'}</p></div>
    </div>
    {Number.isSafeInteger(numericId)&&numericId>0&&<div className="receiptRow"><span>Order number</span><strong>#{numericId}</strong></div>}
    {(order?.package_name||order?.product_title)&&<div className="receiptRow"><span>Product</span><strong>{order.package_name||order.product_title}</strong></div>}
@@ -63,7 +63,7 @@ function PurchaseResult({orderId,initial=null,branch=false,onClose}){
    {success&&!!install.activation_code&&<div className="receiptRow"><span>Activation code</span><button type="button" className="receiptTextButton" onClick={()=>copy(install.activation_code)}>Copy activation code</button></div>}
    {success&&report&&<div className="receiptLinks"><a href={report} target="_blank" rel="noopener noreferrer">Open CARFAX report</a></div>}
    {success&&!order?.redeem_code&&!qr&&!report&&<div className="receiptNote">{order?.product_key==='esim_topup'?'The top-up was confirmed for the existing eSIM. No new QR code is issued.':'The supplier confirmed this service. You can review the transaction in My Orders.'}</div>}
-   {pending&&<div className="receiptNote">Your order is saved. This receipt refreshes automatically; you can also close it and check My Orders. Do not submit the same purchase again.</div>}
+   {pending&&<div className="receiptNote">{String(order?.supplier_status||'').match(/complete|success|delivered|fulfilled/i)?'The supplier confirmed this order. Daftra invoice synchronization is pending or needs manual review. Your order is saved; do not buy again.':'Your order is saved. This receipt refreshes automatically; you can also close it and check My Orders. Do not submit the same purchase again.'}</div>}
    {failed&&<div className="receiptNote receiptNoteError">{order?.failure_reason||'The supplier could not complete this order.'}{order?.refunded_at?' The reserved wallet amount was refunded.':''}</div>}
    {error&&<div className="receiptNote receiptNoteError">{error}</div>}
    {!!copyMsg&&<p className="receiptCopyNotice" role="status">{copyMsg}</p>}
