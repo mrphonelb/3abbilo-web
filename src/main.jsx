@@ -7,7 +7,21 @@ function Login(){const[email,setEmail]=useState(''),[p,setP]=useState(''),[err,s
 const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
 const categoryIcons={games:Gamepad2,chat:MessageCircle,gift_cards:Gift,alfa:Smartphone,touch:Smartphone,dsl:Wifi,other_services:Package,esim:Globe2};
 function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abbilo_token')}}
-function productImage(p){return p?.key?'/product-images/'+encodeURIComponent(p.key):''}
+// These three product images are served correctly by Mr. Phone's retail catalog,
+// but the 3ABBILO /product-images proxy has no working asset for their keys.
+// Prefer the catalog image for these known exceptions; preserve the existing
+// image route for all other products.
+const RETAIL_CHAT_IMAGES={
+ 'yula chat':'https://www.mrphonelb.com/s3/files/91010354/document/a21c361d-ed81-4c96-80ad-97fd10abe6c9.png',
+ 'amisu party':'https://www.mrphonelb.com/s3/files/91010354/document/d4ac7408-ec5e-4f23-ae8e-3e146a314005.png',
+ 'pocket chat':'https://www.mrphonelb.com/s3/files/91010354/document/a95e4679-5b4d-4065-a6b9-e745ababf50d.png'
+};
+function productImage(p){
+ const productKey=String(p?.key||'');
+ const productTitle=String(p?.title||p?.name||'');
+ const retailImage=RETAIL_CHAT_IMAGES[productKey.toLowerCase()]||RETAIL_CHAT_IMAGES[productTitle.toLowerCase()];
+ return retailImage|| (productKey?'/product-images/'+encodeURIComponent(productKey):'');
+}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
 function cachedFetch(cache,key,ttl,run){
