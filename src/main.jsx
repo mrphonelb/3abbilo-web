@@ -222,7 +222,7 @@ function PurchaseResult({orderId,initial=null,branch=false,onClose}){
 
 function ServiceModal({p,close,branch=false}){
  const [detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
- const [values,setValues]=useState({}),[offer,setOffer]=useState(''),[quote,setQuote]=useState(null);
+ const [values,setValues]=useState({method:'direct'}),[offer,setOffer]=useState(''),[quote,setQuote]=useState(null);
  const [selling,setSelling]=useState(''),[phase,setPhase]=useState(1),[busy,setBusy]=useState(false);
  const [verified,setVerified]=useState(null),[moreOptions,setMoreOptions]=useState([]),[billOtp,setBillOtp]=useState('');
  const serviceRequestKey=useRef(null);
