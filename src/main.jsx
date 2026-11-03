@@ -84,10 +84,27 @@ function GameSellingPrice({value,onChange,minimum,retail,showProfit=false}){
  </div>;
 }
 
+// Gift-card cashier suggestion, shared by all account types. The reference is
+// the account's own purchase cost; this never changes the supplier debit.
+function giftCashPrice(cost){
+ const n=Number(cost);
+ if(!Number.isFinite(n)||n<=0)return '0.00';
+ let extra=0;
+ if(n>=400)extra=30;
+ else if(n>=200)extra=15;
+ else if(n>=100)extra=10;
+ else if(n>=60)extra=5;
+ else if(n>=40)extra=3;
+ else if(n>=25)extra=1;
+ else if(n>=20)extra=0;
+ // Whole-dollar values get at least $1 of room for a retail sale.
+ const rounded=Math.ceil(n+extra-1e-9);
+ return (Math.max(rounded,Math.floor(n)+1)).toFixed(2);
+}
 // Gift card suggestions: rounded cashier price, independent of supplier debit.
 function GiftSellingPrice({value,onChange,minimum,retail,showProfit=false}){
  const floor=Number(minimum||0);
- const base=Number(gameCashPrice(Math.max(floor,Number(retail||0))));
+ const base=Number(giftCashPrice(floor));
  return <div className="sellCompact branchSellingPrice giftSellingPrice">
   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
   <div className="branchPriceSteps" aria-label="Suggested gift card selling prices">{[-1,-.5,0,.5,1].map(delta=>{
@@ -214,7 +231,7 @@ function ServiceModal({p,close,branch=false}){
   if(isSodetel){q.set('identifier',values.identifier||'');q.set('service',values.service||'')}
   if(isCarfax)q.set('report_type',values.report_type||'1');
   if(isBill)q.set('bill_ticket',verified.bill_ticket);
-  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isGift&&!d.quote.fixed_selling_price?gameCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):branch&&!isBill&&!d.quote.fixed_selling_price?branchCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
+  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isGift&&!d.quote.fixed_selling_price?giftCashPrice(Number(d.quote.account_cost||0)):branch&&!isBill&&!d.quote.fixed_selling_price?branchCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
    .catch(e=>{if(active)setError(e.message)});},isCredit?170:0);
   return()=>{active=false;clearTimeout(timer)};
  },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,verified?.bill_ticket,detail]);
