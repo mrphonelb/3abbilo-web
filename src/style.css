@@ -296,3 +296,15 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 @media(max-width:370px){.rechargeMethodChoices button{font-size:11px;}.branchPickerTrigger,.branchPickerOptions>button{font-size:11px;}.catalogProduct b{font-size:11px!important;}}
 /* Two clearly selectable, genuinely square Alfa recharge-method tiles. */
 .rechargeMethodChoices button{width:min(124px,100%);aspect-ratio:1/1;min-height:0;justify-self:center;}
+
+/* Jounieh / Jbeil cash selling price: rounded center + four adjacent amounts. */
+.branchSellingPrice{width:100%;max-width:100%;margin:10px auto 12px;text-align:center;padding:10px 0 3px;border-top:1px solid #edf0f3;}
+.branchSellingLine{justify-content:center;gap:10px;flex-wrap:wrap;white-space:normal;}
+.branchSellingLine input{width:96px;min-height:40px;font-size:17px;color:#111827;}
+.branchPriceSteps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:9px;}
+.branchPriceSteps button{min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;min-height:54px;border:1px solid #ff8a00;border-radius:10px;background:white;color:#0f2d5c;cursor:pointer;padding:6px 2px;}
+.branchPriceSteps button span{font-size:10px;font-weight:750;color:#cf6100;white-space:nowrap;}
+.branchPriceSteps button strong{font-size:12px;white-space:nowrap;}
+.branchPriceSteps button.active{background:#fff1e2;border-width:2px;}
+.branchPriceSteps button:disabled{opacity:.35;border-color:#e2e8f0;cursor:not-allowed;}
+@media(max-width:370px){.branchPriceSteps{gap:4px}.branchPriceSteps button{padding:6px 1px}.branchPriceSteps button strong{font-size:11px}}
