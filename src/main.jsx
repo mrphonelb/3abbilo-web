@@ -235,6 +235,7 @@ function ServiceModal({p,close,branch=false}){
  const [detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
  const [values,setValues]=useState({method:'direct'}),[offer,setOffer]=useState(''),[quote,setQuote]=useState(null);
  const [selling,setSelling]=useState(''),[phase,setPhase]=useState(1),[busy,setBusy]=useState(false);
+ const [ushareBaseCost,setUshareBaseCost]=useState(null);
  const [verified,setVerified]=useState(null),[moreOptions,setMoreOptions]=useState([]),[billOtp,setBillOtp]=useState('');
  const serviceRequestKey=useRef(null);
  const path=API+'/api/wholesale/products/'+encodeURIComponent(p.key);
@@ -283,6 +284,14 @@ function ServiceModal({p,close,branch=false}){
    .catch(e=>{if(active)setError(e.message)});},isCredit?170:0);
   return()=>{active=false;clearTimeout(timer)};
  },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,values.add_activation_credit,verified?.bill_ticket,detail]);
+ useEffect(()=>{
+  if(!isUshare||!offer||!values.add_activation_credit){setUshareBaseCost(null);return;}
+  let active=true;setUshareBaseCost(null);
+  fetch(path+'/quote?'+new URLSearchParams({offer_id:offer,add_activation_credit:'false'}),{headers:authHeaders()})
+   .then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load credit price');if(active)setUshareBaseCost(Number(d.quote?.account_cost));})
+   .catch(()=>{if(active)setUshareBaseCost(null)});
+  return()=>{active=false};
+ },[p.key,offer,values.add_activation_credit,isUshare]);
  useEffect(()=>{if(!isSodetel||!values.identifier||!values.service){setMoreOptions([]);return}
   let active=true;fetch(path+'/extra-options?'+new URLSearchParams({identifier:values.identifier,service:values.service}),{headers:authHeaders()})
    .then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load plans');if(active)setMoreOptions(d.options||[])}).catch(e=>{if(active)setError(e.message)});
@@ -329,7 +338,7 @@ function ServiceModal({p,close,branch=false}){
      {isCard&&(detail.provider==='alfa'?<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now</button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge</button></div></div>:<label className="popupField">Recharge Method<select value={values.method||''} onChange={e=>update('method',e.target.value)}><option value="">Choose method</option><option value="code">Buy Now — Recharge Code</option><option value="direct">Direct Recharge</option></select></label>)}
      {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(branch?o.retail_price:(o.account_cost??null)):(detail.provider==='alfa'&&o.credit_value!=null?{base:o.credit_value,selling:branch?o.retail_price:o.account_cost,sortValue:o.credit_value}:(branch?o.retail_price??o.price??null:((detail.provider==='alfa'||detail.provider==='touch')?o.account_cost??null:null)))}/></div>}
      {orderedFields.map(x=><div key={x.key}><label className="popupField">{!(alfaBill&&x.key==='phone')&&(alfaCredit&&x.key==='amount'?<span className="alfaCreditAmountHeading"><span>{x.label}</span><span className="alfaCreditAmountCost">Cost: <strong>{quote?(branch?Number(quote.recommended_selling_price??quote.account_cost):Number(quote.account_cost)).toLocaleString('en-US',{style:'currency',currency:'USD'}):'—'}</strong></span></span>:x.label)}{alfaCredit&&x.key==='amount'?<input type="number" min="1" max="99" step="1" value={values.amount||''} onChange={e=>{const v=e.target.value;update('amount',v!==''&&(Number(v)<1||Number(v)>99)?'':v)}} onBlur={()=>{if(values.amount!==''&&(!Number.isInteger(Number(values.amount))||Number(values.amount)<1||Number(values.amount)>99))update('amount','')}} placeholder="Enter credit amount"/>:fieldInput(x)}</label>{alfaCredit&&x.key===phoneField?.key&&phoneStatus==='touch'&&<div className="alfaCreditError" role="alert">This is not an Alfa number.</div>}{alfaCredit&&x.key===phoneField?.key&&phoneStatus==='invalid'&&<div className="alfaCreditError" role="alert">Enter a valid Alfa number.</div>}{alfaCredit&&x.key==='amount'&&<><div className="alfaCreditShortcuts">{[1,2,3,4,5,10,15,20,25,30].map(n=><button type="button" key={n} className={Number(values.amount)===n?'selected':''} onClick={()=>update('amount',String(n))}>${n}</button>)}</div></>}</div>)}
-     {isUshare&&<label className="popupField"><span className="popupLabel"><input type="checkbox" checked={values.add_activation_credit===true} onChange={e=>{update('add_activation_credit',e.target.checked);setQuote(null);setSelling('')}}/> Add $1 Alfa Credit</span></label>}
+     {isUshare&&<label className="ushareCreditRow"><span className="ushareCreditLeft"><input type="checkbox" checked={values.add_activation_credit===true} onChange={e=>{update('add_activation_credit',e.target.checked);setQuote(null);setSelling('')}}/><span>Add $1 Alfa Credit</span></span><strong className="ushareCreditCost">{values.add_activation_credit===true?(quote&&Number.isFinite(ushareBaseCost)?'$'+Math.max(0,Number(quote.account_cost)-ushareBaseCost).toFixed(2):'—'):'Optional'}</strong></label>}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
      {isBill&&<button className="popupSecondary" disabled={busy||!values.phone} onClick={check}>{busy?'Checking…':'Get Bill'}</button>}
