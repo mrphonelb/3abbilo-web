@@ -51,14 +51,14 @@ function branchCashPrice(price){
 function BranchSellingPrice({value,onChange,minimum,retail,locked=false}){
  const base=Number(branchCashPrice(retail)),floor=Number(minimum||0);
  const display=Number.isFinite(Number(value))?value:'';
- const deltas=[-1,-.5,.5,1];
+ const deltas=[-1,-.5,0,.5,1];
  return <div className="sellCompact branchSellingPrice">
    <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" step="0.01" min={floor} value={display} readOnly={locked} onChange={e=>onChange(e.target.value)}/></div>
    {!locked&&<div className="branchPriceSteps" aria-label="Suggested selling prices">{deltas.map(delta=>{
      const target=Math.round((base+delta)*100)/100;
      const allowed=Number.isFinite(target)&&target>0&&target+1e-9>=floor;
      return <button type="button" key={delta} disabled={!allowed} title={allowed?'Set selling price to $'+target.toFixed(2):'Below supplier cost'} className={Math.abs(Number(value)-target)<.005?'active':''} onClick={()=>onChange(target.toFixed(2))}>
-       <span>{delta>0?'+':'−'}${Math.abs(delta).toFixed(2)}</span><strong>${target.toFixed(2)}</strong>
+       <strong>${target.toFixed(target%1===0?0:2)}</strong>
      </button>;
    })}</div>}
  </div>;
