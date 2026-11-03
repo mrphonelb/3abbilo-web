@@ -31,11 +31,13 @@ function PackagePicker({options,value,onChange,placeholder='Choose package',pric
  const[open,setOpen]=useState(false),outer=useRef(null),list=useRef(null);
  useEffect(()=>{if(!open)return;const hide=e=>{if(!outer.current?.contains(e.target))setOpen(false)};const key=e=>{if(e.key==='Escape')setOpen(false)};document.addEventListener('pointerdown',hide);document.addEventListener('keydown',key);return()=>{document.removeEventListener('pointerdown',hide);document.removeEventListener('keydown',key)}},[open]);
  const idOf=o=>String(o.offerId??o.id??'');
- const selected=options.find(o=>idOf(o)===String(value));
- const format=o=>{if(!o)return placeholder;const raw=priceFor?.(o),price=raw&&typeof raw==='object'?raw.value:raw,decimals=raw&&typeof raw==='object'?raw.decimals:2;return offerLabel(o)+(Number.isFinite(Number(price))&&price!==null&&price!==undefined?' — $'+Number(price).toFixed(decimals??2):'')};
+ const parseSortValue=(o)=>{const raw=priceFor?.(o);if(raw&&typeof raw==='object'){for(const k of ['sortValue','base','value','selling']){const n=Number(raw[k]);if(Number.isFinite(n))return n}}const n=Number(raw);if(Number.isFinite(n))return n;const txt=offerLabel(o);const m=txt.match(/\$\s*([\d.]+)/)||txt.match(/([\d.]+)\s*USD/i)||txt.match(/([\d.]+)/);return m?Number(m[1]):Infinity};
+ const sorted=[...(options||[])].sort((a,b)=>{const av=parseSortValue(a),bv=parseSortValue(b);return av===bv?offerLabel(a).localeCompare(offerLabel(b)):av-bv});
+ const selected=sorted.find(o=>idOf(o)===String(value))||options.find(o=>idOf(o)===String(value));
+ const format=o=>{if(!o)return placeholder;const raw=priceFor?.(o);if(raw&&typeof raw==='object'&&!Array.isArray(raw)){if(raw.label)return raw.label;const base=Number(raw.base),sell=Number(raw.selling??raw.value),decimals=raw.decimals??2;const name=raw.name||offerLabel(o);if(Number.isFinite(base)&&Number.isFinite(sell))return `${name} — $${base.toFixed(decimals)} — $${sell.toFixed(decimals)}`;if(Number.isFinite(sell))return `${name} — $${sell.toFixed(decimals)}`;}const price=raw&&typeof raw==='object'?raw.value:raw,decimals=raw&&typeof raw==='object'?raw.decimals:2;return offerLabel(o)+(Number.isFinite(Number(price))&&price!==null&&price!==undefined?' — $'+Number(price).toFixed(decimals??2):'')};
  return <div className={'branchPicker'+(open?' isOpen':'')} ref={outer}>
-  <button type="button" className="branchPickerTrigger" aria-haspopup="listbox" aria-expanded={open} onClick={()=>setOpen(v=>!v)} disabled={!options.length}>{selected?format(selected):(options.length?placeholder:'No live packages available')}<span aria-hidden="true">⌄</span></button>
-  {open&&<div className="branchPickerOptions" ref={list} role="listbox" aria-label={placeholder}>{options.map((o,i)=>{const id=idOf(o);return <button type="button" role="option" aria-selected={id===String(value)} className={id===String(value)?'selected':''} key={id||i} onClick={()=>{onChange(id);setOpen(false)}}>{format(o)}</button>})}</div>}
+  <button type="button" className="branchPickerTrigger" aria-haspopup="listbox" aria-expanded={open} onClick={()=>setOpen(v=>!v)} disabled={!sorted.length}>{selected?format(selected):(sorted.length?placeholder:'No live packages available')}<span aria-hidden="true">⌄</span></button>
+  {open&&<div className="branchPickerOptions" ref={list} role="listbox" aria-label={placeholder}>{sorted.map((o,i)=>{const id=idOf(o);return <button type="button" role="option" aria-selected={id===String(value)} className={id===String(value)?'selected':''} key={id||i} onClick={()=>{onChange(id);setOpen(false)}}>{format(o)}</button>})}</div>}
  </div>;
 }
 
@@ -104,11 +106,23 @@ function giftCashPrice(cost){
 // Gift card suggestions: rounded cashier price, independent of supplier debit.
 function GiftSellingPrice({value,onChange,minimum,retail,showProfit=false}){
  const floor=Number(minimum||0);
- const reference=Math.max(floor,Number(retail||0));
- const base=Number(giftCashPrice(reference));
+ const base=Number(giftCashPrice(floor));
  return <div className="sellCompact branchSellingPrice giftSellingPrice">
   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
   <div className="branchPriceSteps" aria-label="Suggested gift card selling prices">{[-1,-.5,0,.5,1].map(delta=>{
+   const target=Math.round((base+delta)*100)/100;
+   const allowed=Number.isFinite(target)&&target>0&&target+1e-9>=floor;
+   return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(value)-target)<.005?'active':''} onClick={()=>onChange(target.toFixed(2))}><strong>${target.toFixed(target%1===0?0:2)}</strong></button>;
+  })}</div>
+ </div>;
+}
+
+function WholesaleSellingPrice({value,onChange,minimum,retail,showProfit=true}){
+ const floor=Number(minimum||0);
+ const base=Number(branchCashPrice(Math.max(floor,Number(retail||0))));
+ return <div className="sellCompact branchSellingPrice wholesaleSellingPrice">
+  <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(2)}</strong></span>}</div>
+  <div className="branchPriceSteps" aria-label="Suggested service selling prices">{[-1,-.5,0,.5,1].map(delta=>{
    const target=Math.round((base+delta)*100)/100;
    const allowed=Number.isFinite(target)&&target>0&&target+1e-9>=floor;
    return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(value)-target)<.005?'active':''} onClick={()=>onChange(target.toFixed(2))}><strong>${target.toFixed(target%1===0?0:2)}</strong></button>;
@@ -219,9 +233,6 @@ function ServiceModal({p,close,branch=false}){
  const isCard=kind==='standard',isDsl=kind==='dsl_card';
  const hasOptions=isGift||['standard','dsl_card','ushare','gift','validity','internet','sodetel_plan'].includes(kind);
  const options=isSodetel?moreOptions:(detail?.options||[]);
- const chosenGiftOption=isGift?options.find(o=>String(o.offerId??o.id??'')===String(offer)):null;
- const branchGiftRetail=branch&&isGift?Number(chosenGiftOption?.retail_price):NaN;
- const giftReference=branch&&Number.isFinite(branchGiftRetail)&&branchGiftRetail>0?branchGiftRetail:null;
  const needsPhone=isCard&&values.method==='direct';
  const validFields=fields.every(x=>String(values[x.key]||'').trim())&&(!needsPhone||String(values.phone||'').trim())&&(!isCard||Boolean(values.method))&&(!isBill||Boolean(verified?.available&&verified?.bill_ticket))&&(!isCarfax||verified?.ok===true);
  // On package or credit change, fetch a fresh server-authoritative wholesale quote.
@@ -235,10 +246,10 @@ function ServiceModal({p,close,branch=false}){
   if(isSodetel){q.set('identifier',values.identifier||'');q.set('service',values.service||'')}
   if(isCarfax)q.set('report_type',values.report_type||'1');
   if(isBill)q.set('bill_ticket',verified.bill_ticket);
-  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isGift&&!d.quote.fixed_selling_price?giftCashPrice(Math.max(Number(d.quote.account_cost||0),branch?(giftReference??Number(d.quote.recommended_selling_price||0)):Number(d.quote.account_cost||0))):branch&&!isBill&&!d.quote.fixed_selling_price?branchCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
+  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setError('');setSelling(isGift&&!d.quote.fixed_selling_price?giftCashPrice(Number(branch?(d.quote.recommended_selling_price??d.quote.account_cost??0):(d.quote.account_cost||0))):branch&&!isBill&&!d.quote.fixed_selling_price?branchCashPrice(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
    .catch(e=>{if(active)setError(e.message)});},isCredit?170:0);
   return()=>{active=false;clearTimeout(timer)};
- },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,verified?.bill_ticket,detail,giftReference]);
+ },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,verified?.bill_ticket,detail]);
  useEffect(()=>{if(!isSodetel||!values.identifier||!values.service){setMoreOptions([]);return}
   let active=true;fetch(path+'/extra-options?'+new URLSearchParams({identifier:values.identifier,service:values.service}),{headers:authHeaders()})
    .then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load plans');if(active)setMoreOptions(d.options||[])}).catch(e=>{if(active)setError(e.message)});
@@ -266,7 +277,7 @@ function ServiceModal({p,close,branch=false}){
  }
  const price=Number(selling),cost=Number(quote?.account_cost||0),profit=price-cost;
  const priceFixed=Boolean(quote?.fixed_selling_price)||isBill;
- const ready=!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost&&(!branch||!isGift||giftReference==null||price+1e-9>=giftReference);
+ const ready=!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost;
  const fieldInput=(field)=>field.type==='select'?<select value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)}>
    <option value="">Choose {field.label}</option>{(field.options||[]).map((o,i)=>{const id=typeof o==='string'?o:String(o.id||o.value||'');return <option value={id} key={id||i}>{typeof o==='string'?o:o.label||o.name||id}</option>})}</select>
   :<input type={field.type==='number'?'number':'text'} min={field.min} max={field.max} maxLength={field.maxLength} value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)} placeholder={'Enter '+field.label}/>;
@@ -277,17 +288,17 @@ function ServiceModal({p,close,branch=false}){
    {loading&&<div className="catalogNotice">Loading available services…</div>}
    <>
     {!loading&&detail&&<>
-     {isCard&&(detail.provider==='alfa'?<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now<span>Recharge Code</span></button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge<span>To a Number</span></button></div></div>:<label className="popupField">Recharge Method<select value={values.method||''} onChange={e=>update('method',e.target.value)}><option value="">Choose method</option><option value="code">Buy Now — Recharge Code</option><option value="direct">Direct Recharge</option></select></label>)}
+     {isCard&&(detail.provider==='alfa'?<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now</button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge</button></div></div>:<label className="popupField">Recharge Method<select value={values.method||''} onChange={e=>update('method',e.target.value)}><option value="">Choose method</option><option value="code">Buy Now — Recharge Code</option><option value="direct">Direct Recharge</option></select></label>)}
      {fields.map(x=><label className="popupField" key={x.key}>{x.label}{fieldInput(x)}</label>)}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
-     {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(branch?o.retail_price:(o.account_cost??null)):(branch?o.retail_price??o.price:null)}/></div>}
+     {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(branch?o.retail_price:(o.account_cost??null)):(branch?(o.retail_price??o.price??null):((detail.provider==='alfa'||detail.provider==='touch')?{base:(o.price??o.account_cost??null),selling:(o.retail_price??quote?.recommended_selling_price??null),decimals:2}:null))}/></div>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
      {isBill&&<button className="popupSecondary" disabled={busy||!values.phone} onClick={check}>{busy?'Checking…':'Fetch Bill'}</button>}
      {isBill&&verified?.requires_otp&&<label className="popupField">Bill Verification Code<input value={billOtp} inputMode="numeric" maxLength={10} onChange={e=>setBillOtp(e.target.value.replace(/\D/g,''))} placeholder="Enter SMS verification code"/></label>}
      {isBill&&verified?.requires_otp&&<button className="popupSecondary" disabled={busy||!billOtp} onClick={verifyOtp}>{busy?'Verifying…':'Verify Bill Code'}</button>}
      {verified&&<div className="validationOk"><ShieldCheck size={17}/><span>{isBill?(verified.requires_otp?'A verification code is required':verified.available?'Bill found · $'+Number(verified.full_amount_usd).toFixed(2):(verified.message||'No payable bill found')):(verified.ok?(verified.year_make||verified.message||'Vehicle checked'):(verified.message||'Vehicle verification failed'))}</span></div>}
      {isBill&&quote&&!branch&&<div className="catalogNotice">Estimated dealer cost: ${Number(quote.estimated_dealer_cost??quote.account_cost).toFixed(2)} · Estimated profit: ${Number(quote.estimated_dealer_profit??0).toFixed(2)}. The full bill is temporarily reserved; actual dealer cost is confirmed after supplier payment and any discount difference is returned to your wallet.</div>}
-     {quote&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={branch?Math.max(cost,giftReference??0):cost} retail={branch?(giftReference??quote.recommended_selling_price??cost):cost} showProfit={!branch}/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed}/>:<div className="sellCompact servicePrice"><div className="sellLine"><span>{isBill?'Reserved':'Cost'} <strong>${cost.toFixed(2)}</strong></span><b>Selling Price</b><input type="number" step="0.01" min={cost} readOnly={priceFixed} value={selling} onChange={e=>setSelling(e.target.value)} />{!isBill&&<span>Profit <strong>${Number.isFinite(profit)?profit.toFixed(2):'0.00'}</strong></span>}</div>{!priceFixed&&<div className="quickSell">{Array.from(new Set([-1,-.5,0,.5,1].map(d=>Math.max(cost,Math.round((Number(quote.recommended_selling_price||cost)+d)*100)/100).toFixed(2)))).map(amt=><button type="button" key={amt} onClick={()=>setSelling(amt)}>${amt}</button>)}</div>}</div>)}
+     {quote&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!isBill}/>)}
      {detail.purchase_available&&phase===1?<button className="popupAction" disabled={!ready||busy} onClick={()=>setPhase(2)}>Recharge Now</button>:null}
      {detail.purchase_available&&phase===2?<button className="popupAction" disabled={!ready||busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
      {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
