@@ -40,9 +40,9 @@ function PackagePicker({options,value,onChange,placeholder='Choose package',pric
   if(raw&&typeof raw==='object'&&!Array.isArray(raw)){
    if(raw.label)return raw.label;
    const face=Number(raw.base),sell=Number(raw.selling);
-   const cleanName=offerLabel(o).replace(/\s*[-–—]\s*\$[\d.]+\s*$/,'').trim();
+   const cleanName=offerLabel(o).replace(/\s*[-–—]\s*(?:Credit:\s*)?\$[\d.]+\s*$/i,'').trim();
    if(raw.base!=null&&raw.selling!=null&&Number.isFinite(face)&&face>0&&Number.isFinite(sell)&&sell>0)
-    return `${cleanName} ($${face.toFixed(2)}) — $${sell.toFixed(2)}`;
+    return `${cleanName} (Credit: $${face.toFixed(2)}) — $${sell.toFixed(2)}`;
    if(raw.selling!=null&&Number.isFinite(sell)&&sell>0)return `${cleanName} — $${sell.toFixed(2)}`;
   }
   const price=raw&&typeof raw==='object'?raw.value:raw;
@@ -304,7 +304,7 @@ function ServiceModal({p,close,branch=false}){
      {isCard&&(detail.provider==='alfa'?<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now</button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge</button></div></div>:<label className="popupField">Recharge Method<select value={values.method||''} onChange={e=>update('method',e.target.value)}><option value="">Choose method</option><option value="code">Buy Now — Recharge Code</option><option value="direct">Direct Recharge</option></select></label>)}
      {fields.map(x=><label className="popupField" key={x.key}>{x.label}{fieldInput(x)}</label>)}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
-     {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(branch?o.retail_price:(o.account_cost??null)):(detail.provider==='alfa'&&o.face_value!=null?{base:o.face_value,selling:branch?o.retail_price:o.account_cost,sortValue:o.face_value}:(branch?o.retail_price??o.price??null:((detail.provider==='alfa'||detail.provider==='touch')?o.account_cost??null:null)))}/></div>}
+     {hasOptions&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>isGift?(branch?o.retail_price:(o.account_cost??null)):(detail.provider==='alfa'&&o.credit_value!=null?{base:o.credit_value,selling:branch?o.retail_price:o.account_cost,sortValue:o.credit_value}:(branch?o.retail_price??o.price??null:((detail.provider==='alfa'||detail.provider==='touch')?o.account_cost??null:null)))}/></div>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
      {isBill&&<button className="popupSecondary" disabled={busy||!values.phone} onClick={check}>{busy?'Checking…':'Fetch Bill'}</button>}
      {isBill&&verified?.requires_otp&&<label className="popupField">Bill Verification Code<input value={billOtp} inputMode="numeric" maxLength={10} onChange={e=>setBillOtp(e.target.value.replace(/\D/g,''))} placeholder="Enter SMS verification code"/></label>}
