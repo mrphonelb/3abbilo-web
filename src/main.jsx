@@ -286,32 +286,129 @@ function suggestedChatRetail(accountCost){
  if(center<=cost)center=Math.ceil((cost+0.01)*2)/2;
  return Number(center.toFixed(2));
 }
-// Quantity shortcut presets for wholesale Chat Apps. Every preset is validated
-// against the live supplier min/max; unknown apps get sensible logarithmic tiers.
-function chatQuantityPresets(productKey,minQuantity,maxQuantity){
+// Reference amounts from the supplied Chat App chart. These are suggested
+// QUANTITIES, not supplier offers or fixed prices. Cost is always quoted for the
+// selected quantity and authenticated account by the backend.
+const CHAT_QUANTITY_REFERENCE={
+ likeelive:[250,500,1000,2500],
+ tango:[1500,3000,5000],
+ litchat:[21000,42000,90000,200000],
+ solfachat:[3000,6000,12000,30000],
+ soulu:[4500,10000,20000,50000],
+ honeyjar:[500,1000,2300,5500],
+ coccolive:[35000,70000,160000,400000],
+ dimochat:[4000,8000,16000,40000],
+ samachat:[35000,70000,150000,350000],
+ kiyolive:[10000,20000,40000,80000],
+ superlive:[750,1500,3000,8000],
+ xena:[35000,70000,150000,400000],
+ sayalikee:[20000,40000,80000,220000],
+ mr7bachat:[600000,1200000,2500000,5000000],
+ sodfa:[75000,150000,320000,500000],
+ dreamchat:[3000,6500,14000,30000],
+ vecochat:[45000,90000,200000,500000],
+ potalive:[150000,300000,900000],
+ nabd:[25000,50000,110000,230000],
+ hiparty:[40000,80000,160000,400000],
+ yooy:[50000,100000,200000],
+ yaahlan:[2200,4500,10000,24000],
+ soulchill:[2500,5000,10000,25000],
+ poppolive:[40000,80000,160000,400000],
+ poppo:[40000,80000,160000,400000],
+ waho:[40000,80000,160000,420000],
+ tadachat:[3500,7000,15000,30000],
+ ligolive:[4000,8000,16000,35000],
+ soyochat:[5000,10000,20000,50000],
+ laylachat:[40000,80000,160000,400000],
+ bigolive:[250,500,1000,2500],
+ bigo:[250,500,1000,2500],
+ yohowaka:[40000,80000,160000,400000],
+ azar:[1870,4950],
+ fourfun:[65000,130000,270000],
+ "4fun":[65000,130000,270000],
+ fourfunchat:[65000,130000,270000],
+ higolive:[4000,8000,16000,40000],
+ fancylive:[55000,110000,220000,500000],
+ uplive:[250,600,1200],
+ partystar:[4500,9000,18000,40000],
+ gimme:[35000,65000,165000,340000],
+ oohlachat:[5500,11000,25000,55000],
+ wyakchat:[1000000,2000000,4000000,5000000],
+ majlischat:[4000,8000,16000,40000],
+ amarchat:[5000,10000,20000],
+ yallalive:[2900,5900,12500],
+ lightchat:[12000,25000,40000,100000],
+ somacht:[30000,60000,120000,300000],
+ bobochat:[80000,160000,400000],
+ sevenstar:[35000,75000,160000,330000],
+ halachat:[35000,75000,150000,400000],
+ olamet:[30000,60000,120000,300000],
+ livuchat:[1250,2500,5000,10000],
+ ifun:[50000,100000,200000,400000],
+ hayyakomlive:[10000,22000,60000],
+ toptop:[40000,80000,160000,400000],
+ yoyochat:[5000,10000,20000,50000],
+ lamachat:[12000,25000,50000,80000],
+ hakichat:[4500,9000,20000,40000],
+ bellachat:[5000,10000,20000,50000],
+ wego:[40000,80000,160000,400000],
+ chatchill:[9500,18500,37000,94000],
+ azallive:[5000,10000,20000,50000],
+ hiyachat:[4000,8000,16000,40000],
+ hawachat:[8000,16000,30000,50000],
+ soulchat:[30000,60000,150000],
+ ahlanchat:[10000,20000,50000],
+ sochat:[30000,60000,120000,300000],
+ dawalive:[30000,60000,120000,300000],
+ sugo:[28000,56000,120000,300000],
+};
+// For an app not on the reference chart, generate ten rounded amounts across
+// its live minimum/maximum. Include reference quantities exactly when in range.
+function chatQuantityPresets(productKey,minQuantity,maxQuantity,productTitle=''){
  const min=Math.max(1,Math.ceil(Number(minQuantity)||1));
  const max=Math.max(min,Math.floor(Number(maxQuantity)||min));
- const specified={
-  soulchill:[1000,2500,5000,10000,20000,50000,100000,200000,350000,500000],
-  fourfun:[20000,65000,130000,260000,520000,780000,1000000,2000000,3500000,5000000]
- }[String(productKey||'').toLowerCase()];
- if(specified)return [...new Set(specified.filter(n=>n>=min&&n<=max))];
  if(min===max)return [min];
- const choices=new Set([min,max]);
- function nice(value){
-  if(value<=10)return Math.round(value);
-  const magnitude=Math.pow(10,Math.floor(Math.log10(value)));
-  const digit=value/magnitude;
-  const best=[1,1.5,2,2.5,3,4,5,6,7.5,8,10].reduce((a,b)=>Math.abs(b-digit)<Math.abs(a-digit)?b:a);
-  return Math.round(best*magnitude);
+ const count=Math.min(10,max-min+1);
+ const normalized=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+ const keys=[normalized(productTitle),normalized(productKey)];
+ const refs=keys.map(k=>CHAT_QUANTITY_REFERENCE[k]).find(Array.isArray)||[];
+ const selected=new Set([min,max]);
+ refs.forEach(n=>{if(n>=min&&n<=max)selected.add(n)});
+ if(selected.size>=count)return [...selected].sort((a,b)=>a-b).slice(0,count);
+ const nice=v=>{
+  if(v<10)return Math.round(v);
+  const magnitude=Math.pow(10,Math.floor(Math.log10(v)));
+  const steps=[1,1.25,1.5,2,2.5,3,3.5,4,5,6,6.5,7,7.5,8,9,10];
+  const choice=steps.reduce((best,step)=>Math.abs(step*magnitude-v)<Math.abs(best*magnitude-v)?step:best);
+  return Math.round(choice*magnitude);
+ };
+ const candidateSet=new Set();
+ // Sample the whole span, rather than filling all buttons near the minimum.
+ for(let i=0;i<=250;i++){
+  const raw=min*Math.pow(max/min,i/250);
+  const n=nice(raw);if(n>=min&&n<=max)candidateSet.add(n);
  }
- for(let i=1;i<30&&choices.size<10;i++){
-  const fraction=i/30;
-  const raw=min*Math.pow(max/min,fraction);
-  const n=nice(raw);
-  if(n>=min&&n<=max)choices.add(n);
+ // Small integer ranges must still yield ten unique quantities where possible.
+ if(max-min<150)for(let n=min;n<=max;n++)candidateSet.add(n);
+ if(candidateSet.size+selected.size<count){
+  for(let i=0;i<=250;i++){
+   const n=Math.round(min+(max-min)*i/250);
+   if(n>=min&&n<=max)candidateSet.add(n);
+  }
  }
- return [...choices].sort((a,b)=>a-b).slice(0,10);
+ const candidates=[...candidateSet].filter(n=>!selected.has(n));
+ while(selected.size<count&&candidates.length){
+  let bestIndex=-1,bestScore=-1;
+  for(let i=0;i<candidates.length;i++){
+   const candidate=candidates[i];
+   // Maximize distance to existing suggestions in logarithmic space, so
+   // both small and large quantities remain conveniently represented.
+   const score=Math.min(...[...selected].map(n=>Math.abs(Math.log(candidate/n))));
+   if(score>bestScore){bestScore=score;bestIndex=i}
+  }
+  selected.add(candidates.splice(bestIndex,1)[0]);
+ }
+ return [...selected].sort((a,b)=>a-b).slice(0,count);
 }
 
 function ChatSellingPrice({value,onChange,minimum,showProfit=false,pending=false}){
@@ -721,7 +818,7 @@ function ProductModal({p,close,branch=false}){
    <div className="chatQuantityPresets chatAmountPresets" aria-label="Quick recharge amounts">{[1,2,5,10,15,20,25,30,50,100].map(n=><button type="button" key={n} className={Number(rechargeAmount)===n&&amountMode?'selected':''} onClick={()=>loadBranchAmount(n)}>${n}</button>)}</div>
   </div>:<div className="chatWholesalePresets">
    <span className="popupLabel">Suggested Quantities</span>
-   <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{(limitsReady?chatQuantityPresets(p.key,minQty,maxQty):[]).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
+   <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{(limitsReady?chatQuantityPresets(p.key,minQty,maxQty,p.title):[]).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
   </div>}
  </>}
  {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<div className="sellCompact branchSellingPrice chatBranchSellingPrice"><div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={shownCost??0} step="0.01" value={branch&&quoting?rechargeAmount:selling} readOnly/></div></div>:<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} showProfit pending={shownCost===null}/>):<GameSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={offerPending?Number(offerPrices[String(offer)]?.account_cost??quote.account_cost):quote.account_cost} retail={offerPending?Number(offerPrices[String(offer)]?.recommended_selling_price??offerPrices[String(offer)]?.account_cost??quote.account_cost):(quote.recommended_selling_price??quote.account_cost)} showProfit={!branch} pending={offerPending}/>)}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Confirm Purchase')}</button></></div></div>
