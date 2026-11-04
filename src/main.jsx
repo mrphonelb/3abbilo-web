@@ -432,7 +432,8 @@ function ServiceModal({p,close,branch=false}){
     {error&&<div className="catalogNotice error">{error}</div>}
    </>
   </div>
- </div>;
+ </div>
+
 }
 function ProductModal({p,close,branch=false}){
  if(p.type==='mrp_telco'||p.section==='gift_cards'||p.key==='carfax')return <ServiceModal p={p} close={close} branch={branch}/>;
@@ -474,7 +475,7 @@ function ProductModal({p,close,branch=false}){
 function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[])}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
  const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countryOpen,setCountryOpen]=useState(false),[countrySearch,setCountrySearch]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState(1),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
- const requestKey=useRef(null),planPicker=useRef(null),countryPicker=useRef(null),loadSerial=useRef(0);
+ const requestKey=useRef(null),planPicker=useRef(null),loadSerial=useRef(0);
  const daily=Number(selected?.data_type)===2;
  const days=daily?Math.max(1,Math.min(Number(selected?.period_max||365),Number(period)||1)):1;
  const unitCost=Number(selected?.account_cost??selected?.recommended_selling_price??0);
@@ -494,7 +495,7 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
   fetch(API+'/api/wholesale/products/esim/countries',{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load destinations');return d}).then(d=>{setCountries((d.countries||[]).filter(c=>String(c.code).toUpperCase()!=='IL'));if(!(d.countries||[]).length)setErr('No destinations available')}).catch(e=>setErr(e.message));
  },[topup]);
  useEffect(()=>{if(!planOpen)return;const onPointer=e=>{if(!planPicker.current?.contains(e.target))setPlanOpen(false)};const onKey=e=>{if(e.key==='Escape')setPlanOpen(false)};document.addEventListener('pointerdown',onPointer);document.addEventListener('keydown',onKey);return()=>{document.removeEventListener('pointerdown',onPointer);document.removeEventListener('keydown',onKey)}},[planOpen]);
- useEffect(()=>{if(!countryOpen)return;const outside=e=>{if(!countryPicker.current?.contains(e.target))setCountryOpen(false)};const key=e=>{if(e.key==='Escape')setCountryOpen(false)};document.addEventListener('pointerdown',outside);document.addEventListener('keydown',key);return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',key)}},[countryOpen]);
+ useEffect(()=>{if(!countryOpen)return;const onKey=e=>{if(e.key==='Escape'){e.preventDefault();setCountryOpen(false)}};document.addEventListener('keydown',onKey);return()=>document.removeEventListener('keydown',onKey)},[countryOpen]);
  function suggestedSelling(cost){return (Math.round(Number(cost)*(1+margin)*100)/100).toFixed(2)}
  function choose(p){setSelected(p);setPeriod(1);setSelling(suggestedSelling(planPrice(p)));setPlanOpen(false);setErr('');requestKey.current=null;}
  function setDays(v){const n=Math.max(Number(selected?.period_min||1),Math.min(Number(selected?.period_max||365),Math.floor(Number(v)||1)));setPeriod(n);setSelling(suggestedSelling(unitCost*n));requestKey.current=null;}
@@ -524,12 +525,13 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
   }catch(e){setErr(e.message+' If already submitted, check My Orders before retrying.')}finally{setBusy(false)}
  }
  const center=Math.ceil((suggested-1e-9)*2)/2;
- return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}>
+ return <>
+ <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}>
   <div className="productModal compactModal esimPopup">
    <button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}} aria-label="Close"><X size={21}/></button>
    <div className="popupTitle"><ProductArtwork p={{key:topup?'esim_topup':'esim_buy',title:topup?'TOPUP ESIM':'BUY ESIM'}} compact/><h2>{topup?'TOPUP ESIM':'BUY ESIM'}</h2></div>
    {topup?<label className="popupField">eSIM ICCID<input inputMode="numeric" value={iccid} onChange={e=>{setIccid(e.target.value.replace(/\D/g,''));setPackages([]);setSelected(null)}} placeholder="Enter ICCID number"/></label>:
-    <div className="popupField esimCountryField" ref={countryPicker}><span>Choose Country</span><button type="button" className="esimCountryTrigger" aria-haspopup="listbox" aria-expanded={countryOpen} onClick={()=>setCountryOpen(v=>!v)}>{countries.find(c=>c.code===country)?.name||'Choose Country'}<ChevronDown size={16}/></button>{countryOpen&&<div className="esimCountryMenu"><input type="search" aria-label="Search countries" autoComplete="off" placeholder="Search country..." value={countrySearch} onChange={e=>setCountrySearch(e.target.value)}/><div className="esimCountryOptions" role="listbox">{countries.filter(c=>c.name.toLowerCase().includes(countrySearch.trim().toLowerCase())).map(c=><button type="button" role="option" aria-selected={country===c.code} key={c.code} onClick={()=>changeCountry(c.code)}>{c.name}</button>)}{!countries.some(c=>c.name.toLowerCase().includes(countrySearch.trim().toLowerCase()))&&<div className="esimCountryEmpty">No matching countries</div>}</div></div>}</div>}
+    <div className="popupField esimCountryField"><span>Choose Country</span><button type="button" className="esimCountryTrigger" aria-haspopup="dialog" aria-expanded={countryOpen} onClick={()=>{setCountrySearch('');setCountryOpen(true)}}>{countries.find(c=>c.code===country)?.name||'Choose Country'}<ChevronDown size={16}/></button></div>}
    {topup&&<button className="popupAction" onClick={()=>load()} disabled={busy||!/^\d{18,22}$/.test(iccid)}>{busy?'Loading…':'Check eSIM / Show Plans'}</button>}
    {busy&&<div className="esimLoading" role="status"><RefreshCw className="spin" size={25}/><span>Loading available eSIM plans…</span></div>}
    {err&&<div className="catalogNotice error" role="alert">{err}</div>}
@@ -547,7 +549,15 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
    </div>}
    {selected&&!enabled&&<div className="checkoutPending compact">eSIM purchasing is currently unavailable. Please try again later.</div>}
   </div>
- </div>;
+ </div>
+ {!topup&&countryOpen&&createPortal(<div className="esimCountryOverlay" onClick={e=>{e.stopPropagation();if(e.target===e.currentTarget)setCountryOpen(false)}}>
+   <div className="esimCountryDialog" role="dialog" aria-modal="true" aria-label="Choose Country" onClick={e=>e.stopPropagation()}>
+    <div className="esimCountryDialogHeader"><strong>Choose Country</strong><button type="button" aria-label="Close country search" onClick={()=>setCountryOpen(false)}><X size={20}/></button></div>
+    <div className="esimCountrySearch"><Search size={17}/><input autoFocus type="search" aria-label="Search countries" placeholder="Search country..." autoComplete="off" value={countrySearch} onChange={e=>setCountrySearch(e.target.value)}/></div>
+    <div className="esimCountryDialogList" role="listbox" aria-label="Countries">{countries.filter(c=>c.name.toLowerCase().includes(countrySearch.trim().toLowerCase())).map(c=><button type="button" role="option" aria-selected={country===c.code} key={c.code} onClick={()=>changeCountry(c.code)}>{c.name}</button>)}{!countries.some(c=>c.name.toLowerCase().includes(countrySearch.trim().toLowerCase()))&&<div className="esimCountryEmpty">No matching countries</div>}</div>
+   </div>
+  </div>,document.body)}
+ </>;
 }
 
 const CATEGORY_NAMES={games:'GAME TOP-UP',chat:'CHAT APPS TOP-UP',gift_cards:'GIFT CARDS',alfa:'ALFA',touch:'TOUCH',dsl:'OGERO & INTERNET CARDS',other_services:'CARFAX',esim:'ESIM & TOPUP'};
