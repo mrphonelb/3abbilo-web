@@ -10,6 +10,18 @@ function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abb
 function productImage(p){return p?.key?'/product-images/'+encodeURIComponent(p.key):''}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
+const serviceDetailValues=new Map();
+function serviceDetails(key){
+ const account=authHeaders().Authorization;
+ const cacheKey=account+'|'+key;
+ return cachedFetch(serviceDetailCache,cacheKey,90000,async()=>{
+  const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(key)+'/details',{headers:authHeaders()});
+  const d=await r.json();if(!r.ok)throw Error(d.error||'Could not load service');
+  serviceDetailValues.set(cacheKey,{product:d.product,until:Date.now()+90000});
+  return d.product;
+ });
+}
+
 const chatOffersPriceCache=new Map();
 const chatQuantityPreviews=new Map();
 const chatQuantityWarmups=new Map();
@@ -53,7 +65,7 @@ function ProductArtwork({p,alt='',compact=false}){
  if(src&&!failed)return <img src={src} alt={alt||title} loading={compact?'eager':'lazy'} onError={()=>setFailed(true)}/>;
  return <div className="catalogFallback" role="img" aria-label={title} style={compact?{width:50,height:50,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:12,background:'#f4f7ff',color:'#152a54'}:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(145deg,#f6f2ff,#eef7ff)',color:'#1b335b',minHeight:140,padding:14}}><MessageCircle size={compact?23:38}/>{!compact&&<strong style={{fontSize:14,textAlign:'center',overflowWrap:'anywhere'}}>{title}</strong>}</div>;
 }
-function ProductTile({p,onOpen}){const img=productImage(p);const prefetch=()=>{if(p.type==='quantity')preloadChatQuantities().catch(()=>{});else if(p.section==='chat'){const group=Object.keys(p.groups||{})[0];if(group)chatOfferPrices(p.key,group).catch(()=>{})}};return <button className="catalogProduct" onPointerEnter={prefetch} onFocus={prefetch} onClick={()=>onOpen(p)}><ProductArtwork p={p}/><b>{p.title||p.name||p.key}</b></button>}
+function ProductTile({p,onOpen}){const img=productImage(p);const prefetch=()=>{if(p.section==='gift_cards'||p.section==='alfa'||p.section==='touch'||p.section==='dsl'||p.key==='carfax')serviceDetails(p.key).catch(()=>{});if(p.type==='quantity')preloadChatQuantities().catch(()=>{});else if(p.section==='chat'){const group=Object.keys(p.groups||{})[0];if(group)chatOfferPrices(p.key,group).catch(()=>{})}};return <button className="catalogProduct" onPointerEnter={prefetch} onFocus={prefetch} onClick={()=>onOpen(p)}><ProductArtwork p={p}/><b>{p.title||p.name||p.key}</b></button>}
 function offerLabel(o){
  const raw=String(o.displayName||o.name||o.offerId||o.id||'Option').trim();
  // Dazz Live supplier ids have the form coins_5000_250: base coins + bonus.
@@ -75,9 +87,27 @@ function rechargeCardFaceValue(option){
  const match=label.match(/(?:[-–—]|\()\s*(?:Credit:\s*)?\$\s*(\d+(?:\.\d{1,2})?)\s*\)?\s*$/i);
  return match?Number(match[1]):null;
 }
-function PackagePicker({options,value,onChange,placeholder='Choose package',priceFor}){
+function PackagePicker({options,value,onChange,placeholder='Choose package',priceFor,subtitleFor}){
  const[open,setOpen]=useState(false),outer=useRef(null),list=useRef(null);
- useEffect(()=>{if(!open)return;const hide=e=>{if(!outer.current?.contains(e.target))setOpen(false)};const key=e=>{if(e.key==='Escape')setOpen(false)};document.addEventListener('pointerdown',hide);document.addEventListener('keydown',key);return()=>{document.removeEventListener('pointerdown',hide);document.removeEventListener('keydown',key)}},[open]);
+ const[position,setPosition]=useState(null);
+ useEffect(()=>{if(!open)return;
+  const positionList=()=>{
+   const rect=outer.current?.getBoundingClientRect();if(!rect)return;
+   const viewport=window.visualViewport?.height||window.innerHeight;
+   const above=rect.top,below=viewport-rect.bottom;
+   const onTop=below<190&&above>below;
+   const height=Math.max(80,Math.min(280,Math.floor((onTop?above:below)-12)));
+   setPosition({left:Math.max(8,rect.left),width:Math.min(rect.width,window.innerWidth-16),top:onTop?Math.max(8,rect.top-height-5):rect.bottom+5,maxHeight:height});
+  };
+  positionList();
+  const hide=e=>{if(!outer.current?.contains(e.target)&&!list.current?.contains(e.target))setOpen(false)};
+  const key=e=>{if(e.key==='Escape')setOpen(false)};
+  const onScroll=e=>{if(list.current?.contains(e.target))return;positionList()};
+  document.addEventListener('pointerdown',hide);
+  document.addEventListener('keydown',key);
+  window.addEventListener('scroll',onScroll,true);window.addEventListener('resize',positionList);
+  return()=>{document.removeEventListener('pointerdown',hide);document.removeEventListener('keydown',key);window.removeEventListener('scroll',onScroll,true);window.removeEventListener('resize',positionList)};
+ },[open]);
  const idOf=o=>String(o.offerId??o.id??'');
  // Sort denominations and data packages by their actual size, not alphabetically
  // or by a quoted price (which may change with the logged-in account).
@@ -121,7 +151,7 @@ function PackagePicker({options,value,onChange,placeholder='Choose package',pric
  };
  return <div className={'branchPicker'+(open?' isOpen':'')} ref={outer}>
   <button type="button" className="branchPickerTrigger" aria-haspopup="listbox" aria-expanded={open} onClick={()=>setOpen(v=>!v)} disabled={!sorted.length}>{selected?format(selected):(sorted.length?placeholder:'No live packages available')}<span aria-hidden="true">⌄</span></button>
-  {open&&<div className="branchPickerOptions" ref={list} role="listbox" aria-label={placeholder}>{sorted.map((o,i)=>{const id=idOf(o);return <button type="button" role="option" aria-selected={id===String(value)} className={id===String(value)?'selected':''} key={id||i} onClick={()=>{onChange(id);setOpen(false)}}>{format(o)}</button>})}</div>}
+  {open&&position&&createPortal(<div className="branchPickerOptions branchPickerFloating" ref={list} style={position} role="listbox" aria-label={placeholder}>{sorted.map((o,i)=>{const id=idOf(o);return <button type="button" role="option" aria-selected={id===String(value)} className={id===String(value)?'selected':''} key={id||i} onClick={()=>{onChange(id);setOpen(false)}}><span>{format(o)}</span>{subtitleFor?.(o)&&<small className="floatingPickerSubtitle">{subtitleFor(o)}</small>}</button>})}</div>,document.body)}
  </div>;
 }
 
@@ -159,14 +189,14 @@ function gameCashPrice(price){
  const step=amount<5?.5:amount<20?1:amount<40?5:10;
  return (Math.ceil((amount-1e-9)/step)*step).toFixed(2);
 }
-function GameSellingPrice({value,onChange,minimum,retail,showProfit=false}){
+function GameSellingPrice({value,onChange,minimum,retail,showProfit=false,pending=false}){
  const base=Number(gameCashPrice(Math.max(Number(minimum||0),Number(retail||0))));
  const floor=Number(minimum||0);
  return <div className="sellCompact branchSellingPrice gameSellingPrice">
-  <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
+  <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>{pending?'—':'$'+(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
   <div className="branchPriceSteps" aria-label="Suggested game selling prices">{[-1,-.5,0,.5,1].map(delta=>{
    const target=Math.round((base+delta)*100)/100;
-   const allowed=Number.isFinite(target)&&target>0&&target+1e-9>=floor;
+   const allowed=!pending&&Number.isFinite(target)&&target>0&&target+1e-9>=floor;
    return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(value)-target)<.005?'active':''} onClick={()=>onChange(target.toFixed(2))}><strong>${target.toFixed(target%1===0?0:2)}</strong></button>;
   })}</div>
  </div>;
@@ -254,13 +284,13 @@ function chatQuantityPresets(productKey,minQuantity,maxQuantity){
  return [...choices].sort((a,b)=>a-b).slice(0,10);
 }
 
-function ChatSellingPrice({value,onChange,minimum,showProfit=false}){
+function ChatSellingPrice({value,onChange,minimum,showProfit=false,pending=false}){
  const center=suggestedChatRetail(minimum),floor=Number(minimum||0);
  return <div className="sellCompact branchSellingPrice chatSellingPrice">
-  <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
+  <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>{pending?'—':'$'+(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
   {center>0&&<div className="branchPriceSteps" aria-label="Suggested chat selling prices">{[-1,-.5,0,.5,1].map(delta=>{
    const target=Math.round((center+delta)*100)/100;
-   const allowed=target>0&&target+1e-9>=floor;
+   const allowed=!pending&&target>0&&target+1e-9>=floor;
    return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(value)-target)<.005?'active':''} onClick={()=>onChange(target.toFixed(2))}><strong>${target.toFixed(target%1===0?0:2)}</strong></button>;
   })}</div>}
  </div>;
@@ -352,7 +382,10 @@ function billNotice(result){
  return message||'No unpaid bill is available for this number.';
 }
 function ServiceModal({p,close,branch=false}){
- const [detail,setDetail]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');
+ const detailKey=authHeaders().Authorization+'|'+p.key;
+ const cachedDetail=serviceDetailValues.get(detailKey);
+ const initialDetail=cachedDetail&&cachedDetail.until>Date.now()?cachedDetail.product:null;
+ const [detail,setDetail]=useState(initialDetail),[loading,setLoading]=useState(!initialDetail),[error,setError]=useState('');
  const [values,setValues]=useState({method:'direct'}),[offer,setOffer]=useState(''),[quote,setQuote]=useState(null),[quotePending,setQuotePending]=useState(false);
  const [selling,setSelling]=useState(''),[phase,setPhase]=useState(1),[busy,setBusy]=useState(false);
  const [ushareBaseCost,setUshareBaseCost]=useState(null);
@@ -367,8 +400,8 @@ function ServiceModal({p,close,branch=false}){
   if(key==='identifier'||key==='service'){setOffer('');setMoreOptions([])}
   setBillOtp('');setPhase(1);setError('');serviceRequestKey.current=null;
  };
- useEffect(()=>{let active=true;setError('');setLoading(true);
-  cachedFetch(serviceDetailCache,authHeaders().Authorization+'|'+p.key,18000,async()=>{const r=await fetch(path+'/details',{headers:authHeaders()});const d=await r.json();if(!r.ok)throw Error(d.error||'Could not load service');return d.product}).then(product=>{if(active)setDetail(product)}).catch(e=>{if(active)setError(e.message)}).finally(()=>{if(active)setLoading(false)});
+ useEffect(()=>{let active=true;setError('');
+  serviceDetails(p.key).then(product=>{if(active)setDetail(product)}).catch(e=>{if(active)setError(e.message)}).finally(()=>{if(active)setLoading(false)});
   return()=>{active=false};
  },[p.key]);
  const fields=detail?.fields||[];
@@ -451,14 +484,13 @@ function ServiceModal({p,close,branch=false}){
  const billEstimatedSupplier=Number(quote?.estimated_dealer_cost);
  const billEstimatedCost=Number.isFinite(billEstimatedSupplier)&&billEstimatedSupplier>0?billEstimatedSupplier:null;
  const ready=!quotePending&&!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost&&(!telcoCredit||(phoneStatus===telcoProvider&&Number(values.amount)>=1&&Number(values.amount)<=99));
- const fieldInput=(field)=>isCarfax&&field.key==='report_type'?<PackagePicker options={(field.options||[]).map(o=>({...o,name:({'1':'CAR FAX','2':'AUTO CHECK','3':'IMAGE REPORT'}[String(o.id)]||o.label||o.name||String(o.id)),sortValue:({'1':1,'2':2,'3':3}[String(o.id)]??999)})).sort((a,b)=>a.sortValue-b.sortValue)} value={values.report_type||''} onChange={v=>update('report_type',v)} placeholder="Choose Report Type" priceFor={o=>branch?(o.retail_price??o.account_cost??null):(o.account_cost??null)}/>:field.type==='select'?<select value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)}>
-   <option value="">Choose {field.label}</option>{(field.options||[]).map((o,i)=>{const id=typeof o==='string'?o:String(o.id||o.value||'');return <option value={id} key={id||i}>{typeof o==='string'?o:(o.label||o.name||id)+(Number(o.account_cost)>0?' — $'+Number(branch?(o.retail_price??o.account_cost):o.account_cost).toFixed(2):'')}</option>})}</select>
+ const fieldInput=(field)=>isCarfax&&field.key==='report_type'?<PackagePicker options={(field.options||[]).map(o=>({...o,name:({'1':'CAR FAX','2':'AUTO CHECK','3':'IMAGE REPORT'}[String(o.id)]||o.label||o.name||String(o.id)),sortValue:({'1':1,'2':2,'3':3}[String(o.id)]??999)})).sort((a,b)=>a.sortValue-b.sortValue)} value={values.report_type||''} onChange={v=>update('report_type',v)} placeholder="Choose Report Type" priceFor={o=>branch?(o.retail_price??o.account_cost??null):(o.account_cost??null)}/>:field.type==='select'?<PackagePicker options={(field.options||[]).map(o=>typeof o==='string'?{id:o,name:o}:{...o,id:String(o.id??o.value??''),name:String(o.label||o.name||o.id||o.value||'')})} value={values[field.key]||''} onChange={v=>update(field.key,v)} placeholder={'Choose '+field.label} priceFor={o=>branch?(o.retail_price??o.account_cost??null):(o.account_cost??null)}/>
   :<input type={field.type==='number'?'number':'text'} min={field.min} max={field.max} maxLength={field.maxLength} value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)} placeholder={telcoBill&&field.key==='phone'?'Enter Phone Number':'Enter '+field.label}/>;
  return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}>
   <div className="productModal compactModal servicePopup">
    <button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}} aria-label="Close"><X size={21}/></button>
    <div className="popupTitle"><img src={productImage(p)} alt=""/><h2>{p.title}</h2></div>
-   {loading&&<div className="catalogNotice">Loading available services…</div>}
+   {loading&&<div className="popupLoadingSkeleton" role="status"><RefreshCw size={18} className="spin"/><span>Preparing options…</span></div>}
    <>
     {!loading&&detail&&<>
      {isCard&&<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now</button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge</button></div></div>}
@@ -480,7 +512,7 @@ function ServiceModal({p,close,branch=false}){
       <div className="billPaymentTotal"><span>Amount to Be Paid</span><strong>${billUsd.toFixed(2)}</strong></div>
      </div>}
      {quote&&!telcoBill&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:(isDsl||isSodetel)?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={Math.max(cost,Number(quote.recommended_selling_price??cost))} showProfit/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed} credit={isCredit}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill} credit={isCredit}/>)}
-     {detail.purchase_available&&phase===1?<button className="popupAction" disabled={!ready||busy} onClick={()=>setPhase(2)}>{telcoBill?'Pay Bill':isGift||isCarfax||(isCard&&values.method==='code')||isDsl?'Buy Now':'Recharge Now'}</button>:null}
+     {quotePending&&quote&&<div className="popupInlinePending" role="status">Updating price…</div>}{detail.purchase_available&&phase===1?<button className="popupAction" disabled={!ready||busy} onClick={()=>setPhase(2)}>{telcoBill?'Pay Bill':isGift||isCarfax||(isCard&&values.method==='code')||isDsl?'Buy Now':'Recharge Now'}</button>:null}
      {detail.purchase_available&&phase===2?<button className="popupAction" disabled={!ready||busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
      {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
     </>}
@@ -498,7 +530,7 @@ function ProductModal({p,close,branch=false}){
  const group=groups.find(([k])=>k===firstGroup)?.[1];
  const[offer,setOffer]=useState(''),[quantity,setQuantity]=useState(''),[rechargeAmount,setRechargeAmount]=useState(''),[amountMode,setAmountMode]=useState(false),[values,setValues]=useState({}),[quote,setQuote]=useState(null),[selling,setSelling]=useState(''),[validated,setValidated]=useState(null),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[offerPrices,setOfferPrices]=useState({});
  const qtyTimer=useRef(null),qtyRequest=useRef(0),offerRequest=useRef(0),purchaseRequestKey=useRef(null),quantityDirty=useRef(false);
- const [preview,setPreview]=useState(null),[quoting,setQuoting]=useState(false);
+ const [preview,setPreview]=useState(null),[quoting,setQuoting]=useState(false),[offerPending,setOfferPending]=useState(false);
  useEffect(()=>()=>clearTimeout(qtyTimer.current),[]);
  useEffect(()=>{purchaseRequestKey.current=null;quantityDirty.current=false;setPreview(null);setQuoting(false);setOffer('');setQuote(null);setSelling('');setRechargeAmount('');setAmountMode(false);setValidated(null);setMsg('');setOfferPrices({});let alive=true;if(isQuantity){
    const cached=chatQuantityPreviews.get(authHeaders().Authorization+'|'+p.key);
@@ -533,14 +565,19 @@ function ProductModal({p,close,branch=false}){
   return()=>{alive=false}},[firstGroup,p.key,isQuantity,branch]);
  const img=productImage(p);const fields=p.fields?.length?p.fields:(p.playerLabel?[{key:p.fieldKey||'player_id',label:p.playerLabel,placeholder:p.playerPlaceholder}]:[]);
  async function loadQuote(v){
-  const requestId=++offerRequest.current;purchaseRequestKey.current=null;setOffer(v);setQuote(null);setValidated(null);setMsg('');
-  if(!v){setSelling('');return}
+  const requestId=++offerRequest.current;purchaseRequestKey.current=null;setOffer(v);setOfferPending(Boolean(v));setValidated(null);setMsg('');
+  if(!v){setQuote(null);setOfferPending(false);setSelling('');return}
+  const cached=offerPrices[String(v)];
+  if(cached&&Number.isFinite(Number(cached.account_cost))){
+   const baseline=branch?Number(cached.recommended_selling_price??cached.account_cost):Number(cached.account_cost);
+   setSelling(gameCashPrice(Math.max(Number(cached.account_cost),baseline)));
+  }
   try{
    // Bulk prices are DISPLAY LABELS only. Never authorize checkout from a cached list.
    const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/quote?offer_id='+encodeURIComponent(v),{headers:authHeaders()});
    const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load price');if(requestId!==offerRequest.current)return;
-   const q=d.quote;setQuote(q);setSelling(gameCashPrice(Math.max(Number(q.account_cost||0),Number(q.recommended_selling_price??q.account_cost??0))));
-  }catch(e){if(requestId===offerRequest.current)setMsg(e.message)}
+   const q=d.quote;setQuote(q);setOfferPending(false);setSelling(gameCashPrice(Math.max(Number(q.account_cost||0),Number(q.recommended_selling_price??q.account_cost??0))));
+  }catch(e){if(requestId===offerRequest.current){setOfferPending(false);setQuote(null);setMsg(e.message)}}
  }
  async function fetchQuantityQuote(v,{keepSelling=false}={}){
   const requestId=++qtyRequest.current;setMsg('');setQuoting(true);
@@ -561,7 +598,7 @@ function ProductModal({p,close,branch=false}){
   clearTimeout(qtyTimer.current);
   if(v===undefined||v===null){fetchQuantityQuote(undefined,opts);return}
   setQuantity(String(v));setMsg('');
-  if(!branch&&preview&&Number(preview.quantity)>0&&Number(v)>0){const estimated=Number(preview.account_cost)*Number(v)/Number(preview.quantity);setSelling(suggestedChatRetail(estimated).toFixed(2));}
+  // Do not show an estimated supplier price while the actual quote is pending; keep the previous Selling Price until confirmed.
   if(String(v).trim()===''||!Number.isFinite(Number(v))||Number(v)<=0){setQuoting(false);return}
   qtyTimer.current=setTimeout(()=>fetchQuantityQuote(v,opts),170);
  }
@@ -588,10 +625,12 @@ function ProductModal({p,close,branch=false}){
  }
  async function validate(){setBusy(true);setMsg('');try{const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/validate',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({fields:values})});const d=await r.json();if(!r.ok||d.valid===false)throw new Error(d.error||'Incorrect account information');setValidated(d)}catch(e){setValidated(null);setMsg(e.message)}finally{setBusy(false)}}
  async function purchase(){if(!quote||busy)return;setBusy(true);setMsg('');try{if(!purchaseRequestKey.current)purchaseRequestKey.current=(globalThis.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.random());const requestKey=purchaseRequestKey.current;const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/purchase',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({offer_id:offer,quantity:isQuantity?Number(quantity):undefined,requested_amount:isQuantity&&branch&&amountMode?Number(rechargeAmount):undefined,fields:values,selling_price:Number(selling),request_key:requestKey})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Purchase failed');window.dispatchEvent(new CustomEvent('3abbilo:order-placed',{detail:{orderId:d.order?.id||d.order_id}}))}catch(e){setMsg(e.message)}finally{setBusy(false)}}
- const needsValidation=Boolean(p.validateCategoryId);const allFields=fields.every(f=>String(values[f.key]||'').trim());const canBuy=!quoting&&quote&&allFields&&(!needsValidation||validated)&&(!isQuantity||(Number.isInteger(Number(quantity))&&Number(quantity)>=Number(quote.min_qty||1)&&Number(quantity)<=Number(quote.max_qty||Infinity)&&Number(quantity)===Number(quote.quantity)&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote.recharge_amount??quote.recommended_selling_price))<0.005)));const profit=Number(selling||0)-Number(quote?.account_cost||0);const minQty=Number(preview?.min_qty||quote?.min_qty||p.minQty||1),maxQty=Math.max(minQty,Number(preview?.max_qty||quote?.max_qty||p.maxQty||999999999));
- const hasAccurateQuote=quote&&!quoting&&Number(quote.quantity)===Number(quantity);
- const shownCost=hasAccurateQuote?Number(quote.account_cost):preview&&Number(preview.quantity)>0?Number(preview.account_cost)*Number(quantity||0)/Number(preview.quantity):null;
- return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<label className="popupField">Choose Category<select value={firstGroup} onChange={e=>{purchaseRequestKey.current=null;setFirstGroup(e.target.value)}}>{groups.map(([k,g])=><option key={k} value={k}>{g.title||k}</option>)}</select></label>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>
+ const needsValidation=Boolean(p.validateCategoryId);const allFields=fields.every(f=>String(values[f.key]||'').trim());const canBuy=!quoting&&!offerPending&&quote&&allFields&&(!needsValidation||validated)&&(!isQuantity||(Number.isInteger(Number(quantity))&&Number(quantity)>=Number(quote.min_qty||1)&&Number(quantity)<=Number(quote.max_qty||Infinity)&&Number(quantity)===Number(quote.quantity)&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote.recharge_amount??quote.recommended_selling_price))<0.005)));const profit=Number(selling||0)-Number(quote?.account_cost||0);const minQty=Number(preview?.min_qty||quote?.min_qty||p.minQty||1),maxQty=Math.max(minQty,Number(preview?.max_qty||quote?.max_qty||p.maxQty||999999999));
+ const limitsReady=Boolean(preview||quote);
+ const hasAccurateQuote=quote&&!quoting&&Number(quote.quantity)===Number(quantity)&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote.recharge_amount??quote.recommended_selling_price))<0.005);
+ const shownCost=hasAccurateQuote?Number(quote.account_cost):null;
+ const quotedForSelection=isQuantity?hasAccurateQuote&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote?.recharge_amount??quote?.recommended_selling_price))<0.005):Boolean(quote)&&!offerPending;
+ return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<div className="popupField"><span className="popupLabel">Choose Category</span><PackagePicker options={groups.map(([k,g])=>({id:k,name:g.title||k}))} value={firstGroup} onChange={v=>{purchaseRequestKey.current=null;setFirstGroup(v)}} placeholder="Choose Category"/></div>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>
   {!branch&&<div className="quantityCost"><span>Your Cost</span><strong>{Number.isFinite(shownCost)&&shownCost>0?'$'+shownCost.toFixed(4):'—'}</strong></div>}
   <label className="popupField">Quantity
    {<div className="chatBranchQuantityControl">
@@ -600,18 +639,25 @@ function ProductModal({p,close,branch=false}){
      <button type="button" aria-label="Increase quantity" disabled={Number(quantity||0)>=maxQty} onClick={()=>loadQuantityQuote(String(Math.min(maxQty,Number(quantity||minQty)+1)))}>+</button>
     </div>}
   </label>
-  <div className="quantityLimits">Minimum: {minQty.toLocaleString('en-US')} <span>•</span> Maximum: {maxQty.toLocaleString('en-US')}</div>
+  <div className="quantityLimits">{limitsReady?<>Minimum: {minQty.toLocaleString('en-US')} <span>•</span> Maximum: {maxQty.toLocaleString('en-US')}</>:'Checking quantity limits…'}</div>
   {branch?<div className="chatBranchAmount">
    <label className="popupField">Amount ($)<input type="number" inputMode="decimal" min="0.01" step="0.01" value={rechargeAmount} onChange={e=>loadBranchAmount(e.target.value)} placeholder="Enter amount"/></label>
    <div className="chatQuantityPresets chatAmountPresets" aria-label="Quick recharge amounts">{[1,2,5,10,15,20,25,30,50,100].map(n=><button type="button" key={n} className={Number(rechargeAmount)===n&&amountMode?'selected':''} onClick={()=>loadBranchAmount(n)}>${n}</button>)}</div>
   </div>:<div className="chatWholesalePresets">
    <span className="popupLabel">Suggested Quantities</span>
-   <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{chatQuantityPresets(p.key,minQty,maxQty).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
+   <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{(limitsReady?chatQuantityPresets(p.key,minQty,maxQty):[]).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
   </div>}
  </>}
- {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<div className="sellCompact branchSellingPrice chatBranchSellingPrice"><div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={shownCost??0} step="0.01" value={branch&&quoting?rechargeAmount:selling} readOnly/></div></div>:<ChatSellingPrice value={selling} onChange={setSelling} minimum={shownCost??0} showProfit/>):<GameSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} retail={quote.recommended_selling_price??quote.account_cost} showProfit={!branch}/>)}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Confirm Purchase')}</button></></div></div>
+ {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<div className="sellCompact branchSellingPrice chatBranchSellingPrice"><div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={shownCost??0} step="0.01" value={branch&&quoting?rechargeAmount:selling} readOnly/></div></div>:<ChatSellingPrice value={selling} onChange={setSelling} minimum={shownCost??0} showProfit pending={!hasAccurateQuote}/>):<GameSellingPrice value={selling} onChange={setSelling} minimum={offerPending?Number(offerPrices[String(offer)]?.account_cost??quote.account_cost):quote.account_cost} retail={offerPending?Number(offerPrices[String(offer)]?.recommended_selling_price??offerPrices[String(offer)]?.account_cost??quote.account_cost):(quote.recommended_selling_price??quote.account_cost)} showProfit={!branch} pending={offerPending}/>)}{offerPending&&!isQuantity&&<div className="popupInlinePending" role="status">Updating package price…</div>}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Confirm Purchase')}</button></></div></div>
 }
-function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[]);if(category==='chat')preloadChatQuantities().catch(()=>{})}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
+function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[]);
+  if(category==='chat')preloadChatQuantities().catch(()=>{});
+  if(['gift_cards','alfa','touch','dsl','other_services'].includes(category)){
+   const tiles=(d.products||[]).filter(p=>Boolean(p.key));
+   // Warm a few at a time so the initial page and API aren't overwhelmed.
+   const warm=async()=>{for(let i=0;i<tiles.length;i+=4){await Promise.all(tiles.slice(i,i+4).map(p=>serviceDetails(p.key).catch(()=>null)))}};
+   warm();
+  }}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
  const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countryOpen,setCountryOpen]=useState(false),[countrySearch,setCountrySearch]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState('1'),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
  const requestKey=useRef(null),planPicker=useRef(null),loadSerial=useRef(0);
@@ -686,12 +732,9 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
    {topup&&<button className="popupAction" onClick={()=>load()} disabled={busy||!/^\d{18,22}$/.test(iccid)}>{busy?'Loading…':'Check eSIM / Show Plans'}</button>}
    {busy&&<div className="esimLoading" role="status"><RefreshCw className="spin" size={25}/><span>Loading available eSIM plans…</span></div>}
    {err&&<div className="catalogNotice error" role="alert">{err}</div>}
-   {sortedPackages.length>0&&<div className="popupField esimPlanSelection"><span className="popupLabel">Choose eSIM Type</span><div className={'branchPicker esimPlanPicker'+(planOpen?' isOpen':'')} ref={planPicker}>
-    <button type="button" className="branchPickerTrigger" aria-haspopup="listbox" aria-expanded={planOpen} onClick={()=>setPlanOpen(v=>!v)}>{selected?planHeading(selected):'Choose eSIM Type'}<span aria-hidden="true">⌄</span></button>
-    {planOpen&&<div className="branchPickerOptions esimPlanOptions" role="listbox" aria-label="Choose eSIM Type">{sortedPackages.map((p,i)=><button type="button" role="option" aria-selected={selected?.package_code===p.package_code} className={selected?.package_code===p.package_code?'selected':''} key={p.package_code||p.slug||i} onClick={()=>choose(p)}><strong>{planHeading(p)}</strong>{Number(p.data_type)===2&&<small>{dailySubtitle(p)}</small>}</button>)}</div>}
-   </div></div>}
-   {selected&&<div className="esimCheckout">
-    {daily&&<><div className="esimDayInfo"><strong>{planHeading(selected)}</strong><span>{dailySubtitle(selected)}</span></div><label className="popupField">Number of Days<input type="number" min={selected.period_min||1} max={selected.period_max||365} value={period} onChange={e=>setDays(e.target.value)} onBlur={commitDays} onFocus={e=>e.target.select()} inputMode="numeric"/></label><div className="esimDayTotal">{!dayValid?'Enter a valid number of days':<>{days} {days===1?'day':'days'} · Total: {money2(totalCost)}</>}</div></>}
+   {sortedPackages.length>0&&<div className="popupField esimPlanSelection"><span className="popupLabel">Choose eSIM Type</span><PackagePicker options={sortedPackages.map((p,i)=>({id:String(p.package_code||p.slug||i),name:planHeading(p),original:p,sortValue:i}))} value={selected?String(selected.package_code||selected.slug||''): ''} onChange={v=>{const plan=sortedPackages.find((p,i)=>String(p.package_code||p.slug||i)===String(v));if(plan)choose(plan)}} placeholder="Choose eSIM Type" priceFor={p=>({label:p.name})} subtitleFor={p=>Number(p.original?.data_type)===2?dailySubtitle(p.original):''}/></div>}
+{selected&&<div className="esimCheckout">
+    {daily&&<><div className="esimDayInfo"><strong>{planHeading(selected)}</strong><span>{dailySubtitle(selected)}</span></div><div className="popupField"><span className="popupLabel">Number of Days</span><div className="chatBranchQuantityControl esimDayControls"><button type="button" aria-label="Decrease days" disabled={!dayValid||days<=dayMin} onClick={()=>setDays(String(Math.max(dayMin,days-1)))}>−</button><input aria-label="Number of Days" type="text" inputMode="numeric" pattern="[0-9]*" value={period} onChange={e=>setDays(e.target.value)} onBlur={commitDays} onFocus={e=>e.target.select()}/><button type="button" aria-label="Increase days" disabled={!dayValid||days>=dayMax} onClick={()=>setDays(String(Math.min(dayMax,days+1)))}>+</button></div></div><div className="esimDayTotal">{!dayValid?'Enter a valid number of days':<>{days} {days===1?'day':'days'} · Total: {money2(totalCost)}</>}</div></>}
     <div className="sellCompact branchSellingPrice esimSellingPrice">
      <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={totalCost} step="0.01" value={selling} onChange={e=>setSelling(e.target.value)}/><span>Profit <strong>{Number.isFinite(profit)?money2(profit):'—'}</strong></span></div>
      <div className="branchPriceSteps" aria-label="Suggested eSIM selling prices">{[-1,-.5,0,.5,1].map(delta=>{const value=Math.round((center+delta)*100)/100;const allowed=value>0&&value+1e-9>=totalCost;return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(selling)-value)<.005?'active':''} onClick={()=>setSelling(value.toFixed(2))}><strong>${value.toFixed(value%1===0?0:2)}</strong></button>})}</div>

@@ -402,3 +402,28 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .chatBranchAmount .popupField{margin-bottom:0}
 .chatBranchSellingPrice{margin-top:10px}
 @media(max-width:460px){.chatQuantityPresets{gap:4px}.chatQuantityPresets button{font-size:10px;padding:9px 1px}}
+
+/* Dropdown options are rendered through a portal above all product popups.
+   They never expand or get clipped by the popup's scroll container. */
+body>.branchPickerFloating{
+ position:fixed!important;
+ z-index:2147483010!important;
+ display:block!important;
+ margin:0!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain;
+ border:1px solid #e3e7ed!important;
+ border-radius:11px!important;
+ background:#fff!important;
+ box-shadow:0 14px 32px rgba(15,23,42,.25)!important;
+ box-sizing:border-box!important;
+ scrollbar-width:thin;
+}
+body>.branchPickerFloating>button{display:flex!important;flex-direction:column;align-items:center;gap:3px;justify-content:center;min-height:38px;padding:10px 8px;font-weight:750;text-align:center}
+body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;color:#64748b;font-weight:450;line-height:1.3;text-align:center}
+.popupLoadingSkeleton{display:flex;align-items:center;justify-content:center;gap:8px;color:#64748b;font-size:12px;padding:13px 6px;min-height:38px}
+.popupInlinePending{font-size:11px;text-align:center;color:#64748b;margin:4px 0}
+.esimDayControls{display:flex;align-items:center;gap:9px;margin-top:8px}
+.esimDayControls input{flex:1;min-width:0;text-align:center;height:45px}
+.esimDayControls button{height:39px;width:39px;flex:0 0 39px;border-radius:50%;background:#ff8a00;color:white;border:0;cursor:pointer;font-size:22px;font-weight:750}
+.esimDayControls button:disabled{opacity:.35;cursor:not-allowed}
