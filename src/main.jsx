@@ -10,6 +10,15 @@ function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abb
 function productImage(p){return p?.key?'/product-images/'+encodeURIComponent(p.key):''}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
+const chatOffersPriceCache=new Map();
+function chatOfferPrices(key,group){
+ const accountKey=authHeaders().Authorization+'|'+key+'|'+group;
+ return cachedFetch(chatOffersPriceCache,accountKey,20000,async()=>{
+  const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(key)+'/chat-offer-prices?group='+encodeURIComponent(group),{headers:authHeaders()});
+  const d=await r.json();if(!r.ok)throw Error(d.error||'Prices unavailable');return d.prices||{};
+ });
+}
+
 function cachedFetch(cache,key,ttl,run){
  const item=cache.get(key);
  if(item&&item.until>Date.now())return item.promise;
@@ -32,7 +41,7 @@ function ProductArtwork({p,alt='',compact=false}){
  if(src&&!failed)return <img src={src} alt={alt||title} loading={compact?'eager':'lazy'} onError={()=>setFailed(true)}/>;
  return <div className="catalogFallback" role="img" aria-label={title} style={compact?{width:50,height:50,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:12,background:'#f4f7ff',color:'#152a54'}:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(145deg,#f6f2ff,#eef7ff)',color:'#1b335b',minHeight:140,padding:14}}><MessageCircle size={compact?23:38}/>{!compact&&<strong style={{fontSize:14,textAlign:'center',overflowWrap:'anywhere'}}>{title}</strong>}</div>;
 }
-function ProductTile({p,onOpen}){const img=productImage(p);const prefetch=()=>{if(p.type==='quantity')quantityQuote(p.key).catch(()=>{});};return <button className="catalogProduct" onPointerEnter={prefetch} onFocus={prefetch} onClick={()=>onOpen(p)}><ProductArtwork p={p}/><b>{p.title||p.name||p.key}</b></button>}
+function ProductTile({p,onOpen}){const img=productImage(p);const prefetch=()=>{if(p.type==='quantity')quantityQuote(p.key).catch(()=>{});else if(p.section==='chat'){const group=Object.keys(p.groups||{})[0];if(group)chatOfferPrices(p.key,group).catch(()=>{})}};return <button className="catalogProduct" onPointerEnter={prefetch} onFocus={prefetch} onClick={()=>onOpen(p)}><ProductArtwork p={p}/><b>{p.title||p.name||p.key}</b></button>}
 function offerLabel(o){
  const raw=String(o.displayName||o.name||o.offerId||o.id||'Option').trim();
  // Dazz Live supplier ids have the form coins_5000_250: base coins + bonus.
@@ -445,10 +454,12 @@ function ProductModal({p,close,branch=false}){
  const qtyTimer=useRef(null),qtyRequest=useRef(0),offerRequest=useRef(0),purchaseRequestKey=useRef(null);
  useEffect(()=>()=>clearTimeout(qtyTimer.current),[]);
  useEffect(()=>{purchaseRequestKey.current=null;setOffer('');setQuote(null);setSelling('');setRechargeAmount('');setAmountMode(false);setValidated(null);setMsg('');setOfferPrices({});if(isQuantity){loadQuantityQuote();return}let alive=true;
-  if(branch){
+  if(p.section==='chat'){
+   chatOfferPrices(p.key,firstGroup).then(prices=>{if(alive)setOfferPrices(prices)}).catch(e=>{if(alive)setMsg(e.message)});
+  }else if(branch){
    fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/offer-prices?group='+encodeURIComponent(firstGroup),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Prices unavailable');if(alive)setOfferPrices(d.prices||{})}).catch(e=>{if(alive)setMsg(e.message)});
   }else{
-   // Preserve the existing account-specific dealer/shop quoting workflow.
+   // Other product groups retain their existing individual live quote previews.
    const list=group?.offers||[];
    Promise.all(list.map(async(o,i)=>{const id=o.offerId||o.id||i;try{const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/quote?offer_id='+encodeURIComponent(id),{headers:authHeaders()});const d=await r.json();return r.ok?[String(id),d.quote]:null}catch{return null}})).then(rows=>{if(alive)setOfferPrices(Object.fromEntries(rows.filter(Boolean)))});
   }
