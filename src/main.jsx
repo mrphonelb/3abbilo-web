@@ -115,12 +115,12 @@ function branchCashPrice(price){
 }
 // Alfa/Touch Credits: round the cost upward to the next $0.50, then add $0.50.
 function creditCashPrice(cost){return ((Math.ceil((Number(cost)-1e-9)*2)+1)/2).toFixed(2)}
-function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=false}){
+function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=false,showProfit=false}){
  const base=Number(credit?creditCashPrice(Math.max(Number(minimum||0),Number(retail||0))):branchCashPrice(retail)),floor=Number(minimum||0);
  const display=Number.isFinite(Number(value))?value:'';
  const deltas=[-1,-.5,0,.5,1];
  return <div className="sellCompact branchSellingPrice">
-   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" step="0.01" min={floor} value={display} readOnly={locked} onChange={e=>onChange(e.target.value)}/></div>
+   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" step="0.01" min={floor} value={display} readOnly={locked} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(display||0)-floor).toFixed(2)}</strong></span>}</div>
    {!locked&&<div className="branchPriceSteps" aria-label="Suggested selling prices">{deltas.map(delta=>{
      const target=Math.round((base+delta)*100)/100;
      const allowed=Number.isFinite(target)&&target>0&&target+1e-9>=floor;
@@ -397,7 +397,7 @@ function ServiceModal({p,close,branch=false}){
  const billEstimatedCost=Number.isFinite(billEstimatedSupplier)&&billEstimatedSupplier>0?billEstimatedSupplier:null;
  const ready=!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost&&(!telcoCredit||(phoneStatus===telcoProvider&&Number(values.amount)>=1&&Number(values.amount)<=99));
  const fieldInput=(field)=>field.type==='select'?<select value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)}>
-   <option value="">Choose {field.label}</option>{(field.options||[]).map((o,i)=>{const id=typeof o==='string'?o:String(o.id||o.value||'');return <option value={id} key={id||i}>{typeof o==='string'?o:o.label||o.name||id}</option>})}</select>
+   <option value="">Choose {field.label}</option>{(field.options||[]).map((o,i)=>{const id=typeof o==='string'?o:String(o.id||o.value||'');return <option value={id} key={id||i}>{typeof o==='string'?o:(o.label||o.name||id)+(Number(o.account_cost)>0?' — $'+Number(branch?(o.retail_price??o.account_cost):o.account_cost).toFixed(2):'')}</option>})}</select>
   :<input type={field.type==='number'?'number':'text'} min={field.min} max={field.max} maxLength={field.maxLength} value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)} placeholder={telcoBill&&field.key==='phone'?'Enter Phone Number':'Enter '+field.label}/>;
  return <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&close()}>
   <div className="productModal compactModal servicePopup">
@@ -414,6 +414,7 @@ function ServiceModal({p,close,branch=false}){
      {telcoBill&&phoneStatus==='invalid'&&<div className="alfaCreditError" role="alert">Enter a valid {telcoProvider==='alfa'?'Alfa':'Touch'} number.</div>}
      {isUshare&&<label className="ushareCreditRow"><span className="ushareCreditLeft"><input type="checkbox" checked={values.add_activation_credit===true} onChange={e=>{update('add_activation_credit',e.target.checked);setQuote(null);setSelling('')}}/><span>Add $1 Alfa Credit</span></span><strong className="ushareCreditCost">{values.add_activation_credit===true?(quote&&Number.isFinite(ushareBaseCost)?'$'+Math.max(0,Number(quote.account_cost)-ushareBaseCost).toFixed(2):'—'):'Optional'}</strong></label>}
      {needsPhone&&<label className="popupField">Recipient Number<input value={values.phone||''} onChange={e=>update('phone',e.target.value)} placeholder="Enter recipient number"/></label>}
+     {isCarfax&&quote&&<div className="alfaCreditAmountCost" style={{textAlign:'right',marginTop:-5,marginBottom:6}}>Cost: <strong>${cost.toFixed(2)}</strong></div>}
      {isCarfax&&<button className="popupSecondary" disabled={busy||!values.vin||!values.report_type} onClick={check}>{busy?'Checking…':'Check Vehicle'}</button>}
      {isBill&&<button className="popupSecondary" disabled={busy||!billPhoneValid} onClick={check}>{busy?'Checking…':'Get Bill'}</button>}
      {isBill&&verified?.requires_otp&&<label className="popupField">Bill Verification Code<input value={billOtp} inputMode="numeric" maxLength={10} onChange={e=>setBillOtp(e.target.value.replace(/\D/g,''))} placeholder="Enter SMS verification code"/></label>}
@@ -424,7 +425,7 @@ function ServiceModal({p,close,branch=false}){
       {billLbp>0&&<div className="billPaymentRow billPaymentLbp"><span>Bill in LBP</span><strong>LBP {billLbp.toLocaleString('en-US',{maximumFractionDigits:0})}</strong></div>}
       <div className="billPaymentTotal"><span>Amount to Be Paid</span><strong>${billUsd.toFixed(2)}</strong></div>
      </div>}
-     {quote&&!telcoBill&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:(isDsl||isSodetel)?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={Math.max(cost,Number(quote.recommended_selling_price??cost))}/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed} credit={isCredit}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill} credit={isCredit}/>)}
+     {quote&&!telcoBill&&(isGift?<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit={!branch}/>:(isDsl||isSodetel)?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={Math.max(cost,Number(quote.recommended_selling_price??cost))} showProfit/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed} credit={isCredit}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill} credit={isCredit}/>)}
      {detail.purchase_available&&phase===1?<button className="popupAction" disabled={!ready||busy} onClick={()=>setPhase(2)}>{telcoBill?'Pay Bill':isGift||isCarfax||(isCard&&values.method==='code')||isDsl?'Buy Now':'Recharge Now'}</button>:null}
      {detail.purchase_available&&phase===2?<button className="popupAction" disabled={!ready||busy} onClick={purchase}>{busy?'Processing…':'Confirm Purchase'}</button>:null}
      {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
