@@ -207,9 +207,12 @@ function WholesaleSellingPrice({value,onChange,minimum,retail,showProfit=true,cr
 // Chat app cash collection: the recharge amount is the center suggestion.
 // Adjusting the selling price never changes quantity or supplier debit.
 function ChatSellingPrice({value,onChange,minimum,amount,showProfit=false}){
- const center=Number(amount);
+ const rawAmount=Number(amount);
+ // Round the cashier's center suggestion up to a whole dollar:
+ // e.g. $9.72 -> $10, then $9, $9.50, $10, $10.50, $11.
+ const center=Number.isFinite(rawAmount)&&rawAmount>0?Math.ceil(rawAmount-1e-9):0;
  const floor=Number(minimum||0);
- const valid=Number.isFinite(center)&&center>0;
+ const valid=center>0;
  return <div className="sellCompact branchSellingPrice chatSellingPrice">
   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} onChange={e=>onChange(e.target.value)}/>{showProfit&&<span>Profit <strong>${(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
   {valid&&<div className="branchPriceSteps" aria-label="Suggested chat selling prices">{[-1,-.5,0,.5,1].map(delta=>{
