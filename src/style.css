@@ -380,3 +380,12 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .esimCountryDialogList button{width:100%;display:block;background:#fff;color:#152035;border:0;border-bottom:1px solid #edf0f5;text-align:center;padding:11px 8px;min-height:42px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
 .esimCountryDialogList button:hover,.esimCountryDialogList button[aria-selected="true"]{color:#c36100;background:#fff5ea}
 @media(max-width:600px){.esimCountryDialog{max-height:75dvh}.esimCountryOverlay{padding:12px}}
+
+/* Chat Apps: quantity-first selector, no hardcoded amount shortcuts. */
+.chatQuantitySlider{margin:8px 2px 13px;padding:10px 11px 7px;border:1px solid #e1e6ef;border-radius:11px;background:#fafbff}
+.chatSliderHead,.chatSliderBounds{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chatSliderHead{font-size:12px;font-weight:700;color:#102c56}
+.chatSliderBounds{font-size:10px;color:#72819b;margin-top:2px}
+.chatQuantitySlider input[type="range"]{display:block;width:100%;margin:10px 0 6px;accent-color:#ff8700;cursor:pointer;touch-action:pan-y}
+
+.chatSliderControls{display:flex;align-items:center;gap:9px}.chatSliderControls button{flex:0 0 30px;width:30px;height:30px;border:1px solid #ff8a00;border-radius:9px;background:#fff;color:#0c2852;font-size:18px;font-weight:700;cursor:pointer}.chatSliderControls button:disabled{opacity:.35;cursor:not-allowed}.chatSliderControls input[type="range"]{flex:1;min-width:0}
