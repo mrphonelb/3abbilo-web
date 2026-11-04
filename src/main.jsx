@@ -390,6 +390,8 @@ function ServiceModal({p,close,branch=false}){
  const [selling,setSelling]=useState(''),[phase,setPhase]=useState(1),[busy,setBusy]=useState(false);
  const [ushareBaseCost,setUshareBaseCost]=useState(null);
  const [verified,setVerified]=useState(null),[moreOptions,setMoreOptions]=useState([]),[billOtp,setBillOtp]=useState('');
+ // Distinguish a genuine empty plan list from a temporary lookup failure.
+ const [sodetelLookupStatus,setSodetelLookupStatus]=useState('idle'),[sodetelRetry,setSodetelRetry]=useState(0);
  const serviceRequestKey=useRef(null);
  // Protect manual Sodetel selling-price edits from a late supplier quotation.
  const sellingEditedRef=useRef(false);
@@ -452,11 +454,31 @@ function ServiceModal({p,close,branch=false}){
    .catch(()=>{if(active)setUshareBaseCost(null)});
   return()=>{active=false};
  },[p.key,offer,values.add_activation_credit,isUshare]);
- useEffect(()=>{if(!isSodetel||!values.identifier||!values.service){setMoreOptions([]);return}
-  let active=true;fetch(path+'/extra-options?'+new URLSearchParams({identifier:values.identifier,service:values.service}),{headers:authHeaders()})
-   .then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load plans');if(active)setMoreOptions(d.options||[])}).catch(e=>{if(active)setError(e.message)});
-  return()=>{active=false};
- },[p.key,values.identifier,values.service,isSodetel]);
+ useEffect(()=>{
+  const identifier=String(values.identifier||'').trim();
+  if(!isSodetel||!values.service||!identifier||!/^[0-9A-Za-z-]{4,32}$/.test(identifier)){
+   setMoreOptions([]);setSodetelLookupStatus('idle');return;
+  }
+  // Wait until the user pauses typing; prevent overlapping/outdated plans
+  // responses from clearing valid options or displaying upstream failures.
+  let active=true;
+  const controller=new AbortController();
+  setSodetelLookupStatus('loading');setError('');
+  const timer=setTimeout(()=>{
+   fetch(path+'/extra-options?'+new URLSearchParams({identifier,service:values.service}),{
+    headers:authHeaders(),signal:controller.signal
+   }).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load packages');return d;})
+    .then(d=>{if(!active)return;const next=Array.isArray(d.options)?d.options:[];
+     setMoreOptions(next);setSodetelLookupStatus(next.length?'ready':'empty');setError('');
+    }).catch(e=>{if(!active||e.name==='AbortError')return;
+     setMoreOptions([]);setSodetelLookupStatus('error');
+     // The supplier can reject a lookup for a valid number. Never show its
+     // internal failure code, provider name or raw transport details.
+     setError('Unable to retrieve packages right now. Please try again.');
+    });
+  },550);
+  return()=>{active=false;clearTimeout(timer);controller.abort()};
+ },[p.key,values.identifier,values.service,isSodetel,sodetelRetry]);
  async function check(){setBusy(true);setError('');setVerified(null);try{
   const r=await fetch(path+'/check',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify(isCarfax?{vin:values.vin,report_type:values.report_type}:{phone:values.phone})});
   const d=await r.json();if(!r.ok){const message=String(d.error||'Could not verify details');const normalized=billNotice({message});throw Error(isBill&&normalized!==message&&normalized!=='No unpaid bill is available for this number.'?normalized:message)}setVerified(d.result||{});if(isBill&&!d.result?.available&&!d.result?.requires_otp)setError(billNotice(d.result));if(isCarfax&&!d.result?.ok)setError(d.result?.message||'Vehicle could not be verified');
@@ -512,7 +534,7 @@ function ServiceModal({p,close,branch=false}){
       }else{setQuote(null);setSelling('')}
       setQuotePending(true);
       setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null;
-     }} placeholder={moreOptions.length?'Choose package':'No live packages available'} priceFor={o=>branch?(o.retail_price??null):(o.account_cost??null)}/></div>}
+     }} placeholder={moreOptions.length?'Choose package':sodetelLookupStatus==='loading'?'Loading packages…':sodetelLookupStatus==='error'?'Packages temporarily unavailable':sodetelLookupStatus==='empty'?'No live packages available':'Choose package'} priceFor={o=>branch?(o.retail_price??null):(o.account_cost??null)}/>{sodetelLookupStatus==='error'&&<button type="button" className="popupSecondary" onClick={()=>{setError('');setSodetelRetry(n=>n+1)}}>Try Again</button>}</div>}
      {telcoBill&&['alfa','touch'].includes(phoneStatus)&&phoneStatus!==telcoProvider&&<div className="alfaCreditError" role="alert">This is not a {telcoProvider==='alfa'?'Alfa':'Touch'} number.</div>}
      {telcoBill&&phoneStatus==='invalid'&&<div className="alfaCreditError" role="alert">Enter a valid {telcoProvider==='alfa'?'Alfa':'Touch'} number.</div>}
      {isUshare&&<label className="ushareCreditRow"><span className="ushareCreditLeft"><input type="checkbox" checked={values.add_activation_credit===true} onChange={e=>{update('add_activation_credit',e.target.checked);setQuote(null);setSelling('')}}/><span>Add $1 Alfa Credit</span></span><strong className="ushareCreditCost">{values.add_activation_credit===true?(quote&&Number.isFinite(ushareBaseCost)?'$'+Math.max(0,Number(quote.account_cost)-ushareBaseCost).toFixed(2):'—'):'Optional'}</strong></label>}
