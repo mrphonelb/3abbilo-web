@@ -474,10 +474,12 @@ function ProductModal({p,close,branch=false}){
 }
 function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[])}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
- const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countryOpen,setCountryOpen]=useState(false),[countrySearch,setCountrySearch]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState(1),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
+ const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countryOpen,setCountryOpen]=useState(false),[countrySearch,setCountrySearch]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState('1'),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
  const requestKey=useRef(null),planPicker=useRef(null),loadSerial=useRef(0);
  const daily=Number(selected?.data_type)===2;
- const days=daily?Math.max(1,Math.min(Number(selected?.period_max||365),Number(period)||1)):1;
+ const dayMin=Number(selected?.period_min||1),dayMax=Number(selected?.period_max||365);
+ const dayValid=!daily||(String(period).trim()!==''&&Number.isInteger(Number(period))&&Number(period)>=dayMin&&Number(period)<=dayMax);
+ const days=daily&&dayValid?Number(period):1;
  const unitCost=Number(selected?.account_cost??selected?.recommended_selling_price??0);
  const totalCost=Number((unitCost*days).toFixed(2));
  const margin=branch ? 0 : (accountType==='dealer' ? 0.12 : 0.07);
@@ -497,8 +499,18 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
  useEffect(()=>{if(!planOpen)return;const onPointer=e=>{if(!planPicker.current?.contains(e.target))setPlanOpen(false)};const onKey=e=>{if(e.key==='Escape')setPlanOpen(false)};document.addEventListener('pointerdown',onPointer);document.addEventListener('keydown',onKey);return()=>{document.removeEventListener('pointerdown',onPointer);document.removeEventListener('keydown',onKey)}},[planOpen]);
  useEffect(()=>{if(!countryOpen)return;const onKey=e=>{if(e.key==='Escape'){e.preventDefault();setCountryOpen(false)}};document.addEventListener('keydown',onKey);return()=>document.removeEventListener('keydown',onKey)},[countryOpen]);
  function suggestedSelling(cost){return (Math.round(Number(cost)*(1+margin)*100)/100).toFixed(2)}
- function choose(p){setSelected(p);setPeriod(1);setSelling(suggestedSelling(planPrice(p)));setPlanOpen(false);setErr('');requestKey.current=null;}
- function setDays(v){const n=Math.max(Number(selected?.period_min||1),Math.min(Number(selected?.period_max||365),Math.floor(Number(v)||1)));setPeriod(n);setSelling(suggestedSelling(unitCost*n));requestKey.current=null;}
+ function choose(p){setSelected(p);setPeriod(String(p.period_min||1));setSelling(suggestedSelling(planPrice(p)));setPlanOpen(false);setErr('');requestKey.current=null;}
+ function setDays(v){
+  // Keep the raw editable value, including an empty field, until typing is finished.
+  if(v!==''&&!/^\d+$/.test(v))return;
+  setPeriod(v);requestKey.current=null;
+  const n=Number(v);
+  if(v!==''&&Number.isInteger(n)&&n>=dayMin&&n<=dayMax)setSelling(suggestedSelling(unitCost*n));
+ }
+ function commitDays(){
+  const n=Number(period);const normalized=String(period).trim()!==''&&Number.isFinite(n)?Math.max(dayMin,Math.min(dayMax,Math.trunc(n))):dayMin;
+  setPeriod(String(normalized));setSelling(suggestedSelling(unitCost*normalized));requestKey.current=null;
+ }
  async function load(destination=country){
   const serial=++loadSerial.current;
   setErr('');setPackages([]);setSelected(null);setPlanOpen(false);requestKey.current=null;
@@ -513,7 +525,7 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
   }catch(e){if(serial===loadSerial.current)setErr(e.message)}finally{if(serial===loadSerial.current)setBusy(false)}
  }
  function changeCountry(next){setCountryOpen(false);setCountrySearch('');setCountry(next);setPackages([]);setSelected(null);setErr('');loadSerial.current++;if(next)load(next);}
- async function buy(){if(!enabled||!selected||busy)return;
+ async function buy(){if(!enabled||!selected||busy||!dayValid)return;
   const price=Number(selling);
   if(!Number.isFinite(price)||price<totalCost||price<=0)return setErr('Selling price must cover the account cost.');
   if(Math.abs(price*100-Math.round(price*100))>0.00001)return setErr('Selling price must use two decimal places.');
@@ -540,12 +552,12 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
     {planOpen&&<div className="branchPickerOptions esimPlanOptions" role="listbox" aria-label="Choose eSIM Type">{sortedPackages.map((p,i)=><button type="button" role="option" aria-selected={selected?.package_code===p.package_code} className={selected?.package_code===p.package_code?'selected':''} key={p.package_code||p.slug||i} onClick={()=>choose(p)}><strong>{planHeading(p)}</strong>{Number(p.data_type)===2&&<small>{dailySubtitle(p)}</small>}</button>)}</div>}
    </div></div>}
    {selected&&<div className="esimCheckout">
-    {daily&&<><div className="esimDayInfo"><strong>{planHeading(selected)}</strong><span>{dailySubtitle(selected)}</span></div><label className="popupField">Number of Days<input type="number" min={selected.period_min||1} max={selected.period_max||365} value={period} onChange={e=>setDays(e.target.value)}/></label><div className="esimDayTotal">{days} {days===1?'day':'days'} · Total: {money2(totalCost)}</div></>}
+    {daily&&<><div className="esimDayInfo"><strong>{planHeading(selected)}</strong><span>{dailySubtitle(selected)}</span></div><label className="popupField">Number of Days<input type="number" min={selected.period_min||1} max={selected.period_max||365} value={period} onChange={e=>setDays(e.target.value)} onBlur={commitDays} onFocus={e=>e.target.select()} inputMode="numeric"/></label><div className="esimDayTotal">{!dayValid?'Enter a valid number of days':<>{days} {days===1?'day':'days'} · Total: {money2(totalCost)}</>}</div></>}
     <div className="sellCompact branchSellingPrice esimSellingPrice">
      <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={totalCost} step="0.01" value={selling} onChange={e=>setSelling(e.target.value)}/><span>Profit <strong>{Number.isFinite(profit)?money2(profit):'—'}</strong></span></div>
      <div className="branchPriceSteps" aria-label="Suggested eSIM selling prices">{[-1,-.5,0,.5,1].map(delta=>{const value=Math.round((center+delta)*100)/100;const allowed=value>0&&value+1e-9>=totalCost;return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(selling)-value)<.005?'active':''} onClick={()=>setSelling(value.toFixed(2))}><strong>${value.toFixed(value%1===0?0:2)}</strong></button>})}</div>
     </div>
-    {enabled&&<button className="popupAction" disabled={busy||!Number.isFinite(Number(selling))||Number(selling)<totalCost} onClick={buy}>{busy?'Submitting…':topup?'Topup eSIM':'Buy Now'}</button>}
+    {enabled&&<button className="popupAction" disabled={busy||!dayValid||!Number.isFinite(Number(selling))||Number(selling)<totalCost} onClick={buy}>{busy?'Submitting…':topup?'Topup eSIM':'Buy Now'}</button>}
    </div>}
    {selected&&!enabled&&<div className="checkoutPending compact">eSIM purchasing is currently unavailable. Please try again later.</div>}
   </div>
