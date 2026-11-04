@@ -389,3 +389,16 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .chatQuantitySlider input[type="range"]{display:block;width:100%;margin:10px 0 6px;accent-color:#ff8700;cursor:pointer;touch-action:pan-y}
 
 .chatSliderControls{display:flex;align-items:center;gap:9px}.chatSliderControls button{flex:0 0 30px;width:30px;height:30px;border:1px solid #ff8a00;border-radius:9px;background:#fff;color:#0c2852;font-size:18px;font-weight:700;cursor:pointer}.chatSliderControls button:disabled{opacity:.35;cursor:not-allowed}.chatSliderControls input[type="range"]{flex:1;min-width:0}
+
+/* Chat Apps: compact 3ABBILO quantity and branch recharge controls. */
+.chatQuantityPresets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:6px 0 12px}
+.chatQuantityPresets button{min-width:0;padding:10px 2px;border:1px solid #ff8a00;border-radius:9px;background:#fff;color:#08254c;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.chatQuantityPresets button.selected{background:#fff2e2;border-width:2px;color:#e56b00}
+.chatWholesalePresets .popupLabel{display:block;text-align:center;margin:7px 0 5px;font-size:12px;font-weight:750;color:#0b2244}
+.chatBranchQuantityControl{display:flex;align-items:center;gap:9px}
+.chatBranchQuantityControl input{flex:1;min-width:0;text-align:center}
+.chatBranchQuantityControl button{height:37px;width:37px;flex:0 0 37px;border:0;border-radius:50%;background:#ff8a00;color:white;font-size:23px;font-weight:700;cursor:pointer}
+.chatBranchQuantityControl button:disabled{opacity:.35;cursor:not-allowed}
+.chatBranchAmount .popupField{margin-bottom:0}
+.chatBranchSellingPrice{margin-top:10px}
+@media(max-width:460px){.chatQuantityPresets{gap:4px}.chatQuantityPresets button{font-size:10px;padding:9px 1px}}

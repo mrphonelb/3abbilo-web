@@ -226,6 +226,34 @@ function suggestedChatRetail(accountCost){
  if(center<=cost)center=Math.ceil((cost+0.01)*2)/2;
  return Number(center.toFixed(2));
 }
+// Quantity shortcut presets for wholesale Chat Apps. Every preset is validated
+// against the live supplier min/max; unknown apps get sensible logarithmic tiers.
+function chatQuantityPresets(productKey,minQuantity,maxQuantity){
+ const min=Math.max(1,Math.ceil(Number(minQuantity)||1));
+ const max=Math.max(min,Math.floor(Number(maxQuantity)||min));
+ const specified={
+  soulchill:[1000,2500,5000,10000,20000,50000,100000,200000,350000,500000],
+  fourfun:[20000,65000,130000,260000,520000,780000,1000000,2000000,3500000,5000000]
+ }[String(productKey||'').toLowerCase()];
+ if(specified)return [...new Set(specified.filter(n=>n>=min&&n<=max))];
+ if(min===max)return [min];
+ const choices=new Set([min,max]);
+ function nice(value){
+  if(value<=10)return Math.round(value);
+  const magnitude=Math.pow(10,Math.floor(Math.log10(value)));
+  const digit=value/magnitude;
+  const best=[1,1.5,2,2.5,3,4,5,6,7.5,8,10].reduce((a,b)=>Math.abs(b-digit)<Math.abs(a-digit)?b:a);
+  return Math.round(best*magnitude);
+ }
+ for(let i=1;i<30&&choices.size<10;i++){
+  const fraction=i/30;
+  const raw=min*Math.pow(max/min,fraction);
+  const n=nice(raw);
+  if(n>=min&&n<=max)choices.add(n);
+ }
+ return [...choices].sort((a,b)=>a-b).slice(0,10);
+}
+
 function ChatSellingPrice({value,onChange,minimum,showProfit=false}){
  const center=suggestedChatRetail(minimum),floor=Number(minimum||0);
  return <div className="sellCompact branchSellingPrice chatSellingPrice">
@@ -500,12 +528,68 @@ function ProductModal({p,close,branch=false}){
    const q=d.quote;setQuote(q);setSelling(gameCashPrice(Math.max(Number(q.account_cost||0),Number(q.recommended_selling_price??q.account_cost??0))));
   }catch(e){if(requestId===offerRequest.current)setMsg(e.message)}
  }
- async function fetchQuantityQuote(v,{keepSelling=false}={}){const requestId=++qtyRequest.current;setMsg('');try{const n=Number(v);const suffix=Number.isFinite(n)&&n>0?'?qty='+encodeURIComponent(n):'';const q=await quantityQuote(p.key,suffix);if(requestId!==qtyRequest.current)return;if(v===undefined||v===null)setQuantity(String(q.quantity??''));setQuote(q);const amount=Number(q.recharge_amount||0);setRechargeAmount(amount?amount.toFixed(2):'');if(!keepSelling)setSelling((branch?Number(q.recommended_selling_price??q.account_cost):suggestedChatRetail(q.account_cost)).toFixed(2))}catch(e){if(requestId===qtyRequest.current)setMsg(e.message)}}
- function loadQuantityQuote(v,opts={}){++qtyRequest.current;purchaseRequestKey.current=null;setAmountMode(false);setQuote(null);if(v===undefined||v===null){fetchQuantityQuote(undefined,opts);return}setQuantity(String(v));setMsg('');clearTimeout(qtyTimer.current);qtyTimer.current=setTimeout(()=>fetchQuantityQuote(v,opts),170)}
+ async function fetchQuantityQuote(v,{keepSelling=false}={}){
+  const requestId=++qtyRequest.current;setMsg('');
+  try{
+   const n=Number(v),suffix=Number.isFinite(n)&&n>0?'?qty='+encodeURIComponent(n):'';
+   const q=await quantityQuote(p.key,suffix);
+   if(requestId!==qtyRequest.current)return;
+   if(v===undefined||v===null)setQuantity(String(q.quantity??''));
+   setQuote(q);
+   const amount=Number(q.recharge_amount??(branch?q.recommended_selling_price:0));
+   setRechargeAmount(amount>0?amount.toFixed(2):'');
+   if(!keepSelling)setSelling((branch?Number(q.recommended_selling_price??q.account_cost):suggestedChatRetail(q.account_cost)).toFixed(2));
+  }catch(e){if(requestId===qtyRequest.current)setMsg(e.message)}
+ }
+ function loadQuantityQuote(v,opts={}){
+  ++qtyRequest.current;purchaseRequestKey.current=null;setAmountMode(false);setQuote(null);
+  clearTimeout(qtyTimer.current);
+  if(v===undefined||v===null){fetchQuantityQuote(undefined,opts);return}
+  setQuantity(String(v));setMsg('');
+  if(String(v).trim()===''||!Number.isFinite(Number(v))||Number(v)<=0)return;
+  qtyTimer.current=setTimeout(()=>fetchQuantityQuote(v,opts),170);
+ }
+ // Branches use the exact Mr. Phone amount-to-quantity conversion on the server.
+ // The quote records the selected amount and derived quantity for purchase verification.
+ async function fetchBranchAmount(amount){
+  const requestId=++qtyRequest.current;
+  try{
+   const q=await quantityQuote(p.key,'?amount='+encodeURIComponent(Number(amount)));
+   if(requestId!==qtyRequest.current)return;
+   setQuantity(String(q.quantity));setQuote(q);
+   setAmountMode(true);setSelling(Number(q.recommended_selling_price??amount).toFixed(2));
+  }catch(e){if(requestId===qtyRequest.current){setMsg(e.message);setAmountMode(false)}}
+ }
+ function loadBranchAmount(amount){
+  ++qtyRequest.current;purchaseRequestKey.current=null;
+  setRechargeAmount(String(amount));setQuote(null);setMsg('');setAmountMode(false);
+  clearTimeout(qtyTimer.current);
+  const n=Number(amount);
+  if(String(amount).trim()===''||!Number.isFinite(n)||n<=0)return;
+  qtyTimer.current=setTimeout(()=>fetchBranchAmount(amount),130);
+ }
  async function validate(){setBusy(true);setMsg('');try{const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/validate',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({fields:values})});const d=await r.json();if(!r.ok||d.valid===false)throw new Error(d.error||'Incorrect account information');setValidated(d)}catch(e){setValidated(null);setMsg(e.message)}finally{setBusy(false)}}
  async function purchase(){if(!quote||busy)return;setBusy(true);setMsg('');try{if(!purchaseRequestKey.current)purchaseRequestKey.current=(globalThis.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.random());const requestKey=purchaseRequestKey.current;const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/purchase',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({offer_id:offer,quantity:isQuantity?Number(quantity):undefined,requested_amount:isQuantity&&branch&&amountMode?Number(rechargeAmount):undefined,fields:values,selling_price:Number(selling),request_key:requestKey})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Purchase failed');window.dispatchEvent(new CustomEvent('3abbilo:order-placed',{detail:{orderId:d.order?.id||d.order_id}}))}catch(e){setMsg(e.message)}finally{setBusy(false)}}
- const needsValidation=Boolean(p.validateCategoryId);const allFields=fields.every(f=>String(values[f.key]||'').trim());const canBuy=quote&&allFields&&(!needsValidation||validated);const profit=Number(selling||0)-Number(quote?.account_cost||0);const minQty=Number(quote?.min_qty||p.minQty||1),maxQty=Number(quote?.max_qty||p.maxQty||minQty);
- return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<label className="popupField">Choose Category<select value={firstGroup} onChange={e=>{purchaseRequestKey.current=null;setFirstGroup(e.target.value)}}>{groups.map(([k,g])=><option key={k} value={k}>{g.title||k}</option>)}</select></label>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>{!branch&&<div className="quantityCost"><span>Your Cost</span><strong>{quote?'$'+Number(quote.account_cost||0).toFixed(4):'—'}</strong></div>}<label className="popupField">Quantity<input type="number" min={minQty} max={maxQty} step="1" value={quantity} onChange={e=>loadQuantityQuote(e.target.value)} onBlur={e=>{const n=Number(e.target.value);if(e.target.value.trim()&&Number.isFinite(n)){const adjusted=Math.min(maxQty,Math.max(minQty,Math.trunc(n)));if(String(adjusted)!==e.target.value)loadQuantityQuote(String(adjusted))}}} placeholder="Enter quantity"/></label><div className="quantityLimits">Minimum: {minQty.toLocaleString('en-US')} <span>•</span> Maximum: {maxQty.toLocaleString('en-US')}</div><div className="chatQuantitySlider"><div className="chatSliderHead"><span>Adjust Quantity</span><strong>{Number(quantity||minQty).toLocaleString('en-US')} units</strong></div><div className="chatSliderControls"><button type="button" aria-label="Decrease quantity" disabled={Number(quantity||minQty)<=minQty} onClick={()=>loadQuantityQuote(String(Math.max(minQty,(Number(quantity)||minQty)-Math.max(1,Math.ceil((maxQty-minQty)/400)))))}>−</button><input type="range" aria-label="Adjust quantity" min={minQty} max={maxQty} step={Math.max(1,Math.ceil((maxQty-minQty)/400))} value={Math.min(maxQty,Math.max(minQty,Number(quantity)||minQty))} onChange={e=>loadQuantityQuote(e.target.value)}/><button type="button" aria-label="Increase quantity" disabled={Number(quantity||minQty)>=maxQty} onClick={()=>loadQuantityQuote(String(Math.min(maxQty,(Number(quantity)||minQty)+Math.max(1,Math.ceil((maxQty-minQty)/400)))))}>+</button></div><div className="chatSliderBounds"><span>{minQty.toLocaleString('en-US')}</span><span>{maxQty.toLocaleString('en-US')}</span></div></div></>}{needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{quote&&(isQuantity?<ChatSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} showProfit={!branch}/>:<GameSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} retail={quote.recommended_selling_price??quote.account_cost} showProfit={!branch}/>)}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':'Confirm Purchase'}</button></></div></div>
+ const needsValidation=Boolean(p.validateCategoryId);const allFields=fields.every(f=>String(values[f.key]||'').trim());const canBuy=quote&&allFields&&(!needsValidation||validated)&&(!isQuantity||(Number.isInteger(Number(quantity))&&Number(quantity)>=Number(quote.min_qty||1)&&Number(quantity)<=Number(quote.max_qty||Infinity)&&Number(quantity)===Number(quote.quantity)));const profit=Number(selling||0)-Number(quote?.account_cost||0);const minQty=Number(quote?.min_qty||p.minQty||1),maxQty=Number(quote?.max_qty||p.maxQty||minQty);
+ return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<label className="popupField">Choose Category<select value={firstGroup} onChange={e=>{purchaseRequestKey.current=null;setFirstGroup(e.target.value)}}>{groups.map(([k,g])=><option key={k} value={k}>{g.title||k}</option>)}</select></label>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>
+  {!branch&&<div className="quantityCost"><span>Your Cost</span><strong>{quote?'$'+Number(quote.account_cost||0).toFixed(4):'—'}</strong></div>}
+  <label className="popupField">Quantity
+   {branch?<div className="chatBranchQuantityControl">
+     <button type="button" aria-label="Decrease quantity" disabled={Number(quantity||0)<=minQty} onClick={()=>loadQuantityQuote(String(Math.max(minQty,Number(quantity||minQty)-1)))}>−</button>
+     <input type="number" min={minQty} max={maxQty} step="1" value={quantity} onChange={e=>loadQuantityQuote(e.target.value)} onBlur={e=>{const n=Number(e.target.value);if(e.target.value.trim()&&Number.isFinite(n)){const adjusted=Math.min(maxQty,Math.max(minQty,Math.trunc(n)));if(String(adjusted)!==e.target.value)loadQuantityQuote(String(adjusted))}}} placeholder="Enter quantity"/>
+     <button type="button" aria-label="Increase quantity" disabled={Number(quantity||0)>=maxQty} onClick={()=>loadQuantityQuote(String(Math.min(maxQty,Number(quantity||minQty)+1)))}>+</button>
+    </div>:<input type="number" min={minQty} max={maxQty} step="1" value={quantity} onChange={e=>loadQuantityQuote(e.target.value)} onBlur={e=>{const n=Number(e.target.value);if(e.target.value.trim()&&Number.isFinite(n)){const adjusted=Math.min(maxQty,Math.max(minQty,Math.trunc(n)));if(String(adjusted)!==e.target.value)loadQuantityQuote(String(adjusted))}}} placeholder="Enter quantity"/>}
+  </label>
+  <div className="quantityLimits">Minimum: {minQty.toLocaleString('en-US')} <span>•</span> Maximum: {maxQty.toLocaleString('en-US')}</div>
+  {branch?<div className="chatBranchAmount">
+   <label className="popupField">Amount ($)<input type="number" inputMode="decimal" min="0.01" step="0.01" value={rechargeAmount} onChange={e=>loadBranchAmount(e.target.value)} placeholder="Enter amount"/></label>
+   <div className="chatQuantityPresets chatAmountPresets" aria-label="Quick recharge amounts">{[1,2,5,10,15,20,25,30,50,100].map(n=><button type="button" key={n} className={Number(rechargeAmount)===n&&amountMode?'selected':''} onClick={()=>loadBranchAmount(n)}>${n}</button>)}</div>
+  </div>:<div className="chatWholesalePresets">
+   <span className="popupLabel">Suggested Quantities</span>
+   <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{chatQuantityPresets(p.key,minQty,maxQty).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
+  </div>}
+ </>}
+ {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{quote&&(isQuantity?(branch?<div className="sellCompact branchSellingPrice chatBranchSellingPrice"><div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={quote.account_cost} step="0.01" value={selling} readOnly/></div></div>:<ChatSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} showProfit/>):<GameSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} retail={quote.recommended_selling_price??quote.account_cost} showProfit={!branch}/>)}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':'Confirm Purchase'}</button></></div></div>
 }
 function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[]);if(category==='chat')preloadChatQuantities().catch(()=>{})}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
