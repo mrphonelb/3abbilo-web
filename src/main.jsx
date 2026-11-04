@@ -473,35 +473,41 @@ function ProductModal({p,close,branch=false}){
 }
 function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[])}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false}){
- const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countrySearch,setCountrySearch]=useState(''),[countryOpen,setCountryOpen]=useState(false),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[selling,setSelling]=useState(''),[period,setPeriod]=useState(1),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
- const requestKey=useRef(null);
- const selectedCountry=countries.find(c=>c.code===country);
- const filteredCountries=countries.filter(c=>(c.name+' '+c.code).toLowerCase().includes(countrySearch.trim().toLowerCase()));
+ const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState(1),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
+ const requestKey=useRef(null),planPicker=useRef(null),loadSerial=useRef(0);
  const daily=Number(selected?.data_type)===2;
- const days=daily?Math.max(1,Math.min(365,Number(period)||1)):1;
- const perDayCost=Number(selected?.account_cost||0);
- const totalCost=Number((perDayCost*days).toFixed(2));
- const perDayRetail=Number(selected?.recommended_selling_price??selected?.account_cost??0);
- const defaultPrice=Number((perDayRetail*days).toFixed(2));
- const profit=Number(selling)-totalCost;
+ const days=daily?Math.max(1,Math.min(Number(selected?.period_max||365),Number(period)||1)):1;
+ const totalCost=Number((Number(selected?.account_cost||0)*days).toFixed(2));
+ const suggested=Number((totalCost*1.10).toFixed(2));
  const money2=v=>'$'+Number(v||0).toFixed(2);
+ const profit=Number(selling)-totalCost;
+ const highSpeedText=p=>{const matched=String(p?.name||'').match(/([\d.]+\s*(?:MB|GB))\s*\/\s*day/i);return matched?matched[1].replace(/\s+/g,''):(p?.data_label&&p.data_label!=='Unlimited / Day Pass'?p.data_label:'Daily data')};
+ const dailySubtitle=p=>`${highSpeedText(p)} High Speed / Day · Then Unlimited at ${String(p?.fup_policy||'Low Speed').replace(/^FUP\s*/i,'')}`;
+ const planHeading=p=>Number(p?.data_type)===2?`Unlimited · ${money2(p?.account_cost)}/Day`:[p?.data_label,p?.duration_label,money2(p?.account_cost)].filter(Boolean).join(' · ');
+ const sortedPackages=[...packages].sort((a,b)=>{const ad=Number(a.data_type)===2,bd=Number(b.data_type)===2;if(ad!==bd)return ad?1:-1;return ad?Number(a.account_cost)-Number(b.account_cost):Number(a.volume)-Number(b.volume)||Number(a.duration)-Number(b.duration)});
  useEffect(()=>{
   fetch(API+'/api/wholesale/products/esim/capabilities',{headers:authHeaders()}).then(r=>r.json()).then(d=>setEnabled(d.purchase_enabled===true)).catch(()=>setEnabled(false));
   if(topup)return;
   fetch(API+'/api/wholesale/products/esim/countries',{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load destinations');return d}).then(d=>{setCountries((d.countries||[]).filter(c=>String(c.code).toUpperCase()!=='IL'));if(!(d.countries||[]).length)setErr('No destinations available')}).catch(e=>setErr(e.message));
  },[topup]);
- function choose(p){setSelected(p);setPeriod(1);const cost=Number(p.account_cost||0),retail=Number(p.recommended_selling_price??cost);setSelling((branch?retail:Math.ceil((cost+0.5)*2)/2).toFixed(2));setErr('');requestKey.current=null;}
- function setDays(v){const n=Math.max(1,Math.min(Number(selected?.period_max||365),Math.floor(Number(v)||1)));setPeriod(n);setSelling((branch?Number((perDayRetail*n).toFixed(2)):Math.ceil((perDayCost*n+0.5)*2)/2).toFixed(2));}
- async function load(){setErr('');setPackages([]);setSelected(null);requestKey.current=null;
-  if(!topup&&!country)return setErr('Choose a country first.');
+ useEffect(()=>{if(!planOpen)return;const onPointer=e=>{if(!planPicker.current?.contains(e.target))setPlanOpen(false)};const onKey=e=>{if(e.key==='Escape')setPlanOpen(false)};document.addEventListener('pointerdown',onPointer);document.addEventListener('keydown',onKey);return()=>{document.removeEventListener('pointerdown',onPointer);document.removeEventListener('keydown',onKey)}},[planOpen]);
+ function suggestedSelling(cost){return (Math.round(Number(cost)*1.10*100)/100).toFixed(2)}
+ function choose(p){setSelected(p);setPeriod(1);setSelling(suggestedSelling(p.account_cost));setPlanOpen(false);setErr('');requestKey.current=null;}
+ function setDays(v){const n=Math.max(Number(selected?.period_min||1),Math.min(Number(selected?.period_max||365),Math.floor(Number(v)||1)));setPeriod(n);setSelling(suggestedSelling(Number(selected?.account_cost||0)*n));requestKey.current=null;}
+ async function load(destination=country){
+  const serial=++loadSerial.current;
+  setErr('');setPackages([]);setSelected(null);setPlanOpen(false);requestKey.current=null;
+  if(!topup&&!destination)return setErr('Choose a country first.');
   const normalizedIccid=iccid.replace(/\s+/g,'');
   if(topup&&!/^\d{18,22}$/.test(normalizedIccid))return setErr('Enter a valid eSIM ICCID.');
   setBusy(true);try{
-   const url=topup?API+'/api/wholesale/products/esim/topup-packages?iccid='+encodeURIComponent(normalizedIccid):API+'/api/wholesale/products/esim/packages?country='+encodeURIComponent(country);
-   const r=await fetch(url,{headers:authHeaders()});const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to load eSIM packages');
+   const url=topup?API+'/api/wholesale/products/esim/topup-packages?iccid='+encodeURIComponent(normalizedIccid):API+'/api/wholesale/products/esim/packages?country='+encodeURIComponent(destination);
+   const r=await fetch(url,{headers:authHeaders()});const d=await r.json();if(serial!==loadSerial.current)return;
+   if(!r.ok)throw Error(d.error||'Unable to load eSIM packages');
    setPackages(d.packages||[]);if(!(d.packages||[]).length)setErr('No eSIM plans are available for this destination.');
-  }catch(e){setErr(e.message)}finally{setBusy(false)}
+  }catch(e){if(serial===loadSerial.current)setErr(e.message)}finally{if(serial===loadSerial.current)setBusy(false)}
  }
+ function changeCountry(next){setCountry(next);setPackages([]);setSelected(null);setErr('');loadSerial.current++;if(next)load(next);}
  async function buy(){if(!enabled||!selected||busy)return;
   const price=Number(selling);
   if(!Number.isFinite(price)||price<totalCost||price<=0)return setErr('Selling price must cover the account cost.');
@@ -513,27 +519,33 @@ function EsimCatalog({topup=false,close,branch=false}){
    window.dispatchEvent(new CustomEvent('3abbilo:order-placed',{detail:{orderId:d.order_id||d.order?.id}}));
   }catch(e){setErr(e.message+' If already submitted, check My Orders before retrying.')}finally{setBusy(false)}
  }
+ const center=Math.ceil((suggested-1e-9)*2)/2;
  return <div className="modalShade" onPointerDownCapture={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}>
   <div className="productModal compactModal esimPopup">
    <button className="modalClose" onPointerDownCapture={e=>{e.stopPropagation();close()}} onClick={close} aria-label="Close"><X size={21}/></button>
    <div className="popupTitle">{topup?<RefreshCw size={40}/>:<Globe2 size={40}/>}<h2>{topup?'TOPUP ESIM':'BUY ESIM'}</h2></div>
    {topup?<label className="popupField">eSIM ICCID<input inputMode="numeric" value={iccid} onChange={e=>{setIccid(e.target.value.replace(/\D/g,''));setPackages([]);setSelected(null)}} placeholder="Enter ICCID number"/></label>:
-    <div className="popupField esimCountryField"><span>Choose Country</span><button type="button" className="esimCountryTrigger" aria-expanded={countryOpen} onClick={()=>setCountryOpen(!countryOpen)}>{selectedCountry?.name||'Choose Country'} <ChevronDown size={16}/></button>{countryOpen&&<div className="esimCountryMenu"><input autoFocus value={countrySearch} placeholder="Search country..." onChange={e=>setCountrySearch(e.target.value)}/><div className="esimCountryOptions">{filteredCountries.map(c=><button type="button" key={c.code} onClick={()=>{setCountry(c.code);setCountryOpen(false);setCountrySearch('');setPackages([]);setSelected(null);setErr('')}}>{c.name}</button>)}{!filteredCountries.length&&<div className="catalogNotice">No country found</div>}</div></div>}</div>}
-   <button className="popupAction" onClick={load} disabled={busy||(!topup&&!country)||topup&&!/^\d{18,22}$/.test(iccid)}>{busy?'Loading…':topup?'Check eSIM / Show Plans':'Show Plans'}</button>
+    <label className="popupField esimCountryField"><span>Choose Country</span><select className="esimCountrySelect" value={country} onChange={e=>changeCountry(e.target.value)}><option value="">Choose Country</option>{countries.map(c=><option key={c.code} value={c.code}>{c.name}</option>)}</select></label>}
+   {topup&&<button className="popupAction" onClick={()=>load()} disabled={busy||!/^\d{18,22}$/.test(iccid)}>{busy?'Loading…':'Check eSIM / Show Plans'}</button>}
+   {busy&&<div className="catalogNotice" role="status">Loading available eSIM plans…</div>}
    {err&&<div className="catalogNotice error" role="alert">{err}</div>}
-   {packages.length>0&&<div className="esimPlanSelection"><div className="esimPlanHeading">Choose eSIM Type</div><div className="esimPopupPlans">{packages.map((p,i)=>{const isDaily=Number(p.data_type)===2;const displayPrice=branch?Number(p.recommended_selling_price??p.account_cost):Number(p.account_cost);return <button type="button" className={'esimPopupPlan'+(selected?.package_code===p.package_code?' selected':'')} key={p.package_code||p.slug||i} onClick={()=>choose(p)}><b>{isDaily?'Unlimited / Day Pass':[p.data_label,p.duration_label].filter(Boolean).join(' · ')}</b><span>{isDaily?('Unlimited • '+money2(displayPrice)+'/Day'):(p.name||'eSIM plan')}</span><strong>{isDaily?money2(displayPrice)+'/Day':money2(displayPrice)}</strong></button>})}</div></div>}
+   {sortedPackages.length>0&&<div className="popupField esimPlanSelection"><span className="popupLabel">Choose eSIM Type</span><div className={'branchPicker esimPlanPicker'+(planOpen?' isOpen':'')} ref={planPicker}>
+    <button type="button" className="branchPickerTrigger" aria-haspopup="listbox" aria-expanded={planOpen} onClick={()=>setPlanOpen(v=>!v)}>{selected?planHeading(selected):'Choose eSIM Type'}<span aria-hidden="true">⌄</span></button>
+    {planOpen&&<div className="branchPickerOptions esimPlanOptions" role="listbox" aria-label="Choose eSIM Type">{sortedPackages.map((p,i)=><button type="button" role="option" aria-selected={selected?.package_code===p.package_code} className={selected?.package_code===p.package_code?'selected':''} key={p.package_code||p.slug||i} onClick={()=>choose(p)}><strong>{planHeading(p)}</strong>{Number(p.data_type)===2&&<small>{dailySubtitle(p)}</small>}</button>)}</div>}
+   </div></div>}
    {selected&&<div className="esimCheckout">
-    {daily&&<><div className="esimDayInfo"><strong>Unlimited / Day Pass</strong>{selected.fup_policy&&<span>Fair usage: {selected.fup_policy}</span>}{selected.speed&&<span>Speed: {selected.speed}</span>}</div><label className="popupField">Number of Days<input type="number" min="1" max={selected.period_max||365} value={period} onChange={e=>setDays(e.target.value)}/></label><div className="esimDayTotal">{days} {days===1?'day':'days'} · Account cost: {money2(totalCost)}</div></>}
-    <div className="esimPriceRow"><span>Cost</span><strong>{money2(totalCost)}</strong></div>
-    <div className="esimPriceRow"><span>Suggested Selling Price</span><strong>{money2(branch?defaultPrice:Math.ceil((totalCost+0.5)*2)/2)}</strong></div>
-    <label className="popupField">Selling Price ($)<input type="number" min={totalCost} step="0.01" value={selling} onChange={e=>setSelling(e.target.value)}/></label>
-    {Number.isFinite(profit)&&<div className="esimPriceRow"><span>Profit</span><strong>{money2(profit)}</strong></div>}
+    {daily&&<><div className="esimDayInfo"><strong>{planHeading(selected)}</strong><span>{dailySubtitle(selected)}</span></div><label className="popupField">Number of Days<input type="number" min={selected.period_min||1} max={selected.period_max||365} value={period} onChange={e=>setDays(e.target.value)}/></label><div className="esimDayTotal">{days} {days===1?'day':'days'} · Total: {money2(totalCost)}</div></>}
+    <div className="sellCompact branchSellingPrice esimSellingPrice">
+     <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={totalCost} step="0.01" value={selling} onChange={e=>setSelling(e.target.value)}/><span>Profit <strong>{Number.isFinite(profit)?money2(profit):'—'}</strong></span></div>
+     <div className="branchPriceSteps" aria-label="Suggested eSIM selling prices">{[-1,-.5,0,.5,1].map(delta=>{const value=Math.round((center+delta)*100)/100;const allowed=value>0&&value+1e-9>=totalCost;return <button type="button" key={delta} disabled={!allowed} className={Math.abs(Number(selling)-value)<.005?'active':''} onClick={()=>setSelling(value.toFixed(2))}><strong>${value.toFixed(value%1===0?0:2)}</strong></button>})}</div>
+    </div>
     {enabled&&<button className="popupAction" disabled={busy||!Number.isFinite(Number(selling))||Number(selling)<totalCost} onClick={buy}>{busy?'Submitting…':topup?'Topup eSIM':'Buy Now'}</button>}
    </div>}
    {!enabled&&<div className="checkoutPending compact">eSIM checkout is currently unavailable. No wallet balance will be deducted.</div>}
   </div>
  </div>;
 }
+
 const CATEGORY_NAMES={games:'GAME TOP-UP',chat:'CHAT APPS TOP-UP',gift_cards:'GIFT CARDS',alfa:'ALFA',touch:'TOUCH',dsl:'OGERO & INTERNET CARDS',other_services:'CARFAX',esim:'ESIM & TOPUP'};
 const PAGE_SLUGS={'Dashboard':'dashboard','Products':'products','My Shops':'my-shops','My Orders':'my-orders','Shop Orders':'shop-orders','Transactions':'transactions','Profit Report':'profit-report','Recharge Account':'recharge-account','My Account':'my-account','Change Password':'change-password'};
 function readNav(){const q=new URLSearchParams(location.search);return {page:Object.keys(PAGE_SLUGS).find(k=>PAGE_SLUGS[k]===q.get('view'))||null,category:q.get('category')||null,esim:q.get('esim')||''};}
