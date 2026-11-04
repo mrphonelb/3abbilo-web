@@ -354,3 +354,16 @@ body>.modalShade>.productModal.compactModal{width:min(362px,calc(100vw - 24px))!
 .esimPopup .esimSellingPrice .sellLine{gap:8px}
 .esimPopup .esimSellingPrice .sellLine input{min-width:0;width:96px}
 .esimPopup .esimSellingPrice .branchPriceSteps{margin-top:10px}
+
+/* eSIM: same 3ABBILO mobile popup typography and controls */
+.esimPopup .esimCountryField{position:relative;z-index:10;margin:14px 0;font-size:12px;font-weight:900;text-align:center}
+.esimPopup .esimCountryTrigger{height:48px;font:inherit;font-size:13px;font-weight:700;background:#fff;border:1px solid #d9dde5;border-radius:11px;display:flex;justify-content:center;align-items:center;gap:12px;cursor:pointer}
+.esimPopup .esimCountryMenu{position:absolute;top:100%;left:0;right:0;z-index:40;max-height:min(52dvh,340px);overflow:hidden;padding:8px;background:#fff}
+.esimPopup .esimCountryMenu input{display:block;height:44px;width:100%;margin:0 0 6px;font-size:16px;font-weight:500;text-align:left}
+.esimPopup .esimCountryOptions{max-height:min(38dvh,235px);overflow-y:auto;overscroll-behavior:contain}
+.esimPopup .esimCountryOptions button{font:inherit;font-size:13px;text-align:center;font-weight:650;min-height:39px}
+.esimCountryEmpty{font-size:12px;padding:12px;color:#64748b}
+.esimPopup .esimLoading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:25px 12px;color:#334155;font-size:13px;font-weight:700}
+.esimPopup .esimLoading svg{color:#ff8a00}
+.esimPopup .popupTitle .catalogFallback{margin:0 auto 7px}
+.esimPopup .popupTitle img{display:block;margin:0 auto 7px}
