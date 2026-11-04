@@ -497,16 +497,30 @@ function ProductModal({p,close,branch=false}){
  const[firstGroup,setFirstGroup]=useState(groups[0]?.[0]||'');
  const group=groups.find(([k])=>k===firstGroup)?.[1];
  const[offer,setOffer]=useState(''),[quantity,setQuantity]=useState(''),[rechargeAmount,setRechargeAmount]=useState(''),[amountMode,setAmountMode]=useState(false),[values,setValues]=useState({}),[quote,setQuote]=useState(null),[selling,setSelling]=useState(''),[validated,setValidated]=useState(null),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[offerPrices,setOfferPrices]=useState({});
- const qtyTimer=useRef(null),qtyRequest=useRef(0),offerRequest=useRef(0),purchaseRequestKey=useRef(null);
+ const qtyTimer=useRef(null),qtyRequest=useRef(0),offerRequest=useRef(0),purchaseRequestKey=useRef(null),quantityDirty=useRef(false);
+ const [preview,setPreview]=useState(null),[quoting,setQuoting]=useState(false);
  useEffect(()=>()=>clearTimeout(qtyTimer.current),[]);
- useEffect(()=>{purchaseRequestKey.current=null;setOffer('');setQuote(null);setSelling('');setRechargeAmount('');setAmountMode(false);setValidated(null);setMsg('');setOfferPrices({});if(isQuantity){
+ useEffect(()=>{purchaseRequestKey.current=null;quantityDirty.current=false;setPreview(null);setQuoting(false);setOffer('');setQuote(null);setSelling('');setRechargeAmount('');setAmountMode(false);setValidated(null);setMsg('');setOfferPrices({});let alive=true;if(isQuantity){
    const cached=chatQuantityPreviews.get(authHeaders().Authorization+'|'+p.key);
-   if(cached&&Date.now()-cached.at<45000){
-    const q=cached.quote;setQuantity(String(q.quantity));setQuote(q);
+   const applyPreview=q=>{
+    if(!q||quantityDirty.current)return;
+    setPreview(q);setQuantity(String(q.quantity));
+    if(branch&&Number(q.retail_unit)>0){
+      const amount=Number(q.recommended_selling_price||0);
+      setRechargeAmount(amount>0?amount.toFixed(2):'');
+    }
     setSelling((branch?Number(q.recommended_selling_price??q.account_cost):suggestedChatRetail(q.account_cost)).toFixed(2));
-   }else{loadQuantityQuote();}
-   return;
-  }let alive=true;
+    setQuoting(true);
+    fetchQuantityQuote(q.quantity);
+   };
+   if(cached&&Date.now()-cached.at<45000)applyPreview(cached.quote);
+   else preloadChatQuantities().then(()=>{
+    const next=chatQuantityPreviews.get(authHeaders().Authorization+'|'+p.key);
+    if(next&&alive)applyPreview(next.quote);
+    else if(alive&&!quantityDirty.current)loadQuantityQuote();
+   }).catch(()=>{if(alive&&!quantityDirty.current)loadQuantityQuote()});
+   return()=>{alive=false};
+  }
   if(p.section==='chat'){
    chatOfferPrices(p.key,firstGroup).then(prices=>{if(alive)setOfferPrices(prices)}).catch(e=>{if(alive)setMsg(e.message)});
   }else if(branch){
@@ -529,50 +543,56 @@ function ProductModal({p,close,branch=false}){
   }catch(e){if(requestId===offerRequest.current)setMsg(e.message)}
  }
  async function fetchQuantityQuote(v,{keepSelling=false}={}){
-  const requestId=++qtyRequest.current;setMsg('');
+  const requestId=++qtyRequest.current;setMsg('');setQuoting(true);
   try{
    const n=Number(v),suffix=Number.isFinite(n)&&n>0?'?qty='+encodeURIComponent(n):'';
    const q=await quantityQuote(p.key,suffix);
    if(requestId!==qtyRequest.current)return;
    if(v===undefined||v===null)setQuantity(String(q.quantity??''));
-   setQuote(q);
+   setQuote(q);setPreview(q);setQuoting(false);
    const amount=Number(q.recharge_amount??(branch?q.recommended_selling_price:0));
    setRechargeAmount(amount>0?amount.toFixed(2):'');
    if(!keepSelling)setSelling((branch?Number(q.recommended_selling_price??q.account_cost):suggestedChatRetail(q.account_cost)).toFixed(2));
-  }catch(e){if(requestId===qtyRequest.current)setMsg(e.message)}
+  }catch(e){if(requestId===qtyRequest.current){setQuoting(false);setMsg(e.message)}}
  }
  function loadQuantityQuote(v,opts={}){
-  ++qtyRequest.current;purchaseRequestKey.current=null;setAmountMode(false);setQuote(null);
+  ++qtyRequest.current;purchaseRequestKey.current=null;setAmountMode(false);setQuoting(true);
+  if(v!==undefined&&v!==null)quantityDirty.current=true;
   clearTimeout(qtyTimer.current);
   if(v===undefined||v===null){fetchQuantityQuote(undefined,opts);return}
   setQuantity(String(v));setMsg('');
-  if(String(v).trim()===''||!Number.isFinite(Number(v))||Number(v)<=0)return;
+  if(!branch&&preview&&Number(preview.quantity)>0&&Number(v)>0){const estimated=Number(preview.account_cost)*Number(v)/Number(preview.quantity);setSelling(suggestedChatRetail(estimated).toFixed(2));}
+  if(String(v).trim()===''||!Number.isFinite(Number(v))||Number(v)<=0){setQuoting(false);return}
   qtyTimer.current=setTimeout(()=>fetchQuantityQuote(v,opts),170);
  }
  // Branches use the exact Mr. Phone amount-to-quantity conversion on the server.
  // The quote records the selected amount and derived quantity for purchase verification.
  async function fetchBranchAmount(amount){
-  const requestId=++qtyRequest.current;
+  const requestId=++qtyRequest.current;setQuoting(true);
   try{
    const q=await quantityQuote(p.key,'?amount='+encodeURIComponent(Number(amount)));
    if(requestId!==qtyRequest.current)return;
-   setQuantity(String(q.quantity));setQuote(q);
+   setQuantity(String(q.quantity));setQuote(q);setPreview(q);setQuoting(false);
    setAmountMode(true);setSelling(Number(q.recommended_selling_price??amount).toFixed(2));
-  }catch(e){if(requestId===qtyRequest.current){setMsg(e.message);setAmountMode(false)}}
+  }catch(e){if(requestId===qtyRequest.current){setQuoting(false);setMsg(e.message);setAmountMode(false)}}
  }
  function loadBranchAmount(amount){
   ++qtyRequest.current;purchaseRequestKey.current=null;
-  setRechargeAmount(String(amount));setQuote(null);setMsg('');setAmountMode(false);
+  setRechargeAmount(String(amount));setMsg('');setAmountMode(false);setQuoting(true);
+  const unit=Number(preview?.retail_unit);if(unit>0&&Number(amount)>0){const estimated=Math.floor((Number(amount)+1e-9)/unit);if(estimated>=Number(preview?.min_qty||1)&&estimated<=Number(preview?.max_qty||Infinity))setQuantity(String(estimated));}
+  quantityDirty.current=true;
   clearTimeout(qtyTimer.current);
   const n=Number(amount);
-  if(String(amount).trim()===''||!Number.isFinite(n)||n<=0)return;
+  if(String(amount).trim()===''||!Number.isFinite(n)||n<=0){setQuoting(false);return}
   qtyTimer.current=setTimeout(()=>fetchBranchAmount(amount),130);
  }
  async function validate(){setBusy(true);setMsg('');try{const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/validate',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({fields:values})});const d=await r.json();if(!r.ok||d.valid===false)throw new Error(d.error||'Incorrect account information');setValidated(d)}catch(e){setValidated(null);setMsg(e.message)}finally{setBusy(false)}}
  async function purchase(){if(!quote||busy)return;setBusy(true);setMsg('');try{if(!purchaseRequestKey.current)purchaseRequestKey.current=(globalThis.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.random());const requestKey=purchaseRequestKey.current;const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/purchase',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({offer_id:offer,quantity:isQuantity?Number(quantity):undefined,requested_amount:isQuantity&&branch&&amountMode?Number(rechargeAmount):undefined,fields:values,selling_price:Number(selling),request_key:requestKey})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Purchase failed');window.dispatchEvent(new CustomEvent('3abbilo:order-placed',{detail:{orderId:d.order?.id||d.order_id}}))}catch(e){setMsg(e.message)}finally{setBusy(false)}}
- const needsValidation=Boolean(p.validateCategoryId);const allFields=fields.every(f=>String(values[f.key]||'').trim());const canBuy=quote&&allFields&&(!needsValidation||validated)&&(!isQuantity||(Number.isInteger(Number(quantity))&&Number(quantity)>=Number(quote.min_qty||1)&&Number(quantity)<=Number(quote.max_qty||Infinity)&&Number(quantity)===Number(quote.quantity)));const profit=Number(selling||0)-Number(quote?.account_cost||0);const minQty=Number(quote?.min_qty||p.minQty||1),maxQty=Number(quote?.max_qty||p.maxQty||minQty);
+ const needsValidation=Boolean(p.validateCategoryId);const allFields=fields.every(f=>String(values[f.key]||'').trim());const canBuy=!quoting&&quote&&allFields&&(!needsValidation||validated)&&(!isQuantity||(Number.isInteger(Number(quantity))&&Number(quantity)>=Number(quote.min_qty||1)&&Number(quantity)<=Number(quote.max_qty||Infinity)&&Number(quantity)===Number(quote.quantity)&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote.recharge_amount??quote.recommended_selling_price))<0.005)));const profit=Number(selling||0)-Number(quote?.account_cost||0);const minQty=Number(preview?.min_qty||quote?.min_qty||p.minQty||1),maxQty=Number(preview?.max_qty||quote?.max_qty||p.maxQty||minQty);
+ const hasAccurateQuote=quote&&!quoting&&Number(quote.quantity)===Number(quantity);
+ const shownCost=hasAccurateQuote?Number(quote.account_cost):preview&&Number(preview.quantity)>0?Number(preview.account_cost)*Number(quantity||0)/Number(preview.quantity):null;
  return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<label className="popupField">Choose Category<select value={firstGroup} onChange={e=>{purchaseRequestKey.current=null;setFirstGroup(e.target.value)}}>{groups.map(([k,g])=><option key={k} value={k}>{g.title||k}</option>)}</select></label>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>
-  {!branch&&<div className="quantityCost"><span>Your Cost</span><strong>{quote?'$'+Number(quote.account_cost||0).toFixed(4):'—'}</strong></div>}
+  {!branch&&<div className="quantityCost"><span>Your Cost</span><strong>{Number.isFinite(shownCost)&&shownCost>0?'$'+shownCost.toFixed(4):'—'}</strong></div>}
   <label className="popupField">Quantity
    {branch?<div className="chatBranchQuantityControl">
      <button type="button" aria-label="Decrease quantity" disabled={Number(quantity||0)<=minQty} onClick={()=>loadQuantityQuote(String(Math.max(minQty,Number(quantity||minQty)-1)))}>−</button>
@@ -589,7 +609,7 @@ function ProductModal({p,close,branch=false}){
    <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{chatQuantityPresets(p.key,minQty,maxQty).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
   </div>}
  </>}
- {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{quote&&(isQuantity?(branch?<div className="sellCompact branchSellingPrice chatBranchSellingPrice"><div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={quote.account_cost} step="0.01" value={selling} readOnly/></div></div>:<ChatSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} showProfit/>):<GameSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} retail={quote.recommended_selling_price??quote.account_cost} showProfit={!branch}/>)}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':'Confirm Purchase'}</button></></div></div>
+ {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<div className="sellCompact branchSellingPrice chatBranchSellingPrice"><div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={shownCost??0} step="0.01" value={branch&&quoting?rechargeAmount:selling} readOnly/></div></div>:<ChatSellingPrice value={selling} onChange={setSelling} minimum={shownCost??0} showProfit/>):<GameSellingPrice value={selling} onChange={setSelling} minimum={quote.account_cost} retail={quote.recommended_selling_price??quote.account_cost} showProfit={!branch}/>)}{msg&&<div className="catalogNotice error">{msg}</div>}<button className="popupAction" onClick={purchase} disabled={busy||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Confirm Purchase')}</button></></div></div>
 }
 function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[]);if(category==='chat')preloadChatQuantities().catch(()=>{})}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
