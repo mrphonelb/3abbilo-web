@@ -518,3 +518,14 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 @media(max-width:760px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}}
 @media(max-width:520px){.dashboardOrderSummary{margin:14px 0 18px}.dashboardPeriodTabs{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));box-sizing:border-box}.dashboardPeriodTabs button{padding:9px 1px;font-size:12px}.dashboardStatCard{padding:13px 11px;gap:7px}.dashboardStatCard span{font-size:12px}.dashboardStatCard strong{font-size:clamp(16px,4.5vw,22px)}}
 @media(max-width:340px){.dashboardStatsGrid{grid-template-columns:1fr}}
+
+/* Dashboard six-card summary: compact 3ABBILO palette and mobile-first wrapping. */
+.dashboardStatsGrid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.dashboardStatCard{padding:13px 13px;border-radius:14px;gap:5px;min-height:92px;box-sizing:border-box}
+.dashboardStatCard span{font-size:12px;line-height:1.25}
+.dashboardStatCard strong{font-size:clamp(17px,1.55vw,26px);line-height:1.2}
+.dashboardStatCard.total strong,.dashboardStatCard.deposit strong,.dashboardStatCard.spent strong,.dashboardStatCard.profit strong{color:#f58200}
+.dashboardPeriodTabs button.active{outline:none;box-shadow:0 0 0 1px #ff8a00}
+@media(max-width:1350px){.dashboardStatsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dashboardStatCard{padding:12px;min-height:82px}.dashboardStatCard strong{font-size:clamp(17px,4.4vw,23px)}}
+@media(max-width:340px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboardStatCard{padding:9px}.dashboardStatCard strong{font-size:16px}}
