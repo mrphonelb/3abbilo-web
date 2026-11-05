@@ -1534,3 +1534,16 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 @media(max-width:1100px){.ownerShell .ownerMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:850px){.ownerMobileBackdrop{display:block;position:fixed;inset:0;background:#08132780;border:0;z-index:19}.ownerShell .side{z-index:20}}
 @media(max-width:520px){.ownerShell .ownerMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ownerShell .ownerMetric{padding:13px}.ownerShell .ownerMetric strong{font-size:22px}.ownerShell .ownerContent{padding:16px 0}.ownerShell .ownerContent h1{font-size:20px}}
+
+/* Owner All Orders: same product artwork, cards and status chips as 3ABBILO My Orders */
+.ownerShell .ownerOrderTools{margin:0 0 16px;align-items:center}
+.ownerShell .ownerOrderTools input{min-width:180px;flex:1}
+.ownerShell .ownerOrderTools select{min-width:130px}
+.ownerShell .ownerOrderCount{font-size:12px;color:#78849c;margin:0 0 8px}
+.ownerShell .ownerOrdersList{margin-top:0}
+.ownerShell .ownerOrdersList .ordersRecentRow{width:100%}
+.ownerOrderDetails{display:grid;gap:0;margin:18px 0 4px}
+.ownerOrderDetails>div{display:flex;justify-content:space-between;gap:18px;padding:12px 4px;border-bottom:1px solid #e7eaf0;align-items:flex-start}
+.ownerOrderDetails span{color:#738099;font-size:13px}
+.ownerOrderDetails strong{font-size:13px;color:#14213d;text-align:right;overflow-wrap:anywhere}
+@media(max-width:650px){.ownerShell .ownerOrderTools{gap:8px}.ownerShell .ownerOrderTools input{flex-basis:100%}.ownerShell .ownerOrderTools select{flex:1}.ownerShell .ownerOrderTools button{flex:0 0 auto}}
