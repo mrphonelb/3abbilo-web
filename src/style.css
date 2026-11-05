@@ -1555,3 +1555,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ownerDetailModal{max-width:560px;width:calc(100vw - 32px);max-height:90vh;overflow-y:auto}.ownerDetailModal .ownerOrderDetails{margin-top:12px}.ownerModalLabel{display:block;margin:15px 0;font-size:13px;font-weight:750}.ownerModalLabel select,.ownerReply{display:block;width:100%;box-sizing:border-box;padding:12px;border:1px solid #d9dce4;border-radius:10px;background:#fff;color:#152341;margin-top:8px}.ownerTicketMessages{max-height:250px;overflow:auto}.ownerPrimaryButton{display:block;width:100%;padding:13px;border:0;border-radius:11px;background:#ff8000;color:white;font-weight:800;cursor:pointer;margin-top:12px}.ownerPrimaryButton:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:850px){.ownerShell .ownerDashboardSummary .dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.ownerQuickLinks{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.ownerQuickLinks{grid-template-columns:1fr}.ownerRecordCard{gap:9px;padding:11px}.ownerRecordIcon{width:43px;height:43px}.ownerRecordAmount{font-size:13px}.ownerRecordMain strong{font-size:13px}}
+
+/* Owner-only, one-time confirmed OneZone Order #25 recovery */
+.ownerOnezoneRecovery{margin-top:18px;border-top:1px solid var(--border,#e4e7ef);padding-top:16px;}
+.ownerOnezoneRecovery p{font-size:13px;line-height:1.6;color:var(--text-secondary,#5d6677);margin:0 0 12px;}
+.ownerOnezoneRecovery button{width:100%;border:0;border-radius:10px;background:#1b2945;color:#fff;font-weight:700;padding:13px;cursor:pointer;}
+.ownerOnezoneRecovery button:disabled{opacity:.55;cursor:wait;}
+.ownerRecoveryMessage{margin:12px 0 0;padding:12px;border-radius:9px;background:#f2f5fa;color:#1b2945;font-size:13px;}
