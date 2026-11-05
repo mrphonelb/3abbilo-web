@@ -1638,7 +1638,8 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 /* Icon-only card receipt actions; retain shared popup design */
 .receiptCardActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .receiptCardActions button.receiptIconButton,.receiptCode button.receiptIconButton{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:40px;height:40px;min-width:40px;min-height:40px;padding:0;border-radius:10px}
-.receiptCardActions button.receiptIconButton svg,.receiptCode button.receiptIconButton svg{width:19px;height:19px}
+.receiptCardActions button.receiptIconButton svg{width:20px;height:20px}
+.receiptCode button.receiptIconButton svg{width:19px;height:19px}
 @media(max-width:540px){.receiptCardActions button.receiptIconButton{flex:0 0 40px}}
 
 /* Brand-colored WhatsApp glyph; buttons remain icon-only. */
