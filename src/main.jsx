@@ -931,7 +931,108 @@ const CATEGORY_NAMES={games:'GAME TOP-UP',chat:'CHAT APPS TOP-UP',gift_cards:'GI
 const PAGE_SLUGS={'Dashboard':'dashboard','Products':'products','My Shops':'my-shops','My Orders':'my-orders','Shop Orders':'shop-orders','Transactions':'transactions','Profit Report':'profit-report','Recharge Account':'recharge-account','My Account':'my-account','Change Password':'change-password'};
 function readNav(){const q=new URLSearchParams(location.search);return {page:Object.keys(PAGE_SLUGS).find(k=>PAGE_SLUGS[k]===q.get('view'))||null,category:q.get('category')||null,esim:q.get('esim')||''};}
 function writeNav(changes,replace=false){const now=readNav(),next={...now,...changes};const q=new URLSearchParams(location.search);['view','category','esim'].forEach(k=>q.delete(k));if(next.page)q.set('view',PAGE_SLUGS[next.page]||'products');if(next.category)q.set('category',next.category);if(next.esim)q.set('esim',next.esim);const url=location.pathname+(q.size?'?'+q.toString():'');history[replace?'replaceState':'pushState']({},'',url);window.dispatchEvent(new Event('3abbilo:navigation'));}
-function ProductsPage({branch=false,accountType="shop"}){const[esimMode,setEsimMode]=useState(()=>readNav().esim);const[categories,setCategories]=useState([]),[active,setActive]=useState(()=>readNav().category),[err,setErr]=useState('');useEffect(()=>{fetch(API+'/api/wholesale/products/categories',{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load categories');setCategories(d.categories||[])}).catch(e=>setErr(e.message))},[]);useEffect(()=>{const sync=()=>{const n=readNav();setActive(n.category);setEsimMode(n.esim)};window.addEventListener('popstate',sync);window.addEventListener('3abbilo:navigation',sync);return()=>{window.removeEventListener('popstate',sync);window.removeEventListener('3abbilo:navigation',sync)}},[]);const current=categories.find(c=>c.key===active);return <div className="sectionPad"><div className="pageTitle"><small>SELL DIGITAL SERVICES</small><h1>{current?(CATEGORY_NAMES[current.key]||current.title.toUpperCase()):'PRODUCTS'}</h1></div>{active&&<button className="catalogBack" onClick={()=>{writeNav({category:null,esim:''})}}><ChevronLeft size={17}/> All categories</button>}{err&&<div className="catalogNotice error">{err}</div>}{!active?<div className="categoryGrid">{categories.map(c=>{const I=categoryIcons[c.key]||Package;return <button key={c.key} onClick={()=>{writeNav({page:'Products',category:c.key,esim:''})}}><div className="categoryIcon"><I/></div><div><h3>{CATEGORY_NAMES[c.key]||c.title.toUpperCase()}</h3>{c.count!=null&&<small>{c.count} products</small>}</div></button>})}</div>:active==='esim'?<><div className="catalogGrid esimTiles"><ProductTile p={{key:'esim_buy',title:'BUY ESIM'}} onOpen={()=>writeNav({esim:'buy'})}/><ProductTile p={{key:'esim_topup',title:'TOPUP ESIM'}} onOpen={()=>writeNav({esim:'topup'})}/></div>{esimMode&&createPortal(<EsimCatalog key={esimMode} branch={branch} accountType={accountType} topup={esimMode==='topup'} close={()=>writeNav({esim:''})}/>,document.body)}</>:<StandardCatalog category={active} branch={branch}/>}</div>}
+// Products overview: one cached catalog for every category and a global client-side search.
+// Keep product selections in this screen so category previews open the same purchase popup
+// as the full category page, without changing quote or purchase routes.
+const overviewCatalogCache=new Map();
+function overviewGroupFor(p){
+ const key=String(p.key||'').toLowerCase(),provider=String(p.provider||'').toLowerCase();
+ if(provider==='alfa'||key.startsWith('alfa_'))return 'alfa';
+ if(provider==='touch'||key.startsWith('touch_'))return 'touch';
+ if(['ogero','sodetel','mobi','terranet','wise'].includes(provider)||/^(ogero|sodetel|mobi|terranet|wise)_/.test(key))return 'dsl';
+ if(key==='carfax')return 'other_services';
+ return p.section;
+}
+const esimOverviewItems=[
+ {key:'esim_buy',title:'BUY ESIM',section:'esim'},
+ {key:'esim_topup',title:'TOPUP ESIM',section:'esim'}
+];
+function ProductsOverview({categories,branch,accountType}){
+ const[search,setSearch]=useState(''),[products,setProducts]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[selected,setSelected]=useState(null);
+ useEffect(()=>{
+  let alive=true;
+  cachedFetch(overviewCatalogCache,authHeaders().Authorization,60000,async()=>{
+   const response=await fetch(API+'/api/wholesale/products',{headers:authHeaders()});
+   const data=await response.json();
+   if(!response.ok||!data.ok)throw Error(data.error||'Unable to load products');
+   return data.products||[];
+  }).then(items=>{if(alive){setProducts(items);setError('')}})
+    .catch(e=>{if(alive)setError(e.message||'Unable to load products')})
+    .finally(()=>{if(alive)setLoading(false)});
+  return()=>{alive=false};
+ },[]);
+ const needle=search.trim().toLowerCase();
+ const findText=p=>`${p.title||''} ${p.subtitle||''} ${p.keywords||''} ${p.key||''}`.toLowerCase();
+ const allCategories=categories.length?categories:[
+  {key:'games',title:'Game Top-Up'},{key:'chat',title:'Chat Apps'},{key:'gift_cards',title:'Gift Cards'},
+  {key:'alfa',title:'Alfa'},{key:'touch',title:'Touch'},{key:'dsl',title:'Ogero & Internet Cards'},
+  {key:'other_services',title:'CARFAX'},{key:'esim',title:'eSIM'}
+ ];
+ const categorized=allCategories.map(c=>{
+  const title=CATEGORY_NAMES[c.key]||String(c.title||c.key).toUpperCase();
+  const options=c.key==='esim'?esimOverviewItems:products.filter(p=>overviewGroupFor(p)===c.key);
+  const matches=!needle||title.toLowerCase().includes(needle)
+   ?options
+   :options.filter(p=>findText(p).includes(needle));
+  return {...c,title,matches};
+ }).filter(c=>c.matches.length>0||loading&&!needle);
+ const openProduct=p=>{
+  if(p.key==='esim_buy'||p.key==='esim_topup'){
+   writeNav({page:'Products',category:'esim',esim:p.key==='esim_buy'?'buy':'topup'});
+  }else setSelected(p);
+ };
+ return <div className="productsOverview">
+  <label className="productsGlobalSearch" aria-label="Search all products">
+   <Search size={20}/>
+   <input type="search" value={search} onChange={e=>setSearch(e.target.value)}
+    placeholder="Search all products..." aria-label="Search all products" autoComplete="off"/>
+   {search&&<button type="button" aria-label="Clear search" onClick={()=>setSearch('')}><X size={18}/></button>}
+  </label>
+  {error&&<div className="catalogNotice error">{error}</div>}
+  {loading?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>
+   :categorized.length===0?<div className="catalogNotice">No products found. Try another search.</div>
+   :categorized.map(c=><section className="productsCategorySection" key={c.key}>
+     <div className="productsCategoryHeader">
+      <h2>{c.title}</h2>
+      <button type="button" onClick={()=>writeNav({page:'Products',category:c.key,esim:''})}
+       aria-label={'Show all '+c.title}>Show All <ChevronRight size={17}/></button>
+     </div>
+     <div className="productsOverviewRow" aria-label={c.title+' products'}>
+      {c.matches.slice(0,needle?12:8).map(p=><ProductTile key={p.key||p.title} p={p} onOpen={openProduct}/>)}
+     </div>
+    </section>)}
+  {selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}
+ </div>;
+}
+function ProductsPage({branch=false,accountType="shop"}){
+ const[esimMode,setEsimMode]=useState(()=>readNav().esim);
+ const[categories,setCategories]=useState([]),[active,setActive]=useState(()=>readNav().category),[err,setErr]=useState('');
+ useEffect(()=>{
+  fetch(API+'/api/wholesale/products/categories',{headers:authHeaders()})
+   .then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load categories');setCategories(d.categories||[])})
+   .catch(e=>setErr(e.message));
+ },[]);
+ useEffect(()=>{
+  const sync=()=>{const n=readNav();setActive(n.category);setEsimMode(n.esim)};
+  window.addEventListener('popstate',sync);window.addEventListener('3abbilo:navigation',sync);
+  return()=>{window.removeEventListener('popstate',sync);window.removeEventListener('3abbilo:navigation',sync)};
+ },[]);
+ const current=categories.find(c=>c.key===active);
+ return <div className="sectionPad">
+  {active&&<>
+   <div className="productsCategoryPageTitle"><h1>{current?(CATEGORY_NAMES[current.key]||current.title.toUpperCase()):(CATEGORY_NAMES[active]||active.toUpperCase())}</h1></div>
+   <button className="catalogBack" onClick={()=>writeNav({category:null,esim:''})}><ChevronLeft size={17}/> All categories</button>
+  </>}
+  {err&&<div className="catalogNotice error">{err}</div>}
+  {!active?<ProductsOverview categories={categories} branch={branch} accountType={accountType}/>
+   :active==='esim'?<>
+     <div className="catalogGrid esimTiles">
+      <ProductTile p={{key:'esim_buy',title:'BUY ESIM'}} onOpen={()=>writeNav({esim:'buy'})}/>
+      <ProductTile p={{key:'esim_topup',title:'TOPUP ESIM'}} onOpen={()=>writeNav({esim:'topup'})}/>
+     </div>
+     {esimMode&&createPortal(<EsimCatalog key={esimMode} branch={branch} accountType={accountType} topup={esimMode==='topup'} close={()=>writeNav({esim:''})}/>,document.body)}
+    </>:<StandardCatalog category={active} branch={branch}/>}</div>;
+}
 const demoProfit=[['#1042','PUBG Mobile — 660 UC',9.50,10.00],['#1041','Jawaker — 80,926 Tokens',9.35,11.00],['#1039','Mobile Top-Up — $10',9.60,10.00]];
 function ProfitPage({dealer}){const rows=demoProfit,total=rows.reduce((a,r)=>a+r[3]-r[2],0),sales=rows.reduce((a,r)=>a+r[3],0),cost=rows.reduce((a,r)=>a+r[2],0);return <div className="sectionPad"><div className="pageTitle"><small>{dealer?'DEALER':'SHOP'} PROFIT</small><h1>Profit Report</h1><p>{dealer?'Track your margin from successful sales and child-Shop activity.':'Track each successful sale using your cost, selling price and profit.'}</p></div><div className="profitSummary"><div><span>Total sales</span><strong>${sales.toFixed(2)}</strong></div><div><span>Total cost</span><strong>${cost.toFixed(2)}</strong></div><div><span>Total profit</span><strong className="profitPositive">${total.toFixed(2)}</strong></div></div><div className="profitTableWrap"><table className="profitTable"><thead><tr><th>Order</th><th>Product</th><th>Your cost</th><th>Selling price</th><th>Profit</th></tr></thead><tbody>{rows.map(r=><tr key={r[0]}><td>{r[0]}</td><td>{r[1]}</td><td>${r[2].toFixed(2)}</td><td>${r[3].toFixed(2)}</td><td className="profitPositive">${(r[3]-r[2]).toFixed(2)}</td></tr>)}</tbody></table></div><p style={{color:'#71809d',fontSize:12,marginTop:12}}>Preview data is shown until the product/order backend stores selling price and profit on completed orders.</p></div>}
 function DealerShopsPage(){const[shops,setShops]=useState([]),[busy,setBusy]=useState(false),[msg,setMsg]=useState('');async function load(){try{const r=await fetch(API+'/api/wholesale/dealer/shops',{headers:authHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load shops');setShops(d.shops||[])}catch(e){setMsg(e.message)}}useEffect(()=>{load()},[]);async function save(shop,value){setBusy(true);setMsg('');try{const r=await fetch(API+'/api/wholesale/dealer/shops/'+shop.id+'/pricing',{method:'PATCH',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({pricing_percent:Number(value)})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to save');setMsg('Pricing saved');await load()}catch(e){setMsg(e.message)}finally{setBusy(false)}}return <div className="sectionPad"><div className="pageTitle"><h1>My Shops</h1><p>Set the default percentage for each Shop. Product-specific overrides can be added through the pricing API.</p></div>{msg&&<div className="catalogNotice">{msg}</div>}<div className="shopPricingGrid">{shops.map(sh=><div className="shopPricingCard" key={sh.id}><div><b>{sh.shop_name}</b><span>Balance ${Number(sh.balance||0).toFixed(4)}</span></div><label>Default %<input type="number" min="0" max="100" step="0.0001" defaultValue={Number(sh.pricing_percent||0)} id={'pct-'+sh.id}/></label><button disabled={busy} onClick={()=>save(sh,document.getElementById('pct-'+sh.id).value)}>Save</button></div>)}</div></div>}
