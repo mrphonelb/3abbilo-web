@@ -529,6 +529,7 @@ function ServiceModal({p,close,branch=false}){
   // Switching recharge method or entering a recipient must not discard a valid
   // package quote; otherwise 'Recharge Now' remains disabled until reselecting.
   if(['amount','identifier','service','report_type'].includes(key)||(key==='phone'&&isBill))setQuotePending(true);
+  if(key==='amount'){setQuote(null);setSelling('');}
   if(key==='identifier'||key==='service'){setOffer('');setMoreOptions([]);setQuote(null);setSelling('');sellingEditedRef.current=false}
   setBillOtp('');setPhase(1);setError('');serviceRequestKey.current=null;
  };
@@ -622,7 +623,7 @@ function ServiceModal({p,close,branch=false}){
   setBusy(true);setError('');try{
    if(!serviceRequestKey.current)serviceRequestKey.current=globalThis.crypto?.randomUUID?.()||('3abbilo-'+Date.now()+'-'+Math.random().toString(36).slice(2));
    const requestKey=serviceRequestKey.current;
-   const r=await fetch(path+'/purchase',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({offer_id:offer,fields:isBill?{...values,bill_ticket:verified?.bill_ticket}:values,selling_price:Number(selling),request_key:requestKey})});
+   const r=await fetch(path+'/purchase',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({offer_id:offer,fields:isBill?{...values,bill_ticket:verified?.bill_ticket}:values,selling_price:Number(selling),quoted_credit_amount:isCredit?Number(values.amount):undefined,quoted_account_cost:isCredit?Number(quote.account_cost):undefined,request_key:requestKey})});
    const d=await r.json();if(!r.ok)throw Error(d.error||'Purchase could not be completed');
    window.dispatchEvent(new CustomEvent('3abbilo:order-placed',{detail:{orderId:d.order?.id||d.order_id}}));
   }catch(e){setError(e.message)}finally{setBusy(false)}
@@ -635,7 +636,7 @@ function ServiceModal({p,close,branch=false}){
  const billLbp=Number(verified?.original_total_lbp||verified?.payment_amount_lbp||0);
  const billEstimatedSupplier=Number(quote?.estimated_dealer_cost);
  const billEstimatedCost=Number.isFinite(billEstimatedSupplier)&&billEstimatedSupplier>0?billEstimatedSupplier:null;
- const ready=!quotePending&&!quote?.__preview&&!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost&&(!telcoCredit||(phoneStatus===telcoProvider&&Number(values.amount)>=1&&Number(values.amount)<=99));
+ const ready=(!isCredit||String(quote?.offer_id)===String(values.amount))&&!quotePending&&!quote?.__preview&&!!detail?.purchase_available&&!!quote&&validFields&&(!hasOptions||!!offer)&&Number.isFinite(price)&&price>=cost&&(!telcoCredit||(phoneStatus===telcoProvider&&Number(values.amount)>=1&&Number(values.amount)<=99));
  const fieldInput=(field)=>isCarfax&&field.key==='report_type'?<PackagePicker options={(field.options||[]).map(o=>({...o,name:({'1':'CAR FAX','2':'AUTO CHECK','3':'IMAGE REPORT'}[String(o.id)]||o.label||o.name||String(o.id)),sortValue:({'1':1,'2':2,'3':3}[String(o.id)]??999)})).sort((a,b)=>a.sortValue-b.sortValue)} value={values.report_type||''} onChange={v=>update('report_type',v)} placeholder="Choose Report Type" priceFor={o=>branch?(o.retail_price??o.account_cost??null):(o.account_cost??null)}/>:field.type==='select'?<PackagePicker options={(field.options||[]).map(o=>typeof o==='string'?{id:o,name:o}:{...o,id:String(o.id??o.value??''),name:String(o.label||o.name||o.id||o.value||'')})} value={values[field.key]||''} onChange={v=>update(field.key,v)} placeholder={'Choose '+field.label} priceFor={o=>branch?(o.retail_price??o.account_cost??null):(o.account_cost??null)}/>
   :<input type={field.type==='number'?'number':'text'} min={field.min} max={field.max} maxLength={field.maxLength} value={values[field.key]||''} onChange={e=>update(field.key,e.target.value)} placeholder={telcoBill&&field.key==='phone'?'Enter Phone Number':'Enter '+field.label}/>;
  return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}>
