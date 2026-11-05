@@ -1004,7 +1004,7 @@ function ProductsOverview({categories,branch,accountType}){
    :categorized.length===0?<div className="catalogNotice">No products available.</div>
    :categorized.map(c=><section className="productsCategorySection" key={c.key}>
      <div className="productsCategoryHeader">
-      <h2>{c.title}</h2>
+      <h2>{c.title} <span style={{fontSize:"0.55em",fontWeight:600,color:"#74829c",whiteSpace:"nowrap"}}>({c.matches.length} products)</span></h2>
       <button type="button" onClick={()=>writeNav({page:'Products',category:c.key,esim:''})}
        aria-label={'Show all '+c.title}>Show All <ChevronRight size={17}/></button>
      </div>
