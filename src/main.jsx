@@ -974,7 +974,11 @@ function ProductsOverview({categories,branch,accountType}){
   const title=CATEGORY_NAMES[c.key]||String(c.title||c.key).toUpperCase();
   const matches=c.key==='esim'?esimOverviewItems:products.filter(p=>overviewGroupFor(p)===c.key);
   return {...c,title,matches};
- }).filter(c=>c.matches.length>0);
+ }).filter(c=>c.matches.length>0).sort((a,b)=>{
+  const order=['games','chat','gift_cards','alfa','touch','esim','dsl','other_services'];
+  const rank=k=>{const i=order.indexOf(k);return i<0?order.length:i};
+  return rank(a.key)-rank(b.key);
+ });
  const searchableProducts=Array.from(new Map([...products,...esimOverviewItems]
   .map(p=>[String(p.key||p.title||p.name),p])).values());
  const searchMatches=needle?searchableProducts.filter(p=>findText(p).includes(needle)):[];

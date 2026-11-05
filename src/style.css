@@ -462,3 +462,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
  .productsOverviewRow .catalogProduct b{font-size:10px!important}
  .productsSearchResults{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 }
+
+/* Compact mobile preview cards only; Show All and search result grids stay unchanged. */
+@media(max-width:700px){
+ .productsOverviewRow{grid-auto-columns:72px;gap:7px}
+ .productsOverviewRow .catalogProduct b{font-size:9px!important;line-height:1.18;min-height:23px;padding:0 2px 4px!important}
+}
+@media(max-width:380px){.productsOverviewRow{grid-auto-columns:66px;gap:6px}}
