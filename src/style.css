@@ -446,3 +446,19 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .productsCategoryPageTitle h1{font-size:27px;line-height:1.2;color:#112342;margin:0 0 9px;font-weight:850}
 @media(max-width:1050px){.productsOverviewRow{grid-auto-columns:calc((100% - 3 * 12px)/4);gap:12px}}
 @media(max-width:700px){.productsOverview{gap:19px}.productsGlobalSearch{min-height:46px;max-width:100%}.productsCategoryHeader h2{font-size:15px}.productsCategoryHeader button{font-size:12px}.productsOverviewRow{grid-auto-columns:calc((100% - 12px)/2);gap:12px;padding-bottom:9px}.productsCategoryPageTitle h1{font-size:22px}}
+
+/* Products landing: small category previews; full Show All pages retain normal cards. */
+.productsOverviewRow{grid-auto-columns:108px;gap:11px}
+.productsOverviewRow .catalogProduct{width:100%!important;min-width:0;max-width:none;padding:0!important}
+.productsOverviewRow .catalogProduct img,.productsOverviewRow .catalogFallback{width:100%!important;height:auto!important;aspect-ratio:1/1;object-fit:contain}
+.productsOverviewRow .catalogProduct b{font-size:10px!important;line-height:1.25;min-height:26px;padding:0 4px 5px!important;margin:6px 0 0!important}
+/* Searching across the entire catalog renders product cards only, not categories. */
+.productsSearchResults{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,118px));gap:12px;justify-content:start;align-items:start}
+.productsSearchResults .catalogProduct{width:100%!important;min-width:0;max-width:none;padding:0!important}
+.productsSearchResults .catalogProduct img,.productsSearchResults .catalogFallback{width:100%!important;height:auto!important;aspect-ratio:1/1;object-fit:contain}
+.productsSearchResults .catalogProduct b{font-size:11px!important;line-height:1.25;min-height:28px;padding:0 5px 6px!important;margin:6px 0 0!important}
+@media(max-width:700px){
+ .productsOverviewRow{grid-auto-columns:90px;gap:9px}
+ .productsOverviewRow .catalogProduct b{font-size:10px!important}
+ .productsSearchResults{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+}

@@ -962,20 +962,22 @@ function ProductsOverview({categories,branch,accountType}){
   return()=>{alive=false};
  },[]);
  const needle=search.trim().toLowerCase();
- const findText=p=>`${p.title||''} ${p.subtitle||''} ${p.keywords||''} ${p.key||''}`.toLowerCase();
+ const findText=p=>`${p.title||''} ${p.name||''} ${p.subtitle||''} ${p.keywords||''} ${p.key||''}`.toLowerCase();
  const allCategories=categories.length?categories:[
   {key:'games',title:'Game Top-Up'},{key:'chat',title:'Chat Apps'},{key:'gift_cards',title:'Gift Cards'},
   {key:'alfa',title:'Alfa'},{key:'touch',title:'Touch'},{key:'dsl',title:'Ogero & Internet Cards'},
   {key:'other_services',title:'CARFAX'},{key:'esim',title:'eSIM'}
  ];
+ // Browsing keeps category preview rows. A typed search instead searches every
+ // product directly, without using category titles or showing category sections.
  const categorized=allCategories.map(c=>{
   const title=CATEGORY_NAMES[c.key]||String(c.title||c.key).toUpperCase();
-  const options=c.key==='esim'?esimOverviewItems:products.filter(p=>overviewGroupFor(p)===c.key);
-  const matches=!needle||title.toLowerCase().includes(needle)
-   ?options
-   :options.filter(p=>findText(p).includes(needle));
+  const matches=c.key==='esim'?esimOverviewItems:products.filter(p=>overviewGroupFor(p)===c.key);
   return {...c,title,matches};
- }).filter(c=>c.matches.length>0||loading&&!needle);
+ }).filter(c=>c.matches.length>0);
+ const searchableProducts=Array.from(new Map([...products,...esimOverviewItems]
+  .map(p=>[String(p.key||p.title||p.name),p])).values());
+ const searchMatches=needle?searchableProducts.filter(p=>findText(p).includes(needle)):[];
  const openProduct=p=>{
   if(p.key==='esim_buy'||p.key==='esim_topup'){
    writeNav({page:'Products',category:'esim',esim:p.key==='esim_buy'?'buy':'topup'});
@@ -990,7 +992,12 @@ function ProductsOverview({categories,branch,accountType}){
   </label>
   {error&&<div className="catalogNotice error">{error}</div>}
   {loading?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>
-   :categorized.length===0?<div className="catalogNotice">No products found. Try another search.</div>
+   :needle?(searchMatches.length===0
+     ?<div className="catalogNotice">No products found. Try another search.</div>
+     :<div className="productsSearchResults" aria-label="Matching products">
+       {searchMatches.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={openProduct}/>)}
+      </div>)
+   :categorized.length===0?<div className="catalogNotice">No products available.</div>
    :categorized.map(c=><section className="productsCategorySection" key={c.key}>
      <div className="productsCategoryHeader">
       <h2>{c.title}</h2>
@@ -998,7 +1005,7 @@ function ProductsOverview({categories,branch,accountType}){
        aria-label={'Show all '+c.title}>Show All <ChevronRight size={17}/></button>
      </div>
      <div className="productsOverviewRow" aria-label={c.title+' products'}>
-      {c.matches.slice(0,needle?12:8).map(p=><ProductTile key={p.key||p.title} p={p} onOpen={openProduct}/>)}
+      {c.matches.slice(0,12).map(p=><ProductTile key={p.key||p.title} p={p} onOpen={openProduct}/>)}
      </div>
     </section>)}
   {selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}
