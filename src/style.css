@@ -653,3 +653,15 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .topProductsEmpty{padding:14px;color:#718096;display:flex;align-items:center;gap:9px;font-size:14px}
 @media(max-width:1100px){.topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.topProductsSection{padding:15px}.topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.topProductCard{padding:8px;gap:6px}.topProductCard span{font-size:11px}}
+
+/* Top Products: match the compact product tiles in the Products page.
+   Remove the large surrounding orange dashboard panel. */
+.dashSection.topProductsSection{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;margin-top:24px}
+.topProductsSection h2{margin:0 0 12px;font-size:20px;font-weight:850}
+.topProductsGrid{display:grid;grid-template-columns:repeat(6,108px);justify-content:start;gap:11px;align-items:start}
+.topProductsGrid .topProductCard{box-sizing:border-box;width:108px;min-width:0;display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border:1px solid #fed7aa;border-radius:14px;background:#fff;color:#152341;text-align:center;box-shadow:none}
+.topProductsGrid .topProductCard:hover{background:#fffaf5;border-color:#ff8a00}
+.topProductsGrid .topProductCard img{width:100%;max-width:none;height:auto;aspect-ratio:1/1;object-fit:contain;border-radius:0;background:#fff8f2}
+.topProductsGrid .topProductCard span{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;min-height:32px;padding:6px 4px;font-size:10px;font-weight:850;line-height:1.25;overflow-wrap:anywhere}
+@media(max-width:700px){.dashSection.topProductsSection{padding:0;margin-top:20px}.topProductsSection h2{font-size:17px}.topProductsGrid{grid-template-columns:repeat(3,minmax(0,90px));gap:9px}.topProductsGrid .topProductCard{width:100%}}
+@media(max-width:340px){.topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
