@@ -489,3 +489,17 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
  .appMain .welcome .walletHero strong{font-size:27px}
  .appMain .welcome .walletHero>a{font-size:14px}
 }
+
+/* Dashboard order summary: compact responsive metrics and period selection. */
+.dashboardOrderSummary{margin:18px 0 22px}
+.dashboardPeriodTabs{display:flex;flex-wrap:wrap;gap:4px;width:max-content;max-width:100%;padding:4px;border:1px solid #dbe0e8;border-radius:15px;background:#eef2f7;margin-bottom:14px}
+.dashboardPeriodTabs button{border:0;background:transparent;color:#64748b;font:inherit;font-weight:800;font-size:13px;padding:9px 16px;border-radius:11px;cursor:pointer}
+.dashboardPeriodTabs button.active{background:#fff;color:#0f172a;box-shadow:0 1px 5px #0f172a1a}
+.dashboardStatsGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.dashboardStatCard{min-width:0;background:#fff;border:1px solid #e0e4ea;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.dashboardStatCard span{font-size:14px;font-weight:750;color:#64748b}
+.dashboardStatCard strong{font-size:clamp(20px,2vw,30px);line-height:1.2;color:#0f172a;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.dashboardStatCard.completed strong{color:#16a34a}.dashboardStatCard.failed strong{color:#ef4444}.dashboardStatCard.total strong{color:#7c3aed}
+.dashboardStatsError{font-size:12px;color:#b45309;margin-bottom:9px}
+@media(max-width:1050px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.dashboardPeriodTabs{width:100%;box-sizing:border-box;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.dashboardPeriodTabs button{font-size:12px;padding:9px 2px;white-space:nowrap}.dashboardStatsGrid{gap:9px}.dashboardStatCard{padding:13px 12px;border-radius:14px;gap:6px}.dashboardStatCard span{font-size:12px}.dashboardStatCard strong{font-size:clamp(17px,4.8vw,23px)}}
