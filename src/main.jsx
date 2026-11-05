@@ -456,6 +456,38 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
  const installLink=validHttps(install.short_url)?install.short_url:null;
  const ios=validHttps(install.ios_install_url)?install.ios_install_url:null;
  const android=validHttps(install.android_install_url)?install.android_install_url:null;
+
+ const card=order?.card_receipt&&typeof order.card_receipt==='object'?order.card_receipt:{};
+ const serial=String(card.serial_number||'').trim();
+ const expiry=String(card.expiry_date||'').trim();
+ const code=String(order?.redeem_code||'').trim();
+ const ogeroBill=typeof order?.ogero_bill_url==='string'&&/^https:\/\/whish\.money\//i.test(order.ogero_bill_url)?order.ogero_bill_url:null;
+ const bill=order?.bill_details&&typeof order.bill_details==='object'?order.bill_details:null;
+ const touchSms=order?.touch_activation&&typeof order.touch_activation==='object'?order.touch_activation:null;
+ const isBill=['alfa_bill','touch_bill','ogero_bill'].includes(String(order?.product_key||''));
+ const cardTitle=order?.package_name||order?.product_title||'Digital card';
+ const deliveredText=[
+  '3ABBILO - Digital Card',
+  `Order #${numericId}`,
+  `Product: ${cardTitle}`,
+  order?.customer_reference?`Reference: ${order.customer_reference}`:null,
+  code?`Code: ${code}`:null,
+  serial?`Serial: ${serial}`:null,
+  expiry?`Expiry: ${expiry}`:null
+ ].filter(Boolean).join('\n');
+ function shareWhatsapp(){
+  // The user must explicitly choose a WhatsApp recipient; never auto-send a code.
+  window.open('https://wa.me/?text='+encodeURIComponent(deliveredText),'_blank','noopener,noreferrer');
+ }
+ function printCard(){
+  const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const lines=[['Order',`#${numericId}`],['Product',cardTitle],['Reference',order?.customer_reference],['Activation / redeem code',code],['Serial',serial],['Expiry',expiry]].filter(([,v])=>v);
+  const popup=window.open('','_blank','width=430,height=650');
+  if(!popup){setCopyMsg('Please allow pop-ups to print the card');return;}
+  const markup=`<!doctype html><html><head><meta charset="utf-8"><title>3ABBILO Card #${numericId}</title><style>@page{size:80mm auto;margin:3mm}*{box-sizing:border-box}html,body{width:74mm;margin:0;padding:0;color:#000;background:white;font:12px Arial,sans-serif}h1{text-align:center;font-size:18px;margin:8px 0}h2{text-align:center;font-size:13px;margin:0 0 12px}.line{border-top:1px dashed #777;padding:7px 0;overflow-wrap:anywhere}.line b{display:block;font-size:11px;margin-bottom:4px}.code{text-align:center;font-size:17px;font-weight:800;letter-spacing:1px;word-break:break-all}.footer{text-align:center;border-top:1px dashed #777;padding-top:10px;font-size:10px}@media screen{body{margin:12px auto}}</style></head><body><h1>3ABBILO</h1><h2>Digital Card Receipt</h2>${lines.map(([k,v])=>`<div class="line"><b>${escape(k)}</b><div class="${k==='Activation / redeem code'?'code':''}">${escape(v)}</div></div>`).join('')}<div class="footer">Keep your code private</div><script>window.onload=()=>{window.focus();window.print()}<\/script></body></html>`;
+  popup.document.open();popup.document.write(markup);popup.document.close();
+ }
+
  async function copy(value){try{await navigator.clipboard.writeText(String(value));setCopyMsg('Copied to clipboard')}catch{setCopyMsg('Copy is unavailable on this device')}}
  return <div className="unifiedReceipt" aria-live="polite">
    <div className={'receiptHeading '+(success?'receiptSuccess':failed?'receiptFailed':'receiptPending')}>
@@ -468,7 +500,18 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
    {!!order?.customer_reference&&<div className="receiptRow"><span>Recipient / reference</span><strong>{order.customer_reference}</strong></div>}
    {!branch&&order?.account_cost!=null&&<div className="receiptRow"><span>Your cost</span><strong>${Number(order.account_cost).toFixed(4)}</strong></div>}
    {!hideShopSellingPrice&&order?.selling_price!=null&&<div className="receiptRow"><span>Selling price</span><strong>${Number(order.selling_price).toFixed(2)}</strong></div>}
-   {success&&!!order?.redeem_code&&<div className="receiptDelivery"><small>Delivered recharge / redeem code</small><div className="receiptCode"><strong>{order.redeem_code}</strong><button type="button" onClick={()=>copy(order.redeem_code)}>Copy code</button></div></div>}
+   {success&&code&&<div className="receiptDelivery"><small>Delivered recharge / redeem code</small><div className="receiptCode"><strong>{code}</strong><button type="button" onClick={()=>copy(code)}>Copy code</button></div>
+     {!!serial&&<div className="receiptRow"><span>Card serial</span><strong>{serial}</strong></div>}
+     {!!expiry&&<div className="receiptRow"><span>Expiry date</span><strong>{expiry}</strong></div>}
+     <div className="receiptCardActions"><button type="button" onClick={printCard}>Print 80mm</button><button type="button" onClick={shareWhatsapp}>Share WhatsApp</button><button type="button" onClick={()=>copy(deliveredText)}>Copy details</button></div>
+   </div>}
+   {success&&isBill&&bill&&<div className="receiptDelivery"><small>Bill payment details</small>
+     {bill.bill_id!=null&&<div className="receiptRow"><span>Bill number</span><strong>{bill.bill_id}</strong></div>}
+     {bill.full_amount_usd!=null&&<div className="receiptRow"><span>Bill amount</span><strong>${Number(bill.full_amount_usd).toFixed(2)}</strong></div>}
+   </div>}
+   {success&&ogeroBill&&<div className="receiptLinks"><a href={ogeroBill} target="_blank" rel="noopener noreferrer">View Ogero invoice</a><button type="button" className="receiptTextButton" onClick={()=>copy(ogeroBill)}>Copy invoice link</button></div>}
+   {success&&touchSms?.sms_body&&<div className="receiptDelivery"><small>Touch activation instructions</small><div className="receiptRow"><span>SMS to</span><strong>{touchSms.send_to||'1188'}</strong></div><div className="receiptCode"><strong>{touchSms.sms_body}</strong><button type="button" onClick={()=>copy(touchSms.sms_body)}>Copy SMS</button></div></div>}
+
    {success&&!!install.iccid&&<div className="receiptDelivery"><small>eSIM ICCID</small><div className="receiptCode"><strong>{install.iccid}</strong><button type="button" onClick={()=>copy(install.iccid)}>Copy</button></div></div>}
    {success&&qr&&<div className="receiptDelivery receiptQr"><small>eSIM activation QR code</small><img src={qr} alt="eSIM installation QR code" loading="lazy"/><a href={qr} target="_blank" rel="noopener noreferrer">Open QR code</a></div>}
    {success&&(installLink||ios||android)&&<div className="receiptLinks">{installLink&&<a href={installLink} target="_blank" rel="noopener noreferrer">Install eSIM</a>}{ios&&<a href={ios} target="_blank" rel="noopener noreferrer">Install on iPhone</a>}{android&&<a href={android} target="_blank" rel="noopener noreferrer">Install on Android</a>}</div>}

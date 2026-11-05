@@ -1627,3 +1627,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ownerRecordCard.ticketRowUnread:hover{background:#fff3dd}
 .ticketNewLabel{display:inline-flex;align-items:center;margin-left:5px;background:#ff7900;color:#fff;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:800;vertical-align:middle}
 .ticketNotifyBadge{background:#ed4a28;color:#fff!important}
+
+/* Shared 3ABBILO result: customer-facing delivered card actions */
+.receiptCardActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.receiptCardActions button{border:1px solid #fdba74;background:#fff2df;color:#9a3412;border-radius:9px;padding:10px 12px;font-size:12px;font-weight:800;cursor:pointer}
+.receiptCardActions button:hover{background:#ffe3bc}
+.receiptLinks button.receiptTextButton{font-size:13px}
+@media(max-width:540px){.receiptCardActions button{flex:1 1 120px}}
