@@ -1082,8 +1082,31 @@ function OrderListRow({o,shopOrders=false,onOpen,highlight=false,showPrice=true}
 function writeNavTicket(page){writeNav({page,category:null,esim:''})}
 function navigateToTicket(setPage,orderId,ticketId,target='Support Tickets'){window.__3abbiloTicketNavigation={orderId,ticketId};setPage(target);}
 function ticketSeenKey(scope,t){return '3abbilo:ticket-seen:'+scope+':'+t.id}
-function ticketAlert(t,scope,kind){const last=Number(t.last_message_id||0),seen=Number(localStorage.getItem(ticketSeenKey(scope,t))||0);if(kind==='dealerShop')return seen===0||(last>seen&&t.last_sender==='account');return kind==='owner'?((last>seen&&t.last_sender==='account')||(!last&&!seen)):(!t.read_only&&last>seen&&t.last_sender==='owner')}
-function markTicketSeen(scope,t){localStorage.setItem(ticketSeenKey(scope,t),String(t.last_message_id?Number(t.last_message_id):-1));window.dispatchEvent(new Event('3abbilo:ticket-read'))}
+function ticketAlert(t,scope,kind){
+ const key=ticketSeenKey(scope,t);
+ const last=Number(t.last_message_id||0);
+ const stored=localStorage.getItem(key);
+ const seen=stored===null?0:Number(stored);
+ if(kind==='dealerShop'){
+  // A shop's new ticket is unread even when it has no reply/message row yet.
+  // Dealer must see *any* later activity, regardless of the last sender.
+  const activity=Date.parse(t.updated_at||t.created_at||'');
+  const readAt=localStorage.getItem(key+':readAt');
+  if(readAt!==null&&Number.isFinite(activity))return activity>Number(readAt);
+  if(stored===null)return true;
+  return last>seen;
+ }
+ return kind==='owner'?((last>seen&&t.last_sender==='account')||(!last&&!seen)):(!t.read_only&&last>seen&&t.last_sender==='owner');
+}
+function markTicketSeen(scope,t){
+ const key=ticketSeenKey(scope,t);
+ localStorage.setItem(key,String(t.last_message_id?Number(t.last_message_id):-1));
+ if(scope.startsWith('dealer-shop-')){
+  const activity=Date.parse(t.updated_at||t.created_at||'');
+  if(Number.isFinite(activity))localStorage.setItem(key+':readAt',String(activity));
+ }
+ window.dispatchEvent(new Event('3abbilo:ticket-read'));
+}
 function SupportTicketsPage({onOpenOrder,shopOnly=false,accountId}){
  const [tickets,setTickets]=useState([]),[search,setSearch]=useState(''),[selected,setSelected]=useState(null),[messages,setMessages]=useState([]),[description,setDescription]=useState(''),[reply,setReply]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[draftOrder,setDraftOrder]=useState(null);
  async function request(path,opts={}){const r=await fetch(API+'/api/wholesale/support/'+path,{...opts,headers:{...authHeaders(),'Content-Type':'application/json'},cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Support unavailable');return d}
