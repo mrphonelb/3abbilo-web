@@ -1696,3 +1696,109 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .dealerShopsBalanceSummary b{font-size:13px;color:#14213d;font-weight:800;white-space:nowrap}
 .dealerShopsBalanceSummary>.dealerShopsProjectedBalance{background:#ecf9f0;border:1px solid #c5ecd0}
 .dealerShopsProjectedBalance span,.dealerShopsProjectedBalance b{color:#087c42}
+
+/* Responsive order and shop rows — keep every cell inside its card.
+   At intermediate window sizes the desktop minimum columns were wider than
+   the available app area (especially when the left sidebar is visible). */
+.appShell .appMain,
+.appShell .sectionPad,
+.appShell .dashboardRecentSections,
+.appShell .dashboardRecentSection,
+.appShell .ordersRecentList,
+.appShell .dealerShopsPage,
+.appShell .dealerShopsList {min-width:0;max-width:100%;}
+.appShell .ordersRecentRow,
+.appShell .dealerShopsListRow {box-sizing:border-box;max-width:100%;min-width:0;}
+.appShell .ordersRecentRow > *,
+.appShell .dealerShopsListRow > * {min-width:0;}
+.appShell .ordersRecentName strong,
+.appShell .ordersRecentCustomer,
+.appShell .dealerShopsListName,
+.appShell .dealerShopsListEmail,
+.appShell .dealerShopsListPhone {overflow-wrap:anywhere;}
+.appShell .orderTools {min-width:0;max-width:100%;}
+.appShell .orderTools input {min-width:0;}
+.appShell .orderTools select {flex-shrink:0;}
+
+/* Show product, recipient, amount, status and date on compact aligned lines. */
+@media (max-width:1150px) {
+ .appShell .ordersRecentRow {
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr) max-content 16px;
+  grid-template-areas:
+   "order-image order-name order-status order-arrow"
+   "order-image order-customer order-price order-arrow"
+   "order-image order-time order-time order-arrow";
+  column-gap:10px;
+  row-gap:5px;
+  min-height:78px;
+  padding:11px 12px;
+  align-items:center;
+ }
+ .appShell .ordersRecentImage {grid-area:order-image;width:48px;height:48px;align-self:center;}
+ .appShell .ordersRecentName {grid-area:order-name;min-width:0;}
+ .appShell .ordersRecentCustomer {grid-area:order-customer;min-width:0;}
+ .appShell .ordersRecentPrice {grid-area:order-price;margin:0;min-width:0;font-size:13px;text-align:right;}
+ .appShell .ordersRecentState {grid-area:order-status;min-width:0;max-width:none;justify-self:end;align-items:flex-end;}
+ .appShell .ordersRecentTime {grid-area:order-time;margin:0;min-width:0;text-align:left;font-size:11px;}
+ .appShell .ordersRecentChevron {grid-area:order-arrow;display:block;align-self:center;width:16px;height:16px;}
+ .appShell .ordersRecentName strong {font-size:13px;max-width:100%;display:block;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+ .appShell .dashboardRecentSection {padding:17px;}
+ .appShell .dashboardRecentHeader h2 {font-size:20px;}
+}
+
+/* Narrow shop rows: preserve all five details without horizontal scrolling. */
+@media (max-width:1250px) {
+ .appShell .dealerShopsListRow {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) max-content 16px;
+  grid-template-areas:
+   "shop-name shop-email shop-balance shop-arrow"
+   "shop-name shop-phone shop-status shop-arrow";
+  gap:6px 10px;
+  min-height:76px;
+  padding:12px;
+ }
+ .appShell .dealerShopsListName {grid-area:shop-name;align-self:center;}
+ .appShell .dealerShopsListEmail {grid-area:shop-email;}
+ .appShell .dealerShopsListPhone {grid-area:shop-phone;display:block;}
+ .appShell .dealerShopsListBalance {grid-area:shop-balance;justify-self:end;white-space:nowrap;}
+ .appShell .dealerShopsListStatus {grid-area:shop-status;justify-self:end;}
+ .appShell .dealerShopsListArrow {grid-area:shop-arrow;justify-self:end;align-self:center;}
+}
+
+@media (max-width:650px) {
+ .appShell .ordersRecentRow {
+  grid-template-columns:44px minmax(0,1fr) max-content;
+  grid-template-areas:
+   "order-image order-name order-status"
+   "order-image order-customer order-price"
+   "order-image order-time order-time";
+  padding:10px;gap:5px 8px;
+ }
+ .appShell .ordersRecentImage {width:44px;height:44px;}
+ .appShell .ordersRecentChevron {display:none;}
+ .appShell .dashboardRecentSection {padding:13px;border-radius:17px;}
+ .appShell .dashboardRecentHeader h2 {font-size:17px;}
+ .appShell .dashboardRecentHeader button {font-size:12px;white-space:nowrap;}
+ .appShell .dealerShopsListRow {
+  grid-template-columns:minmax(0,1fr) max-content 16px;
+  grid-template-areas:
+   "shop-name shop-balance shop-arrow"
+   "shop-email shop-status shop-arrow"
+   "shop-phone shop-status shop-arrow";
+  gap:5px 8px;
+  padding:11px;
+ }
+ .appShell .dealerShopsListName,.appShell .dealerShopsListBalance {font-size:12px;}
+ .appShell .dealerShopsListEmail,.appShell .dealerShopsListPhone {font-size:11px;}
+ .appShell .dealerShopsListStatus {align-self:center;}
+ .appShell .orderTools select {max-width:38%;}
+}
+@media (max-width:390px) {
+ .appShell .ordersRecentRow {grid-template-columns:40px minmax(0,1fr) max-content;column-gap:7px;padding:8px;}
+ .appShell .ordersRecentImage {width:40px;height:40px;}
+ .appShell .ordersRecentPrice {font-size:12px;}
+ .appShell .ordersRecentState .orderStatus {font-size:10px;padding:5px 7px;}
+ .appShell .dealerShopsListRow {column-gap:5px;padding:9px;}
+}
