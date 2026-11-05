@@ -1564,3 +1564,16 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ownerOnezoneRecovery button{width:100%;border:0;border-radius:10px;background:#1b2945;color:#fff;font-weight:700;padding:13px;cursor:pointer;}
 .ownerOnezoneRecovery button:disabled{opacity:.55;cursor:wait;}
 .ownerRecoveryMessage{margin:12px 0 0;padding:12px;border-radius:9px;background:#f2f5fa;color:#1b2945;font-size:13px;}
+
+/* Owner All Orders: match dealer/branch/shop My Orders search typography. */
+.ownerShell .ownerOrderTools input,
+.ownerShell .ownerOrderTools select {
+  font-family: Inter, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+}
+.ownerShell .ownerOrderTools input::placeholder {
+  font-size: 13px;
+  font-weight: 400;
+}
