@@ -480,6 +480,11 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
   serial?`Serial: ${serial}`:null,
   expiry?`Expiry: ${expiry}`:null
  ].filter(Boolean).join('\n');
+ function shareOgeroWhatsapp(){
+  if(!ogeroBill)return;
+  const message=[receiptBrandName,`Ogero bill payment receipt`, `Order #${numericId}`,`Product: ${cardTitle}`,`Invoice: ${ogeroBill}`].join('\n');
+  window.open('https://wa.me/?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+ }
  function shareWhatsapp(){
   // The user must explicitly choose a WhatsApp recipient; never auto-send a code.
   window.open('https://wa.me/?text='+encodeURIComponent(deliveredText),'_blank','noopener,noreferrer');
@@ -510,11 +515,11 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
      {!!expiry&&<div className="receiptRow"><span>Expiry date</span><strong>{expiry}</strong></div>}
      <div className="receiptCardActions"><button type="button" className="receiptIconButton" onClick={()=>copy(deliveredText)} title="Copy card details" aria-label="Copy card details"><Copy size={20}/></button><button type="button" className="receiptIconButton" onClick={printCard} title="Print card on 80 mm thermal printer" aria-label="Print card on 80 mm thermal printer"><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={shareWhatsapp} title="Share card on WhatsApp" aria-label="Share card on WhatsApp"><WhatsappBrandIcon size={20}/></button></div>
    </div>}
-   {success&&isBill&&bill&&<div className="receiptDelivery"><small>Bill payment details</small>
+   {success&&isBill&&order?.product_key!=='ogero_bill'&&bill&&<div className="receiptDelivery"><small>Bill payment details</small>
      {bill.bill_id!=null&&<div className="receiptRow"><span>Bill number</span><strong>{bill.bill_id}</strong></div>}
      {bill.full_amount_usd!=null&&<div className="receiptRow"><span>Bill amount</span><strong>${Number(bill.full_amount_usd).toFixed(2)}</strong></div>}
    </div>}
-   {success&&ogeroBill&&<div className="receiptLinks"><a href={ogeroBill} target="_blank" rel="noopener noreferrer">View Ogero invoice</a><button type="button" className="receiptTextButton" onClick={()=>copy(ogeroBill)}>Copy invoice link</button></div>}
+   {success&&ogeroBill&&<div className="receiptLinks receiptOgeroActions"><a href={ogeroBill} target="_blank" rel="noopener noreferrer">View Ogero invoice</a><button type="button" className="receiptIconButton" onClick={()=>copy(ogeroBill)} title="Copy Ogero invoice link" aria-label="Copy Ogero invoice link"><Copy size={20}/></button><button type="button" className="receiptIconButton" onClick={shareOgeroWhatsapp} title="Share Ogero invoice on WhatsApp" aria-label="Share Ogero invoice on WhatsApp"><WhatsappBrandIcon size={20}/></button></div>}
    {success&&touchSms?.sms_body&&<div className="receiptDelivery"><small>Touch activation instructions</small><div className="receiptRow"><span>SMS to</span><strong>{touchSms.send_to||'1188'}</strong></div><div className="receiptCode"><strong>{touchSms.sms_body}</strong><button type="button" onClick={()=>copy(touchSms.sms_body)}>Copy SMS</button></div></div>}
 
    {success&&!!install.iccid&&<div className="receiptDelivery"><small>eSIM ICCID</small><div className="receiptCode"><strong>{install.iccid}</strong><button type="button" onClick={()=>copy(install.iccid)}>Copy</button></div></div>}

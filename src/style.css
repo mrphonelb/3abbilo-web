@@ -1644,3 +1644,9 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 
 /* Brand-colored WhatsApp glyph; buttons remain icon-only. */
 .receiptCardActions .receiptIconButton[aria-label="Share card on WhatsApp"]{color:#25D366}
+
+/* Center Ogero invoice link, copy and WhatsApp actions; codes retain their own three actions. */
+.receiptLinks.receiptOgeroActions{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;margin:12px 0}
+.receiptOgeroActions button.receiptIconButton{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;padding:0;border:1px solid #d8e1ef;border-radius:10px;background:#fff;color:#0f2d5c;cursor:pointer}
+.receiptOgeroActions button.receiptIconButton svg{width:20px;height:20px}
+.receiptOgeroActions button[aria-label="Share Ogero invoice on WhatsApp"]{color:#25D366}
