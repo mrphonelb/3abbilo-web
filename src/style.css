@@ -469,3 +469,23 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
  .productsOverviewRow .catalogProduct b{font-size:9px!important;line-height:1.18;min-height:23px;padding:0 2px 4px!important}
 }
 @media(max-width:380px){.productsOverviewRow{grid-auto-columns:66px;gap:6px}}
+
+/* Dashboard welcome and wallet: compact layout, including mobile. */
+.appMain .welcome{margin-top:18px;padding:20px 24px;min-height:0;gap:20px;border-radius:20px}
+.appMain .welcome h1{font-size:clamp(20px,2.1vw,27px);line-height:1.25;margin:0;overflow-wrap:anywhere}
+.appMain .welcome .walletHero{min-width:0;width:min(340px,42%);box-sizing:border-box;padding:16px 20px;border-radius:17px;gap:6px 10px;flex-shrink:0}
+.appMain .welcome .walletHero strong{font-size:clamp(23px,2.6vw,32px);line-height:1.15;overflow-wrap:anywhere}
+.appMain .welcome .walletHero>a{margin-top:3px;font-size:15px}
+.appMain .welcome .monthlyProfitMini{margin-top:5px;padding-top:7px}
+@media(max-width:850px){
+ .appMain .welcome{padding:17px;gap:13px;align-items:stretch}
+ .appMain .welcome h1{font-size:clamp(19px,4.5vw,25px)}
+ .appMain .welcome .walletHero{width:100%;max-width:none;padding:15px 17px}
+}
+@media(max-width:520px){
+ .appMain .welcome{margin-top:12px;padding:14px;border-radius:16px;gap:12px}
+ .appMain .welcome h1{font-size:20px}
+ .appMain .welcome .walletHero{padding:14px;border-radius:14px}
+ .appMain .welcome .walletHero strong{font-size:27px}
+ .appMain .welcome .walletHero>a{font-size:14px}
+}
