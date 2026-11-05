@@ -543,3 +543,13 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .appMain .welcome .dailyProfitRows span{font-size:10px;letter-spacing:.02em;opacity:.9;font-weight:750}
 .appMain .welcome .dailyProfitRows b{font-size:13px;white-space:nowrap;color:#fff;font-weight:800}
 @media(max-width:420px){.appMain .welcome .dailyProfitRows span{font-size:9px}.appMain .welcome .dailyProfitRows b{font-size:12px}}
+
+/* Balance card: prevent narrow second grid column from breaking currency digits. */
+.appMain .welcome .walletHero{width:clamp(350px,42%,460px);grid-template-columns:44px minmax(0,1fr);column-gap:12px}
+.appMain .welcome .walletHero>svg{grid-column:1;grid-row:1 / 3}
+.appMain .welcome .walletHero>span{grid-column:2;grid-row:1}
+.appMain .welcome .walletHero>strong{grid-column:2;grid-row:2;white-space:nowrap;overflow-wrap:normal;word-break:normal;font-size:clamp(23px,2.4vw,32px);font-variant-numeric:tabular-nums}
+.appMain .welcome .walletHero .dailyProfitRows{grid-column:1 / -1;min-width:0}
+.appMain .welcome .walletHero>a{grid-column:1 / -1}
+@media(max-width:850px){.appMain .welcome .walletHero{width:100%;grid-template-columns:36px minmax(0,1fr)}}
+@media(max-width:420px){.appMain .welcome .walletHero>strong{font-size:clamp(20px,6vw,27px)}.appMain .welcome .walletHero .dailyProfitRows>div{gap:6px}}
