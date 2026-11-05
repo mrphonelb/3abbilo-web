@@ -665,3 +665,15 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .topProductsGrid .topProductCard span{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;min-height:32px;padding:6px 4px;font-size:10px;font-weight:850;line-height:1.25;overflow-wrap:anywhere}
 @media(max-width:700px){.dashSection.topProductsSection{padding:0;margin-top:20px}.topProductsSection h2{font-size:17px}.topProductsGrid{grid-template-columns:repeat(3,minmax(0,90px));gap:9px}.topProductsGrid .topProductCard{width:100%}}
 @media(max-width:340px){.topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Top Products: framed section with breathing room above, compact product tiles. */
+.dashSection.topProductsSection{
+  margin-top:32px; padding:22px 24px 24px;
+  background:#fff; border:1px solid #ffb46b; border-radius:22px;
+  box-shadow:none; box-sizing:border-box; width:100%;
+}
+.topProductsSection h2{margin:0 0 18px;font-size:20px;line-height:1.3}
+@media(max-width:700px){
+  .dashSection.topProductsSection{margin-top:24px;padding:16px 14px 18px;border-radius:17px}
+  .topProductsSection h2{margin-bottom:14px;font-size:17px}
+}
