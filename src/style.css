@@ -634,3 +634,11 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
   .appMain .welcome .walletHero .dailyProfitRows span { font-size: 9px; }
   .appMain .welcome .walletHero .dailyProfitRows b { font-size: 11px; }
 }
+
+/* My Orders: reuse the original catalog artwork for each purchased product. */
+.orderProductCell{display:flex;align-items:center;gap:11px;min-width:160px}
+.orderProductArtwork{width:46px;height:46px;flex:0 0 46px;border-radius:10px;overflow:hidden;background:#f4f7ff;display:flex;align-items:center;justify-content:center}
+.orderProductArtwork img{display:block;width:100%;height:100%;object-fit:contain}
+.orderProductArtwork .catalogFallback{width:100%!important;height:100%!important;min-height:0!important;border-radius:10px!important;padding:0!important}
+.orderProductCell .orderProductName{min-width:0;overflow-wrap:anywhere;line-height:1.35}
+@media(max-width:700px){.orderProductCell{gap:7px;min-width:125px}.orderProductArtwork{width:36px;height:36px;flex-basis:36px}}
