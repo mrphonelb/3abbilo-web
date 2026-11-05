@@ -589,3 +589,48 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 @media(max-width:420px){
   .appMain .welcome .walletHero .dailyProfitRows>div{gap:7px}
 }
+
+
+/* Mobile wallet: fluid width and compact, right-aligned figures. */
+@media (max-width: 850px) {
+  .appMain .welcome .walletHero {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    box-sizing: border-box;
+    grid-template-columns: 30px minmax(0, 1fr);
+    column-gap: 9px;
+    padding: 13px 15px;
+    border-radius: 16px;
+  }
+  .appMain .welcome .walletHero > strong {
+    font-size: clamp(21px, 5.4vw, 30px);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    max-width: 100%;
+  }
+  .appMain .welcome .walletHero > span { font-size: 10px; }
+  .appMain .welcome .walletHero .dailyProfitRows {
+    padding-top: 8px;
+    margin-top: 3px;
+    gap: 6px;
+  }
+  .appMain .welcome .walletHero .dailyProfitRows > div {
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .appMain .welcome .walletHero .dailyProfitRows span {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .appMain .welcome .walletHero .dailyProfitRows b { font-size: 12px; }
+  .appMain .welcome .walletHero > a { font-size: 14px; }
+}
+@media (max-width: 390px) {
+  .appMain .welcome .walletHero { padding: 12px; grid-template-columns: 25px minmax(0,1fr); }
+  .appMain .welcome .walletHero > strong { font-size: clamp(19px, 5.2vw, 24px); }
+  .appMain .welcome .walletHero .dailyProfitRows span { font-size: 9px; }
+  .appMain .welcome .walletHero .dailyProfitRows b { font-size: 11px; }
+}
