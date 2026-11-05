@@ -1583,3 +1583,9 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ownerDashboardRecent .dashboardRecentSection{min-width:0}
 .ownerDashboardRecent .ownerRecordList{display:grid;gap:10px}
 .ownerDashboardRecent .ownerRecordCard{width:100%}
+
+/* Owner order receipt: share the standard My Orders modal sizing and typography. */
+.ownerOrderModal .ownerUnifiedReceipt{margin-top:16px}
+.ownerOrderModal .ownerUnifiedReceipt .receiptRow{font-size:13px}
+.ownerOrderModal .ownerUnifiedReceipt .receiptRow strong{overflow-wrap:anywhere;text-align:right}
+.ownerOrderModal .ownerUnifiedReceipt .ownerOnezoneRecovery{flex-shrink:0}
