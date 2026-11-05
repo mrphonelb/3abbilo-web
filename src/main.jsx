@@ -928,7 +928,7 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
 }
 
 const CATEGORY_NAMES={games:'GAME TOP-UP',chat:'CHAT APPS TOP-UP',gift_cards:'GIFT CARDS',alfa:'ALFA',touch:'TOUCH',dsl:'OGERO & INTERNET CARDS',other_services:'CARFAX',esim:'ESIM & TOPUP'};
-const PAGE_SLUGS={'Dashboard':'dashboard','Products':'products','My Shops':'my-shops','My Orders':'my-orders','Shop Orders':'shop-orders','Transactions':'transactions','Profit Report':'profit-report','Recharge Account':'recharge-account','My Account':'my-account','Change Password':'change-password'};
+const PAGE_SLUGS={'Dashboard':'dashboard','Products':'products','My Shops':'my-shops','My Orders':'my-orders','Shop Orders':'shop-orders','Support Tickets':'support-tickets','Shop Support Tickets':'shop-support-tickets','Transactions':'transactions','Profit Report':'profit-report','Recharge Account':'recharge-account','My Account':'my-account','Change Password':'change-password'};
 function readNav(){const q=new URLSearchParams(location.search);return {page:Object.keys(PAGE_SLUGS).find(k=>PAGE_SLUGS[k]===q.get('view'))||null,category:q.get('category')||null,esim:q.get('esim')||''};}
 function writeNav(changes,replace=false){const now=readNav(),next={...now,...changes};const q=new URLSearchParams(location.search);['view','category','esim'].forEach(k=>q.delete(k));if(next.page)q.set('view',PAGE_SLUGS[next.page]||'products');if(next.category)q.set('category',next.category);if(next.esim)q.set('esim',next.esim);const url=location.pathname+(q.size?'?'+q.toString():'');history[replace?'replaceState':'pushState']({},'',url);window.dispatchEvent(new Event('3abbilo:navigation'));}
 // Products overview: one cached catalog for every category and a global client-side search.
