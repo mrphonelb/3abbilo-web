@@ -569,3 +569,23 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .appMain .welcome .walletHero .dailyProfitRows b{text-align:left;font-variant-numeric:tabular-nums}
 @media(max-width:850px){.appMain .welcome .walletHero{max-width:320px}}
 @media(max-width:420px){.appMain .welcome .walletHero{width:100%;padding:13px 12px}.appMain .welcome .walletHero .dailyProfitRows span{font-size:9px}}
+
+/* Dealer wallet: right-aligned profit label followed by its amount. */
+.appMain .welcome .walletHero .dailyProfitRows>div{
+  flex-direction:row;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+}
+.appMain .welcome .walletHero .dailyProfitRows span{
+  text-align:right;
+  white-space:nowrap;
+}
+.appMain .welcome .walletHero .dailyProfitRows b{
+  text-align:right;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:420px){
+  .appMain .welcome .walletHero .dailyProfitRows>div{gap:7px}
+}
