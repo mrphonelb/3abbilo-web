@@ -1126,6 +1126,10 @@ function DealerShopsPage(){
  const adjustAmount=delta=>{const n=Math.max(0,Math.round(((Number(amount)||0)+delta)*100)/100);setAmount(n===0?'':String(n))};
  const cleanAmount=String(amount).trim();
  const validAmount=/^\d+(?:\.\d{1,2})?$/.test(cleanAmount)&&Number(cleanAmount)>0;
+ // Preview only: no wallet movement until the dealer confirms the transfer.
+ const currentShopBalance=Number(selectedShop?.balance||0);
+ const balanceAfterTransfer=(Math.round(currentShopBalance*10000)+
+  (validAmount?Math.round(Number(cleanAmount)*10000):0))/10000;
  const shopActive=String(selectedShop?.status||'active').toLowerCase()==='active';
  async function createShop(e){
   e.preventDefault();if(creatingBusy)return;
@@ -1186,13 +1190,17 @@ function DealerShopsPage(){
   {selectedShop&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeBalance()}>
    <div className="productModal compactModal dealerShopsBalanceModal" role="dialog" aria-modal="true" aria-label={'Add balance to '+selectedShop.shop_name}>
     <button type="button" className="modalClose" onClick={closeBalance} disabled={transferBusy} aria-label="Close"><X size={21}/></button>
-    <div className="popupTitle"><Wallet size={30}/><h2>Add Shop Balance</h2></div>
-    <div className="dealerShopsBalanceIdentity"><strong>{selectedShop.shop_name}</strong><small>{selectedShop.email||'—'} · {selectedShop.phone||'—'}</small><span>Current balance <b>${Number(selectedShop.balance||0).toFixed(4)}</b></span></div>
+    <div className="popupTitle"><Wallet size={30}/><h2>Add Balance</h2></div>
+    <div className="dealerShopsBalanceIdentity"><strong>{selectedShop.shop_name}</strong>
+     <div className="dealerShopsBalanceSummary"><div><span>Current Balance</span><b>${currentShopBalance.toFixed(4)}</b></div>
+      <div className="dealerShopsProjectedBalance" aria-live="polite" aria-atomic="true"><span>Balance After Transfer</span><b>${balanceAfterTransfer.toFixed(4)}</b></div>
+     </div>
+    </div>
     <form onSubmit={transferBalance}>
      <label htmlFor="dealerShopTransferAmount" className="dealerShopsBalanceLabel">Amount to transfer (USD)</label>
      <div className="dealerShopsAmountControl"><button type="button" onClick={()=>adjustAmount(-1)} disabled={transferBusy} aria-label="Decrease amount"><Minus size={20}/></button><input id="dealerShopTransferAmount" inputMode="decimal" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={e=>setAmount(e.target.value)} disabled={transferBusy} required/><button type="button" onClick={()=>adjustAmount(1)} disabled={transferBusy} aria-label="Increase amount"><Plus size={20}/></button></div>
      <div className="dealerShopsAmountSuggestions">{[50,100,150,200,250,300,400,500,750,1000].map(value=><button type="button" key={value} className={Number(amount)===value?'selected':''} disabled={transferBusy} onClick={()=>setSuggestedAmount(value)}>${value}</button>)}</div>
-     <p className="dealerShopsBalanceExplanation">The amount is transferred from your dealer wallet to this shop. This does not create new funds.</p>
+     
      {!shopActive&&<div role="alert" className="dealerShopsFormError">This shop is inactive. Balance transfers are unavailable.</div>}
      {transferError&&<div role="alert" className="dealerShopsFormError">{transferError}</div>}
      <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={transferBusy||!validAmount||!shopActive}>{transferBusy?'Transferring…':'Add Balance'}</button>
