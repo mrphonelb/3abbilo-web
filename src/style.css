@@ -719,13 +719,12 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 @media(max-width:900px){.ordersRecentRow{grid-template-columns:48px minmax(125px,1.7fr) minmax(70px,1fr) minmax(70px,.7fr) minmax(75px,.7fr) minmax(100px,1fr) 16px;gap:9px}.ordersRecentImage{width:48px;height:48px;flex-basis:auto}.ordersRecentCustomer{font-size:12px}.ordersRecentTime{font-size:11px}}
 @media(max-width:650px){.ordersRecentRow{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"image product status" "image customer price" "image time time";gap:5px 10px;padding:11px;min-height:0}.ordersRecentImage{grid-area:image;width:44px;height:44px;align-self:start}.ordersRecentName{grid-area:product;flex-basis:auto}.ordersRecentCustomer{grid-area:customer}.ordersRecentPrice{grid-area:price;margin:0;text-align:right}.ordersRecentState{grid-area:status;justify-self:end}.ordersRecentTime{grid-area:time;margin:0;text-align:left}.ordersRecentChevron{display:none}}
 
-/* Failure details stay inside the clickable order-result popup. */
-.ordersRecentViewReason{font-size:11px;color:#b85a09;font-weight:600;line-height:1.25}
-
-/* Dealer Shop Orders: show both shop account and recharged customer ID/number. */
-.ordersRecentShopCustomer{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0}
-.ordersRecentShopName{font-size:13px;font-weight:750;color:#34415a;max-width:100%;overflow-wrap:anywhere}
-.ordersRecentCustomerId{font-size:12px;font-weight:500;color:#77849b;max-width:100%;overflow-wrap:anywhere}
-@media(max-width:650px){.ordersRecentShopCustomer{gap:3px}.ordersRecentShopName{font-size:12px}.ordersRecentCustomerId{font-size:11px}}
-
-.shopOrderIdentity{display:flex;flex-direction:column;gap:4px;min-width:0}.shopOrderIdentity strong{font-size:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.shopOrderIdentity small{font-size:12px;color:#75829a;overflow-wrap:anywhere}
+/* Dashboard recent orders use the same columns and spacing as My Orders / Shop Orders */
+.dashboardOrdersList{margin-top:0}
+.dashboardOrdersList .ordersRecentRow{min-height:78px}
+.dashboardOrdersList .ordersRecentCustomer{min-width:0}
+.dashboardOrdersList .shopOrderIdentity{display:flex;flex-direction:column;gap:3px}
+.dashboardOrdersList .shopOrderIdentity strong{font-size:13px}
+.dashboardOrdersList .shopOrderIdentity small{font-size:12px;color:#75829a}
+.dashboardOrdersList .ordersRecentViewReason{font-size:11px;color:#bd5c00;font-weight:700;white-space:nowrap}
+@media(max-width:720px){.dashboardOrdersList .ordersRecentRow{min-height:0}.dashboardOrdersList .ordersRecentCustomer{flex-basis:calc(100% - 55px);margin-left:55px}}
