@@ -711,3 +711,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ordersRecentTime{font-size:12px;color:#75829a;min-width:150px;text-align:right}
 .ordersRecentChevron{color:#f47700;flex:0 0 auto}
 @media(max-width:720px){.ordersRecentList{gap:9px}.ordersRecentRow{flex-wrap:wrap;gap:8px 10px;padding:11px}.ordersRecentImage{width:45px;height:45px;flex-basis:45px}.ordersRecentName{flex-basis:calc(100% - 75px)}.ordersRecentName strong{font-size:13px}.ordersRecentPrice{margin-left:55px}.ordersRecentTime{min-width:0;margin-left:auto}.ordersRecentState{max-width:100%}.ordersRecentChevron{display:none}}
+
+/* Aligned order columns: product / customer / price / status / time */
+.ordersRecentRow{display:grid;grid-template-columns:56px minmax(170px,2fr) minmax(100px,1fr) minmax(85px,.75fr) minmax(90px,.75fr) minmax(135px,1fr) 19px;align-items:center;column-gap:14px;min-height:82px}
+.ordersRecentName{min-width:0}.ordersRecentName small{font-weight:600}.ordersRecentCustomer{font-size:13px;font-weight:600;color:#34415a;min-width:0;overflow-wrap:anywhere}
+.ordersRecentPrice{text-align:right;margin:0}.ordersRecentState{min-width:0;max-width:none;align-items:center}.ordersRecentTime{min-width:0;text-align:right}.ordersRecentChevron{display:block}
+@media(max-width:900px){.ordersRecentRow{grid-template-columns:48px minmax(125px,1.7fr) minmax(70px,1fr) minmax(70px,.7fr) minmax(75px,.7fr) minmax(100px,1fr) 16px;gap:9px}.ordersRecentImage{width:48px;height:48px;flex-basis:auto}.ordersRecentCustomer{font-size:12px}.ordersRecentTime{font-size:11px}}
+@media(max-width:650px){.ordersRecentRow{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"image product status" "image customer price" "image time time";gap:5px 10px;padding:11px;min-height:0}.ordersRecentImage{grid-area:image;width:44px;height:44px;align-self:start}.ordersRecentName{grid-area:product;flex-basis:auto}.ordersRecentCustomer{grid-area:customer}.ordersRecentPrice{grid-area:price;margin:0;text-align:right}.ordersRecentState{grid-area:status;justify-self:end}.ordersRecentTime{grid-area:time;margin:0;text-align:left}.ordersRecentChevron{display:none}}
