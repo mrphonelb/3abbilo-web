@@ -503,3 +503,18 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .dashboardStatsError{font-size:12px;color:#b45309;margin-bottom:9px}
 @media(max-width:1050px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.dashboardPeriodTabs{width:100%;box-sizing:border-box;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.dashboardPeriodTabs button{font-size:12px;padding:9px 2px;white-space:nowrap}.dashboardStatsGrid{gap:9px}.dashboardStatCard{padding:13px 12px;border-radius:14px;gap:6px}.dashboardStatCard span{font-size:12px}.dashboardStatCard strong{font-size:clamp(17px,4.8vw,23px)}}
+
+/* 3ABBILO orange dashboard metrics and responsive five-card layout */
+.dashboardPeriodTabs{background:#fff7ed;border-color:#ffd1a1}
+.dashboardPeriodTabs button{color:#805c3b}
+.dashboardPeriodTabs button.active{color:#ea7200;background:#fff;border:1px solid #ff8a00;box-shadow:0 1px 5px #ff8a0022}
+.dashboardStatsGrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.dashboardStatCard{border-color:#ffcf9a;background:#fff;border-radius:16px;padding:17px 16px}
+.dashboardStatCard.total strong,.dashboardStatCard.spent strong{color:#f58200}
+.dashboardStatCard.completed strong{color:#169b50}
+.dashboardStatCard.failed strong{color:#e74747}
+.dashboardStatCard.profit strong{color:#e77600}
+@media(max-width:1200px){.dashboardStatsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}}
+@media(max-width:520px){.dashboardOrderSummary{margin:14px 0 18px}.dashboardPeriodTabs{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));box-sizing:border-box}.dashboardPeriodTabs button{padding:9px 1px;font-size:12px}.dashboardStatCard{padding:13px 11px;gap:7px}.dashboardStatCard span{font-size:12px}.dashboardStatCard strong{font-size:clamp(16px,4.5vw,22px)}}
+@media(max-width:340px){.dashboardStatsGrid{grid-template-columns:1fr}}
