@@ -529,3 +529,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 @media(max-width:1350px){.dashboardStatsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:720px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dashboardStatCard{padding:12px;min-height:82px}.dashboardStatCard strong{font-size:clamp(17px,4.4vw,23px)}}
 @media(max-width:340px){.dashboardStatsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboardStatCard{padding:9px}.dashboardStatCard strong{font-size:16px}}
+
+/* Shorter dashboard metric cards without changing data or responsive columns. */
+.dashboardStatsGrid .dashboardStatCard{min-height:0;padding:10px 13px;gap:3px}
+.dashboardStatsGrid .dashboardStatCard span{line-height:1.15}
+.dashboardStatsGrid .dashboardStatCard strong{line-height:1.12}
+@media(max-width:720px){.dashboardStatsGrid .dashboardStatCard{min-height:0;padding:10px 11px;gap:3px}}
+@media(max-width:340px){.dashboardStatsGrid .dashboardStatCard{padding:9px}}
