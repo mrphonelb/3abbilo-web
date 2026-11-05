@@ -721,3 +721,11 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 
 /* Failure details stay inside the clickable order-result popup. */
 .ordersRecentViewReason{font-size:11px;color:#b85a09;font-weight:600;line-height:1.25}
+
+/* Dealer Shop Orders: show both shop account and recharged customer ID/number. */
+.ordersRecentShopCustomer{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0}
+.ordersRecentShopName{font-size:13px;font-weight:750;color:#34415a;max-width:100%;overflow-wrap:anywhere}
+.ordersRecentCustomerId{font-size:12px;font-weight:500;color:#77849b;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:650px){.ordersRecentShopCustomer{gap:3px}.ordersRecentShopName{font-size:12px}.ordersRecentCustomerId{font-size:11px}}
+
+.shopOrderIdentity{display:flex;flex-direction:column;gap:4px;min-width:0}.shopOrderIdentity strong{font-size:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.shopOrderIdentity small{font-size:12px;color:#75829a;overflow-wrap:anywhere}
