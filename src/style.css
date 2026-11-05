@@ -642,3 +642,14 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .orderProductArtwork .catalogFallback{width:100%!important;height:100%!important;min-height:0!important;border-radius:10px!important;padding:0!important}
 .orderProductCell .orderProductName{min-width:0;overflow-wrap:anywhere;line-height:1.35}
 @media(max-width:700px){.orderProductCell{gap:7px;min-width:125px}.orderProductArtwork{width:36px;height:36px;flex-basis:36px}}
+
+/* Account-specific Top Products dashboard section */
+.topProductsSection h2{margin:0 0 18px;color:#152341;font-size:24px}
+.topProductsGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px}
+.topProductCard{min-width:0;background:#fff;border:1px solid #fdba74;border-radius:15px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;color:#152341;font:inherit;font-weight:800;text-align:center}
+.topProductCard:hover{background:#fff7ed;border-color:#ff8000}
+.topProductCard img{display:block;width:100%;max-width:100px;aspect-ratio:1;object-fit:contain;border-radius:10px}
+.topProductCard span{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.topProductsEmpty{padding:14px;color:#718096;display:flex;align-items:center;gap:9px;font-size:14px}
+@media(max-width:1100px){.topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.topProductsSection{padding:15px}.topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.topProductCard{padding:8px;gap:6px}.topProductCard span{font-size:11px}}
