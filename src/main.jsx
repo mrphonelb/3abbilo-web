@@ -1,4 +1,4 @@
-import React,{useEffect,useRef,useState}from'react';import{createPortal}from'react-dom';import{createRoot}from'react-dom/client';import{Gamepad2,Smartphone,Gift,Wifi,WalletCards,Zap,ShieldCheck,ArrowRight,LogIn,LayoutDashboard,Package,Store,ReceiptText,History,BarChart3,Wallet,User,KeyRound,LogOut,Menu,X,RefreshCw,MessageCircle,Globe2,Search,ChevronLeft,ChevronRight,ChevronDown,Copy,Printer}from'lucide-react';import'./style.css';import logo3abbilo from './3abbilo-logo.png';import mrPhoneReceiptLogo from './mrphone-receipt-logo.png';
+import React,{useEffect,useRef,useState}from'react';import{createPortal}from'react-dom';import{createRoot}from'react-dom/client';import{Gamepad2,Smartphone,Gift,Wifi,WalletCards,Zap,ShieldCheck,ArrowRight,LogIn,LayoutDashboard,Package,Store,ReceiptText,History,BarChart3,Wallet,User,KeyRound,LogOut,Menu,X,RefreshCw,MessageCircle,Globe2,Search,ChevronLeft,ChevronRight,ChevronDown,Copy,Printer,Plus,Minus}from'lucide-react';import'./style.css';import logo3abbilo from './3abbilo-logo.png';import mrPhoneReceiptLogo from './mrphone-receipt-logo.png';
 const API=(import.meta.env.VITE_API_BASE_URL||'https://api.3abbilo.com').replace(/\/$/,'');
 const services=[['Mobile Top-Up',Smartphone,'Alfa, Touch and instant mobile recharge.','cyan'],['Gaming Cards',Gamepad2,'PUBG, Jawaker and popular gaming services.','violet'],['Gift Cards',Gift,'Digital cards and codes delivered instantly.','pink'],['Data & eSIM',Wifi,'Flexible data services for connected customers.','orange']];
 const Brand=({foot=false})=>{const logged=Boolean(localStorage.getItem('3abbilo_token'));return <a className={'brand '+(foot?'foot':'')} href={logged?'/dashboard':'/login'}><img src={logo3abbilo} alt="3ABBILO" /></a>};
@@ -1101,23 +1101,106 @@ function ProductsPage({branch=false,accountType="shop"}){
 const demoProfit=[['#1042','PUBG Mobile — 660 UC',9.50,10.00],['#1041','Jawaker — 80,926 Tokens',9.35,11.00],['#1039','Mobile Top-Up — $10',9.60,10.00]];
 function ProfitPage({dealer}){const rows=demoProfit,total=rows.reduce((a,r)=>a+r[3]-r[2],0),sales=rows.reduce((a,r)=>a+r[3],0),cost=rows.reduce((a,r)=>a+r[2],0);return <div className="sectionPad"><div className="pageTitle"><small>{dealer?'DEALER':'SHOP'} PROFIT</small><h1>Profit Report</h1><p>{dealer?'Track your margin from successful sales and child-Shop activity.':'Track each successful sale using your cost, selling price and profit.'}</p></div><div className="profitSummary"><div><span>Total sales</span><strong>${sales.toFixed(2)}</strong></div><div><span>Total cost</span><strong>${cost.toFixed(2)}</strong></div><div><span>Total profit</span><strong className="profitPositive">${total.toFixed(2)}</strong></div></div><div className="profitTableWrap"><table className="profitTable"><thead><tr><th>Order</th><th>Product</th><th>Your cost</th><th>Selling price</th><th>Profit</th></tr></thead><tbody>{rows.map(r=><tr key={r[0]}><td>{r[0]}</td><td>{r[1]}</td><td>${r[2].toFixed(2)}</td><td>${r[3].toFixed(2)}</td><td className="profitPositive">${(r[3]-r[2]).toFixed(2)}</td></tr>)}</tbody></table></div><p style={{color:'#71809d',fontSize:12,marginTop:12}}>Preview data is shown until the product/order backend stores selling price and profit on completed orders.</p></div>}
 function DealerShopsPage(){
- const [shops,setShops]=useState([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[error,setError]=useState(false);
- const [form,setForm]=useState({shop_name:'',owner_name:'',phone:'',email:'',username:'',password:''});
- async function load(){setLoading(true);try{const r=await fetch(API+'/api/wholesale/dealer/shops',{headers:authHeaders(),cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load shops');setShops(d.shops||[])}catch(e){setError(true);setMsg(e.message)}finally{setLoading(false)}}
- useEffect(()=>{void load()},[]);
- async function createShop(e){e.preventDefault();if(busy)return;setBusy(true);setMsg('');setError(false);try{
-  const r=await fetch(API+'/api/wholesale/dealer/shops',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify(form)});
-  const d=await r.json();if(!r.ok)throw new Error((d.error||'Unable to create shop')+(d.reconciliation_required?' Please contact support before trying again.':''));
-  setForm({shop_name:'',owner_name:'',phone:'',email:'',username:'',password:''});await load();setError(false);setMsg('Shop account created successfully and synced to Daftra.');
- }catch(e){setError(true);setMsg(e.message)}finally{setBusy(false)}}
- const field=(key,label,type='text',required=false)=><label className="createShopField" key={key}><span>{label}</span><input type={type} required={required} autoComplete="off" value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))}/></label>;
- return <div className="sectionPad dealerShopsPage"><div className="pageTitle"><h1>Create Shop Account</h1><p>Create a shop under your dealer account. The shop will also be created in Daftra automatically.</p></div>
- <form className="createShopPanel" onSubmit={createShop}><div className="createShopFields">{field('shop_name','Shop Name', 'text',true)}{field('owner_name','Owner Name')}{field('phone','Phone Number','tel')}{field('email','Email Address','email',true)}{field('username','Username (leave blank to use email)')}{field('password','Password (minimum 8 characters)','password',true)}</div><button className="createShopSubmit" type="submit" disabled={busy}>{busy?'Creating account…':'Create Shop Account'}</button></form>
- {msg&&<div role="status" className={'catalogNotice'+(error?' shopCreateError':'')}>{msg}</div>}
- <div className="pageTitle shopListHeading"><h2>My Shops</h2><p>Shops registered under your dealer account.</p></div>
- {loading?<p>Loading shops…</p>:shops.length===0?<div className="shopEmpty">No shops created yet.</div>:<div className="shopPricingGrid">{shops.map(sh=><div className="shopPricingCard shopAccountCard" key={sh.id}><div><b>{sh.shop_name}</b><span>{sh.owner_name||'No owner name'}{sh.email?' · '+sh.email:''}</span><span>{sh.phone||'No phone number'} · Username: {sh.username}</span></div><div className="shopAccountMeta"><span className="shopStatus">{sh.status||'active'}</span><strong>Balance ${Number(sh.balance||0).toFixed(4)}</strong></div></div>)}</div>}
- </div>}
-
+ const emptyForm={shop_name:'',owner_name:'',phone:'',email:'',username:'',password:''};
+ const [shops,setShops]=useState([]),[loading,setLoading]=useState(true),[message,setMessage]=useState(''),[messageType,setMessageType]=useState('success');
+ const [search,setSearch]=useState(''),[creating,setCreating]=useState(false),[creatingBusy,setCreatingBusy]=useState(false),[createError,setCreateError]=useState('');
+ const [form,setForm]=useState(emptyForm),[selectedShop,setSelectedShop]=useState(null),[amount,setAmount]=useState(''),[transferBusy,setTransferBusy]=useState(false),[transferError,setTransferError]=useState('');
+ const transferGuard=useRef(false);
+ async function loadShops(showLoading=false){
+  if(showLoading)setLoading(true);
+  try{
+   const r=await fetch(API+'/api/wholesale/dealer/shops',{headers:authHeaders(),cache:'no-store'});
+   const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load shops');
+   setShops(d.shops||[]);
+   return true;
+  }catch(e){setMessageType('error');setMessage(e.message||'Unable to load shops');return false}
+  finally{if(showLoading)setLoading(false)}
+ }
+ useEffect(()=>{void loadShops(true)},[]);
+ const filteredShops=shops.filter(shop=>!search.trim()||[shop.shop_name,shop.email,shop.phone].some(value=>String(value||'').toLowerCase().includes(search.trim().toLowerCase())));
+ const openCreate=()=>{setForm({...emptyForm});setCreateError('');setCreating(true)};
+ const closeCreate=()=>{if(!creatingBusy){setCreating(false);setCreateError('')}};
+ const openBalance=shop=>{setSelectedShop(shop);setAmount('');setTransferError('')};
+ const closeBalance=()=>{if(!transferBusy){setSelectedShop(null);setAmount('');setTransferError('')}};
+ const setSuggestedAmount=value=>setAmount(String(value));
+ const adjustAmount=delta=>{const n=Math.max(0,Math.round(((Number(amount)||0)+delta)*100)/100);setAmount(n===0?'':String(n))};
+ const cleanAmount=String(amount).trim();
+ const validAmount=/^\d+(?:\.\d{1,2})?$/.test(cleanAmount)&&Number(cleanAmount)>0;
+ const shopActive=String(selectedShop?.status||'active').toLowerCase()==='active';
+ async function createShop(e){
+  e.preventDefault();if(creatingBusy)return;
+  setCreatingBusy(true);setCreateError('');
+  try{
+   const r=await fetch(API+'/api/wholesale/dealer/shops',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify(form)});
+   const d=await r.json();if(!r.ok)throw new Error((d.error||'Unable to create shop')+(d.reconciliation_required?' Check Daftra before trying again.':''));
+   setCreating(false);setForm({...emptyForm});setMessageType('success');setMessage('Shop account created successfully.');
+   await loadShops();
+  }catch(e){setCreateError(e.message||'Unable to create shop')}
+  finally{setCreatingBusy(false)}
+ }
+ async function transferBalance(e){
+  e.preventDefault();
+  if(transferGuard.current||!selectedShop||!shopActive||!validAmount)return;
+  transferGuard.current=true;setTransferBusy(true);setTransferError('');
+  try{
+   const r=await fetch(API+'/api/wholesale/dealer/shops/'+encodeURIComponent(selectedShop.id)+'/transfer',{
+    method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({amount:Number(cleanAmount).toFixed(2)})
+   });
+   const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to transfer balance');
+   // The wallet transfer is committed even if Daftra synchronization is delayed.
+   const sync=String(d.result?.daftra_sync||'').toLowerCase();
+   setMessageType(sync==='synced'?'success':'warning');
+   setMessage(sync==='synced'?'Balance transferred successfully.':
+    'Shop balance transferred. Daftra synchronization is '+(sync||'pending')+'. Check the existing transfer before trying again.');
+   setSelectedShop(null);setAmount('');
+   await loadShops();
+  }catch(e){setTransferError((e.message||'Transfer failed')+'. If the request timed out, check both balances before retrying.')}
+  finally{transferGuard.current=false;setTransferBusy(false)}
+ }
+ function createField(key,label,type='text',required=false){return <label className="createShopField" key={key}><span>{label}</span><input name={key} type={type} autoComplete="off" required={required} minLength={key==='password'?8:undefined} value={form[key]} onChange={e=>setForm(value=>({...value,[key]:e.target.value}))}/></label>}
+ return <div className="sectionPad dealerShopsPage">
+  <div className="dealerShopsActions"><button type="button" className="dealerShopsAddButton" onClick={openCreate}><Plus size={18}/> Add New Shop</button></div>
+  {message&&<div role="status" className={'dealerShopsNotice '+messageType}>{message}</div>}
+  <div className="dealerShopsFilter"><input type="search" aria-label="Search shops" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search shop name, email or phone..." /></div>
+  {loading?<div className="ordersLoading"><RefreshCw className="spin"/> Loading shops…</div>:
+   !filteredShops.length?<div className="shopEmpty">{shops.length?'No shops match your search.':'No shops yet. Select Add New Shop to create one.'}</div>:
+   <div className="dealerShopsList">{filteredShops.map(shop=><button type="button" key={shop.id} className="dealerShopsListRow" onClick={()=>openBalance(shop)}>
+    <strong className="dealerShopsListName">{shop.shop_name||'—'}</strong>
+    <span className="dealerShopsListEmail">{shop.email||'—'}</span>
+    <span className="dealerShopsListPhone">{shop.phone||'—'}</span>
+    <strong className="dealerShopsListBalance">${Number(shop.balance||0).toFixed(4)}</strong>
+    <span className={'dealerShopsListStatus '+(String(shop.status||'active').toLowerCase()==='active'?'active':'inactive')}>{String(shop.status||'active').toLowerCase()==='active'?'Active':'Inactive'}</span>
+    <ChevronRight size={17} className="dealerShopsListArrow"/>
+   </button>)}</div>}
+  {creating&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeCreate()}>
+   <div className="productModal dealerShopsCreateModal" role="dialog" aria-modal="true" aria-label="Create Shop Account">
+    <button type="button" className="modalClose" onClick={closeCreate} disabled={creatingBusy} aria-label="Close"><X size={21}/></button>
+    <div className="popupTitle"><Store size={30}/><h2>Create Shop Account</h2></div>
+    <form onSubmit={createShop}>
+     <div className="createShopFields">{createField('shop_name','Shop Name','text',true)}{createField('owner_name','Owner Name')}{createField('phone','Phone Number','tel')}{createField('email','Email Address','email',true)}{createField('username','Username (leave blank to use email)')}{createField('password','Password (minimum 8 characters)','password',true)}</div>
+     {createError&&<div role="alert" className="dealerShopsFormError">{createError}</div>}
+     <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={creatingBusy}>{creatingBusy?'Creating shop…':'Create Shop Account'}</button>
+    </form>
+   </div>
+  </div>,document.body)}
+  {selectedShop&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeBalance()}>
+   <div className="productModal compactModal dealerShopsBalanceModal" role="dialog" aria-modal="true" aria-label={'Add balance to '+selectedShop.shop_name}>
+    <button type="button" className="modalClose" onClick={closeBalance} disabled={transferBusy} aria-label="Close"><X size={21}/></button>
+    <div className="popupTitle"><Wallet size={30}/><h2>Add Shop Balance</h2></div>
+    <div className="dealerShopsBalanceIdentity"><strong>{selectedShop.shop_name}</strong><small>{selectedShop.email||'—'} · {selectedShop.phone||'—'}</small><span>Current balance <b>${Number(selectedShop.balance||0).toFixed(4)}</b></span></div>
+    <form onSubmit={transferBalance}>
+     <label htmlFor="dealerShopTransferAmount" className="dealerShopsBalanceLabel">Amount to transfer (USD)</label>
+     <div className="dealerShopsAmountControl"><button type="button" onClick={()=>adjustAmount(-1)} disabled={transferBusy} aria-label="Decrease amount"><Minus size={20}/></button><input id="dealerShopTransferAmount" inputMode="decimal" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={e=>setAmount(e.target.value)} disabled={transferBusy} required/><button type="button" onClick={()=>adjustAmount(1)} disabled={transferBusy} aria-label="Increase amount"><Plus size={20}/></button></div>
+     <div className="dealerShopsAmountSuggestions">{[50,100,150,200,250,300,400,500,750,1000].map(value=><button type="button" key={value} className={Number(amount)===value?'selected':''} disabled={transferBusy} onClick={()=>setSuggestedAmount(value)}>${value}</button>)}</div>
+     <p className="dealerShopsBalanceExplanation">The amount is transferred from your dealer wallet to this shop. This does not create new funds.</p>
+     {!shopActive&&<div role="alert" className="dealerShopsFormError">This shop is inactive. Balance transfers are unavailable.</div>}
+     {transferError&&<div role="alert" className="dealerShopsFormError">{transferError}</div>}
+     <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={transferBusy||!validAmount||!shopActive}>{transferBusy?'Transferring…':'Add Balance'}</button>
+    </form>
+   </div>
+  </div>,document.body)}
+ </div>;
+}
 function OrderListRow({o,shopOrders=false,onOpen,highlight=false,showPrice=true}){
  const status=String(o.status||'pending').toLowerCase();
  const label=status==='success'?'Success':status==='failed'||status==='refunded'?'Failed':'Pending';

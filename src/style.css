@@ -1650,3 +1650,40 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .receiptOgeroActions button.receiptIconButton{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;padding:0;border:1px solid #d8e1ef;border-radius:10px;background:#fff;color:#0f2d5c;cursor:pointer}
 .receiptOgeroActions button.receiptIconButton svg{width:20px;height:20px}
 .receiptOgeroActions button[aria-label="Share Ogero invoice on WhatsApp"]{color:#25D366}
+
+
+/* Dealer My Shops: one line per shop, shared 3ABBILO modal styling */
+.dealerShopsPage .dealerShopsActions{display:flex;justify-content:flex-end;margin-bottom:16px}
+.dealerShopsAddButton{display:inline-flex;gap:8px;align-items:center;justify-content:center;border:0;border-radius:10px;background:#ff8a00;color:white;padding:11px 17px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.dealerShopsAddButton:hover,.dealerShopsSubmit:hover:not(:disabled){background:#ed7900}
+.dealerShopsFilter{margin-bottom:14px}
+.dealerShopsFilter input{display:block;width:100%;box-sizing:border-box;background:#fff;color:#14213d;border:1px solid #dce3ef;border-radius:10px;padding:12px 14px;font:inherit;font-size:13px;outline-color:#ff8a00}
+.dealerShopsNotice{padding:12px 14px;margin:0 0 14px;border-radius:10px;font-size:13px;background:#eaf8ef;color:#166c3e}
+.dealerShopsNotice.error{background:#fff0ee;color:#b42318}.dealerShopsNotice.warning{background:#fff4dc;color:#8a4d10}
+.dealerShopsList{display:flex;flex-direction:column;gap:10px}
+.dealerShopsListRow{box-sizing:border-box;display:grid;grid-template-columns:minmax(125px,1.3fr) minmax(150px,1.6fr) minmax(95px,.9fr) minmax(90px,.8fr) 86px 18px;align-items:center;gap:15px;width:100%;min-height:76px;padding:14px 16px;border:1px solid #dce3ef;border-radius:14px;text-align:left;background:#fff;color:#14213d;font:inherit;cursor:pointer}
+.dealerShopsListRow:hover,.dealerShopsListRow:focus-visible{border-color:#ff8a00}
+.dealerShopsListName,.dealerShopsListBalance{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.dealerShopsListEmail,.dealerShopsListPhone{color:#687893;font-size:12px;overflow-wrap:anywhere}
+.dealerShopsListBalance{white-space:nowrap}
+.dealerShopsListStatus{justify-self:start;padding:5px 10px;border-radius:99px;font-size:11px;font-weight:800}
+.dealerShopsListStatus.active{background:#e8f9ee;color:#087f41}.dealerShopsListStatus.inactive{background:#fff0eb;color:#b74428}
+.dealerShopsListArrow{color:#ff8000}
+.dealerShopsCreateModal{width:min(700px,calc(100vw - 28px));max-height:min(92vh,850px);overflow-y:auto;padding:26px}
+.dealerShopsCreateModal .createShopFields{margin-top:22px}
+.dealerShopsBalanceModal{width:min(390px,calc(100vw - 28px));max-height:90vh;overflow-y:auto}
+.dealerShopsBalanceIdentity{display:flex;align-items:center;flex-direction:column;gap:6px;margin:18px 0 22px;color:#14213d;font-size:13px;text-align:center}
+.dealerShopsBalanceIdentity strong{font-size:15px}.dealerShopsBalanceIdentity small{color:#71809d;overflow-wrap:anywhere}
+.dealerShopsBalanceIdentity span{font-size:12px;color:#71809d}.dealerShopsBalanceIdentity b{color:#14213d}
+.dealerShopsBalanceLabel{display:block;text-align:center;font-size:13px;font-weight:800;color:#14213d;margin-bottom:10px}
+.dealerShopsAmountControl{display:flex;align-items:stretch;gap:8px}
+.dealerShopsAmountControl button{width:44px;min-width:44px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #dce3ef;border-radius:9px;color:#14213d;cursor:pointer}
+.dealerShopsAmountControl input{width:100%;min-width:0;height:44px;border:1px solid #dce3ef;border-radius:9px;box-sizing:border-box;text-align:center;color:#14213d;background:#fff;font-size:18px;font-weight:800}
+.dealerShopsAmountSuggestions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:16px 0}
+.dealerShopsAmountSuggestions button{min-width:0;padding:12px 3px;border:1px solid #dce3ef;border-radius:9px;background:#fff;color:#14213d;font-size:12px;font-weight:800;cursor:pointer}
+.dealerShopsAmountSuggestions button.selected{border-color:#ff8a00;background:#fff3e6;color:#bb5b00}
+.dealerShopsBalanceExplanation{font-size:12px;text-align:center;line-height:1.5;color:#71809d}
+.dealerShopsFormError{margin-top:12px;padding:11px;border-radius:9px;background:#fff0ee;color:#b42318;font-size:12px;line-height:1.4}
+.dealerShopsSubmit{width:100%;margin-top:16px}.dealerShopsSubmit:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:900px){.dealerShopsListRow{grid-template-columns:minmax(105px,1.2fr) minmax(130px,1.5fr) minmax(80px,.9fr) minmax(80px,.8fr) 70px 16px;gap:8px}}
+@media(max-width:600px){.dealerShopsListRow{grid-template-columns:minmax(0,1fr) auto auto;gap:7px 10px}.dealerShopsListName{grid-column:1;grid-row:1}.dealerShopsListEmail{grid-column:1;grid-row:2}.dealerShopsListPhone{display:block;grid-column:1;grid-row:3}.dealerShopsListBalance{grid-column:2;grid-row:1}.dealerShopsListStatus{grid-column:2;grid-row:2}.dealerShopsListArrow{grid-column:3;grid-row:1 / span 3}.dealerShopsAmountSuggestions{grid-template-columns:repeat(3,minmax(0,1fr))}.dealerShopsCreateModal{padding:18px}}
