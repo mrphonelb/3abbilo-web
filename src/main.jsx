@@ -1052,7 +1052,7 @@ function OrdersPage({dealer,me,shopOrders=false,highlightOrderId=null}){const[se
  <span className="ordersRecentImage"><ProductArtwork p={{key:o.product_key,title:o.product_title||o.package_name}} compact/></span>
  <span className="ordersRecentName"><strong>{o.package_name||o.product_title||o.product_key}</strong><small>#{o.id}</small></span><span className="ordersRecentCustomer">{shopOrders?<span className="shopOrderIdentity"><strong>{o.purchaser_name||'Shop'}</strong><small>{o.customer_reference||'—'}</small></span>:(o.customer_reference||'—')}</span>
  {!['jounieh','jbeil'].includes(String(me?.account_type||'').toLowerCase())&&<strong className="ordersRecentPrice">{money(o.account_cost)}</strong>}
- <span className="ordersRecentState"><span className={'orderStatus '+st.toLowerCase()}>{st}</span>{st==='Failed'&&<small className="ordersRecentViewReason">Tap to view reason</small>}</span>
+ <span className="ordersRecentState"><span className={'orderStatus '+st.toLowerCase()}>{st}</span></span>
  <time className="ordersRecentTime">{when(o.completed_at||o.created_at)}</time><ChevronRight className="ordersRecentChevron" size={19}/>
  </button>})}</div>}{selectedResult&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedResult(null)}><div className="productModal compactModal orderResultModal"><button type="button" className="modalClose" onClick={()=>setSelectedResult(null)} aria-label="Close"><X size={21}/></button><div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div><PurchaseResult orderId={selectedResult} initial={orders.find(o=>Number(o.id)===Number(selectedResult))||null} hideShopSellingPrice={Boolean(shopOrders&&dealer)} branch={["jounieh","jbeil"].includes(String(me?.account_type||""))} onClose={()=>setSelectedResult(null)}/></div></div>,document.body)}</div>}
 function PlaceholderPage({title}){return <div className="sectionPad"><div className="pageTitle"><small>3ABBILO</small><h1>{title}</h1><p>This section is ready to connect to the existing 3ABBILO API.</p></div></div>}
@@ -1114,7 +1114,7 @@ function DashboardRecentOrders({dealer,setPage,accountId}){
     <span className="ordersRecentName"><strong>{o.package_name||o.product_title||o.product_key}</strong><small>#{o.id}</small></span>
     <span className="ordersRecentCustomer">{group.shop?<span className="shopOrderIdentity"><strong>{o.purchaser_name||'Shop'}</strong><small>{o.customer_reference||'—'}</small></span>:(o.customer_reference||'—')}</span>
     <strong className="ordersRecentPrice">${Number(o.account_cost||0).toFixed(4)}</strong>
-    <span className="ordersRecentState"><span className={'orderStatus '+label.toLowerCase()}>{label}</span>{label==='Failed'&&<small className="ordersRecentViewReason">Tap to view reason</small>}</span>
+    <span className="ordersRecentState"><span className={'orderStatus '+label.toLowerCase()}>{label}</span></span>
     <time className="ordersRecentTime">{formatDate(o.completed_at||o.created_at)}</time>
     <ChevronRight className="ordersRecentChevron" size={19}/>
    </button>})}</div>}
