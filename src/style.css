@@ -1577,3 +1577,9 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
   font-size: 13px;
   font-weight: 400;
 }
+
+/* Owner dashboard: reuse dealer dashboard's recent-activity cards. */
+.ownerDashboardRecent{margin-top:24px}
+.ownerDashboardRecent .dashboardRecentSection{min-width:0}
+.ownerDashboardRecent .ownerRecordList{display:grid;gap:10px}
+.ownerDashboardRecent .ownerRecordCard{width:100%}
