@@ -536,3 +536,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .dashboardStatsGrid .dashboardStatCard strong{line-height:1.12}
 @media(max-width:720px){.dashboardStatsGrid .dashboardStatCard{min-height:0;padding:10px 11px;gap:3px}}
 @media(max-width:340px){.dashboardStatsGrid .dashboardStatCard{padding:9px}}
+
+/* Dealer-only daily profit breakdown in the wallet card. */
+.appMain .welcome .dailyProfitRows{width:100%;border-top:1px solid rgba(255,255,255,.25);padding-top:9px;margin-top:5px;display:grid;gap:6px}
+.appMain .welcome .dailyProfitRows>div{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.appMain .welcome .dailyProfitRows span{font-size:10px;letter-spacing:.02em;opacity:.9;font-weight:750}
+.appMain .welcome .dailyProfitRows b{font-size:13px;white-space:nowrap;color:#fff;font-weight:800}
+@media(max-width:420px){.appMain .welcome .dailyProfitRows span{font-size:9px}.appMain .welcome .dailyProfitRows b{font-size:12px}}
