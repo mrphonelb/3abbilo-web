@@ -1612,3 +1612,18 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ownerTicketModal .ownerMessage p{margin:4px 0 0;overflow-wrap:anywhere}
 .ownerTicketModal .ownerReply{width:100%;min-height:80px;box-sizing:border-box}
 .ownerTicketModal .ownerPrimaryButton{width:100%;margin:10px 0;background:#ff8900;color:white;border:0;border-radius:10px;padding:12px;font-weight:700}
+
+/* Ticket detail matches the dealer/shop full-width support workspace. */
+.ownerSupportPanel{margin:0 0 18px;padding:20px;max-width:none;width:100%;box-sizing:border-box;overflow:visible}
+.ownerSupportPanel .supportMessages{max-height:none;overflow:visible;display:flex;flex-direction:column;gap:10px}
+.ownerSupportPanel .ownerMessage{padding:12px;border-radius:10px;background:#f3f5f9}
+.ownerSupportPanel .ownerMessage p{margin:5px 0 0;overflow-wrap:anywhere}
+.ownerSupportPanel .ownerTicketStatusControl{display:flex;flex-direction:column;gap:8px;max-width:470px;font-size:13px;font-weight:700}
+.ownerSupportPanel .ownerTicketStatusControl select{border:1px solid #dce3ef;border-radius:10px;background:#fff;padding:12px;color:#091b3a;font:inherit}
+.ownerSupportPanel .ownerTicketDescription{overflow-wrap:anywhere}
+.ownerSupportPanel .popupAction{background:#ff9800;color:white;border:0;border-radius:10px;font-weight:750;padding:12px}
+/* Unread tickets are distinct until opened; badges update with periodic polling. */
+.ownerRecordCard.ticketRowUnread{background:#fff8ed;border-color:#ffb45f;box-shadow:inset 3px 0 0 #ff8500}
+.ownerRecordCard.ticketRowUnread:hover{background:#fff3dd}
+.ticketNewLabel{display:inline-flex;align-items:center;margin-left:5px;background:#ff7900;color:#fff;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:800;vertical-align:middle}
+.ticketNotifyBadge{background:#ed4a28;color:#fff!important}
