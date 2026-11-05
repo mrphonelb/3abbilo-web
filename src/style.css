@@ -1513,3 +1513,24 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 
 /* Dealer shop creation and shop directory */
 .dealerShopsPage .pageTitle h2{font-size:28px;margin:0 0 8px;color:#14213d}.createShopPanel{background:#fff;border:1px solid #e6e9ef;border-radius:16px;padding:24px;margin:18px 0 28px}.createShopFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.createShopField{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:700;color:#14213d}.createShopField input{min-width:0;width:100%;box-sizing:border-box;padding:12px;border:1px solid #d9dde5;border-radius:10px;font:inherit;font-weight:400}.createShopField input:focus{outline:2px solid #ff8a00;outline-offset:1px}.createShopSubmit{margin-top:20px;background:#ff8a00;color:#fff;border:0;border-radius:10px;padding:13px 22px;font-weight:800;cursor:pointer}.createShopSubmit:disabled{opacity:.6;cursor:wait}.shopListHeading{margin:26px 0 15px}.shopAccountCard{grid-template-columns:minmax(0,1fr) auto;align-items:center}.shopAccountCard>div:first-child{min-width:0}.shopAccountCard span{overflow-wrap:anywhere}.shopAccountMeta{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.shopAccountMeta strong{font-size:14px}.shopStatus{text-transform:capitalize;color:#167449!important}.shopEmpty{padding:25px;background:white;border:1px solid #e6e9ef;border-radius:14px;color:#71809d}.shopCreateError{color:#b42318}@media(max-width:700px){.createShopFields{grid-template-columns:1fr}.createShopPanel{padding:16px}.shopAccountCard{grid-template-columns:1fr}.shopAccountMeta{align-items:flex-start}}
+
+/* Owner panel: match dealer/shop navigation and 3ABBILO dashboard */
+.ownerShell .side nav button{display:flex;align-items:center;gap:11px;font-size:13px;min-height:42px}
+.ownerShell .side nav button svg{flex-shrink:0}
+.ownerShell .accountMini .avatar{background:#ff8000;color:white}
+.ownerShell .ownerContent{padding-top:26px;overflow:visible}
+.ownerShell .ownerContent h1{font-size:23px;letter-spacing:-.025em}
+.ownerShell .ownerMetrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ownerShell .ownerMetric{border-radius:17px;padding:20px;box-shadow:0 8px 22px #3341550a;border-color:#e4e8f1}
+.ownerShell .ownerMetric small{font-size:12px;color:#738099;font-weight:700}
+.ownerShell .ownerMetric strong{font-size:29px;color:#14213d}
+.ownerShell .ownerFilters button,.ownerShell .ownerTable button,.ownerShell .ownerTicket button,.ownerCrash button{background:#ff8000;color:#fff;font-weight:750}
+.ownerShell .ownerTableWrap{box-shadow:0 8px 22px #3341550a;border-color:#e4e8f1}
+.ownerShell .ownerTable th{background:#f8f9fc;color:#66738d}
+.ownerShell .ownerTable tr:hover td{background:#fffaf5}
+.ownerShell .ownerTicket{box-shadow:0 8px 22px #3341550a}
+.ownerMobileBackdrop{display:none}
+.ownerCrash{padding:30px;background:#fff;border-radius:16px;margin:25px;color:#14213d}
+@media(max-width:1100px){.ownerShell .ownerMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){.ownerMobileBackdrop{display:block;position:fixed;inset:0;background:#08132780;border:0;z-index:19}.ownerShell .side{z-index:20}}
+@media(max-width:520px){.ownerShell .ownerMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ownerShell .ownerMetric{padding:13px}.ownerShell .ownerMetric strong{font-size:22px}.ownerShell .ownerContent{padding:16px 0}.ownerShell .ownerContent h1{font-size:20px}}
