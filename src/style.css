@@ -1938,9 +1938,10 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 }
 
 
-.receiptCardDelivery .receiptDeliveryCenteredLabel{text-align:center;margin-bottom:10px}
-.receiptCodeCentered{justify-content:center;text-align:center}
-.receiptCodeCentered strong{width:100%;text-align:center}
-.receiptCardActionsCentered{justify-content:center}
-
-.receiptDivider{height:1px;background:#d7deec;margin:12px 0 10px 0;width:100%}
+/* Card result popup: centered redeem code, divider, and centered action icons */
+.receiptDeliveryCard small{text-align:center;}
+.receiptDeliveryCard .receiptCode{justify-content:center;text-align:center;}
+.receiptDeliveryCard .receiptCode strong{display:block;width:100%;text-align:center;font-size:18px;line-height:1.35;}
+.receiptDivider{height:1px;background:#d9e3f0;margin:10px 0 4px;}
+.receiptCardActionsCentered{justify-content:center;}
+.receiptCardActionsCentered .receiptIconButton{margin-inline:2px;}
