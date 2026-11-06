@@ -469,7 +469,7 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
  const cardTitle=order?.package_name||order?.product_title||'Digital card';
  const purchaserName=String(order?.purchaser_name||'').trim();
  const mrPhoneBranch=Boolean(branch)||/^(?:mr\.?\s*phone\s*)?(?:jounieh|jbeil)(?:\s+branch)?$/i.test(purchaserName);
- const receiptBrandName=mrPhoneBranch?'MR. PHONE':(purchaserName||'Your Shop');
+ const receiptBrandName=mrPhoneBranch?'Your Branch':(purchaserName||'Your Shop');
  const deliveredText=[
   receiptBrandName,
   'Digital Card Receipt',
@@ -494,7 +494,7 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
   const lines=[['Order',`#${numericId}`],['Product',cardTitle],['Reference',order?.customer_reference],['Activation / redeem code',code],['Serial',serial],['Expiry',expiry]].filter(([,v])=>v);
   const popup=window.open('','_blank','width=430,height=650');
   if(!popup){setCopyMsg('Please allow pop-ups to print the card');return;}
-  const markup=`<!doctype html><html><head><meta charset="utf-8"><title>${escape(receiptBrandName)} Card #${numericId}</title><style>@page{size:80mm auto;margin:3mm}*{box-sizing:border-box}html,body{width:74mm;margin:0;padding:0;color:#000;background:white;font:12px Arial,sans-serif}h1{text-align:center;font-size:18px;margin:8px 0}.printBrandLogo{display:block;max-width:69mm;max-height:26mm;width:auto;height:auto;object-fit:contain;margin:5px auto 10px}h2{text-align:center;font-size:13px;margin:0 0 12px}.line{border-top:1px dashed #777;padding:7px 0;overflow-wrap:anywhere}.line b{display:block;font-size:11px;margin-bottom:4px}.code{text-align:center;font-size:17px;font-weight:800;letter-spacing:1px;word-break:break-all}.footer{text-align:center;border-top:1px dashed #777;padding-top:10px;font-size:10px}@media screen{body{margin:12px auto}}</style></head><body>${mrPhoneBranch?`<img class="printBrandLogo" src="${escape(new URL(mrPhoneReceiptLogo,window.location.href).href)}" alt="MR. PHONE"/>`:`<h1>${escape(receiptBrandName)}</h1>`}<h2>Digital Card Receipt</h2>${lines.map(([k,v])=>`<div class="line"><b>${escape(k)}</b><div class="${k==='Activation / redeem code'?'code':''}">${escape(v)}</div></div>`).join('')}<div class="footer">Keep your code private</div><script>window.onload=()=>{const imgs=Array.from(document.images);Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve}))).then(()=>{window.focus();window.print()})}<\/script></body></html>`;
+  const markup=`<!doctype html><html><head><meta charset="utf-8"><title>${escape(receiptBrandName)} Card #${numericId}</title><style>@page{size:80mm auto;margin:3mm}*{box-sizing:border-box}html,body{width:74mm;margin:0;padding:0;color:#000;background:white;font:12px Arial,sans-serif}h1{text-align:center;font-size:18px;margin:8px 0}.printBrandLogo{display:block;max-width:69mm;max-height:26mm;width:auto;height:auto;object-fit:contain;margin:5px auto 10px}h2{text-align:center;font-size:13px;margin:0 0 12px}.line{border-top:1px dashed #777;padding:7px 0;overflow-wrap:anywhere}.line b{display:block;font-size:11px;margin-bottom:4px}.code{text-align:center;font-size:17px;font-weight:800;letter-spacing:1px;word-break:break-all}.footer{text-align:center;border-top:1px dashed #777;padding-top:10px;font-size:10px}@media screen{body{margin:12px auto}}</style></head><body>${mrPhoneBranch?`<img class="printBrandLogo" src="${escape(new URL(mrPhoneReceiptLogo,window.location.href).href)}" alt="Branch logo"/>`:`<h1>${escape(receiptBrandName)}</h1>`}<h2>Digital Card Receipt</h2>${lines.map(([k,v])=>`<div class="line"><b>${escape(k)}</b><div class="${k==='Activation / redeem code'?'code':''}">${escape(v)}</div></div>`).join('')}<div class="footer">Keep your code private</div><script>window.onload=()=>{const imgs=Array.from(document.images);Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve}))).then(()=>{window.focus();window.print()})}<\/script></body></html>`;
   popup.document.open();popup.document.write(markup);popup.document.close();
  }
 
@@ -1143,7 +1143,7 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
   setCreatingBusy(true);setCreateError('');
   try{
    const r=await fetch(API+'/api/wholesale/dealer/shops',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({shop_name:form.shop_name.trim(),phone:form.phone.trim(),email:form.email.trim(),password:form.password})});
-   const d=await r.json();if(!r.ok)throw new Error((d.error||'Unable to create shop')+(d.reconciliation_required?' Check Daftra before trying again.':''));
+   const d=await r.json();if(!r.ok)throw new Error((d.error||'Unable to create shop')+(d.reconciliation_required?' Please contact 3ABBILO Support before trying again.':''));
    setCreating(false);setForm({...emptyForm});setMessageType('success');setMessage('Shop account created successfully.');
    await loadShops();
   }catch(e){setCreateError(e.message||'Unable to create shop')}
@@ -1162,7 +1162,7 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
    const sync=String(d.result?.daftra_sync||'').toLowerCase();
    setMessageType(sync==='synced'?'success':'warning');
    setMessage(sync==='synced'?'Balance transferred successfully.':
-    'Shop balance transferred. Daftra synchronization is '+(sync||'pending')+'. Check the existing transfer before trying again.');
+    'Shop balance transferred. Account reconciliation is pending. Please contact 3ABBILO Support before trying again.');
    setSelectedShop(null);setAmount('');
    await loadShops();
    if(onWalletTransferred)await onWalletTransferred();
@@ -1189,7 +1189,7 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
     <button type="button" className="modalClose" onClick={closeCreate} disabled={creatingBusy} aria-label="Close"><X size={21}/></button>
     <div className="popupTitle"><Store size={30}/><h2>Create Shop Account</h2></div>
     <form onSubmit={createShop}>
-     <div className="createShopFields">{createField('shop_name','Shop Name','text',true)}{createField('phone','Phone Number (Daftra Phone 1)','tel',true)}{createField('email','Email Address','email',true)}{createField('password','Password (minimum 8 characters)','password',true)}</div>
+     <div className="createShopFields">{createField('shop_name','Shop Name','text',true)}{createField('phone','Phone Number','tel',true)}{createField('email','Email Address','email',true)}{createField('password','Password (minimum 8 characters)','password',true)}</div>
      {createError&&<div role="alert" className="dealerShopsFormError">{createError}</div>}
      <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={creatingBusy}>{creatingBusy?'Creating shop…':'Create Shop Account'}</button>
     </form>
@@ -1388,10 +1388,10 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
  function navigateOwner(next){if(next===page){setOpen(false);return}setTicket(null);setSelectedOwnerOrder(null);setSelectedOwnerRecord(null);setSearch('');setStatus('');setOpen(false);ownerNavigate(next)}
  async function recoverPaidAlfaCard(){
   if(Number(selectedOwnerOrder?.id)!==25||selectedOwnerOrder?.status!=='pending'||recoveryBusy)return;
-  const ref=window.prompt('OneZone confirms Order #25 Paid. Enter the exact OneZone reference from the receipt:');
+  const ref=window.prompt('Enter the confirmed payment reference for Order #25:');
   if(ref===null)return;
-  if(ref.trim()!=='000000000000025'){setRecoveryMessage('OneZone reference does not match. Nothing was changed.');return;}
-  if(!window.confirm('Have you checked Daftra and confirmed that NO invoice exists for Order #25? This will create the missing invoice, without another OneZone purchase or wallet charge.'))return;
+  if(ref.trim()!=='000000000000025'){setRecoveryMessage('Payment reference does not match. Nothing was changed.');return;}
+  if(!window.confirm('Have you confirmed that no receipt exists for Order #25? This will recover the existing order without making another purchase.'))return;
   setRecoveryBusy(true);setRecoveryMessage('');
   try{
    const result=await get('orders/25/recover-confirmed-alfa-card',{method:'POST',body:JSON.stringify({
@@ -1400,14 +1400,14 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
    setRecoveryMessage(result.message||'Recovery was checked.');
    setSelectedOwnerOrder(prev=>prev&&Number(prev.id)===25?{...prev,status:result.status}:prev);
    await load(page,search,status);
-  }catch(e){setRecoveryMessage(e.message||'Recovery stopped. Check Daftra sync before retrying.');}
+  }catch(e){setRecoveryMessage(e.message||'Recovery stopped. Contact 3ABBILO Support before retrying.');}
   finally{setRecoveryBusy(false);}
  }
  async function manageAccount(action){
   const record=selectedOwnerRecord?.type==='account'?selectedOwnerRecord.record:null;
   if(!record||accountBusy)return;
   const next=action==='status'?(record.status==='active'?'disabled':'active'):null;
-  const warning=action==='delete'?`Permanently delete ${record.shop_name}? This is allowed ONLY if there are no orders, financial records, child shops, or wallet balance. Daftra clients will not be deleted.`:`${next==='disabled'?'Deactivate':'Activate'} ${record.shop_name}?`;
+  const warning=action==='delete'?`Permanently delete ${record.shop_name}? This is allowed ONLY if there are no orders, financial records, child shops, or wallet balance. Associated external records may remain.`:`${next==='disabled'?'Deactivate':'Activate'} ${record.shop_name}?`;
   if(!window.confirm(warning))return;
   setAccountBusy(true);setAccountError('');
   try{
@@ -1449,7 +1449,7 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
  {page==='Support Tickets'&&<><div className="orderTools supportSearch"><input value={ticketSearch} onChange={e=>setTicketSearch(e.target.value)} placeholder="Search ticket number, account, product or order..."/></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.filter(r=>[r.id,r.order_id,r.shop_name,r.subject,r.description,r.product_title,r.package_name].some(v=>String(v||'').toLowerCase().includes(ticketSearch.trim().toLowerCase()))).map(r=><button type="button" key={r.id} className={'ownerRecordCard supportTicketRow '+(ticketAlert(r,'owner','owner')?'ticketRowUnread':'')} onClick={()=>openTicket(r)}><span className="ownerRecordIcon"><MessageCircle size={23}/></span><span className="ownerRecordMain"><strong>{r.subject||`Ticket #${r.id}`} {ticketAlert(r,'owner','owner')&&<span className="ticketNewLabel">New</span>}</strong><small>Ticket #{r.id} · Order #{r.order_id||'—'} · {r.shop_name||'Account'}</small><span>{r.description}</span></span><span className={'orderStatus '+(r.status==='resolved'?'success':r.status==='open'?'pending':'processing')}>{String(r.status||'open').replace('_',' ')}</span><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><MessageCircle/><b>No support tickets</b></div>)}</>}
  {page==='Accounts'&&<>
   
-  <div className="orderTools ownerOrderTools ownerAccountsSearch"><input type="search" placeholder="Search account, dealer, shop, email or Daftra client..." aria-label="Search accounts" value={accountSearch} onChange={e=>setAccountSearch(e.target.value)}/></div>
+  <div className="orderTools ownerOrderTools ownerAccountsSearch"><input type="search" placeholder="Search account, dealer, shop or email..." aria-label="Search accounts" value={accountSearch} onChange={e=>setAccountSearch(e.target.value)}/></div>
   {!loading&&(accountRows.length?<div className="ownerRecordList">{accountRows.map(r=><button type="button" key={r.id} className="ownerRecordCard ownerAccountCard" onClick={()=>setSelectedOwnerRecord({type:'account',record:r})}>
    <span className="ownerRecordIcon"><Store size={23}/></span>
    <span className="ownerRecordMain"><strong>{r.shop_name||'Account'}</strong><small>{r.account_type||'—'} · {r.parent_name||'Direct account'}</small><span>{r.email||''}</span></span>
@@ -1488,7 +1488,7 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
       {failed&&<div className="receiptNote receiptNoteError">This order was not completed successfully.</div>}
      </>;
     })()}
-    {Number(selectedOwnerOrder.id)===25&&selectedOwnerOrder.status==='pending'&&<div className="ownerOnezoneRecovery"><p><b>OneZone confirmed Paid.</b> Use this action only after checking that no Daftra invoice exists for this exact order. It will not buy again or deduct a second wallet payment.</p><button type="button" disabled={recoveryBusy} onClick={recoverPaidAlfaCard}>{recoveryBusy?'Checking invoice…':'Recover Order #25 and create Daftra invoice'}</button></div>}
+    {Number(selectedOwnerOrder.id)===25&&selectedOwnerOrder.status==='pending'&&<div className="ownerOnezoneRecovery"><p><b>Payment confirmed.</b> Use this action only after checking that no receipt exists for this exact order. It will not buy again or deduct a second wallet payment.</p><button type="button" disabled={recoveryBusy} onClick={recoverPaidAlfaCard}>{recoveryBusy?'Checking receipt…':'Recover Order #25 receipt'}</button></div>}
     {Number(selectedOwnerOrder.id)===25&&recoveryMessage&&<p className="ownerRecoveryMessage">{recoveryMessage}</p>}
     <button type="button" className="popupAction" onClick={()=>setSelectedOwnerOrder(null)}>Close result</button>
    </div>
@@ -1502,7 +1502,7 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
   <div className="popupTitle">{selectedOwnerRecord.type==='report'?<BarChart3 size={30}/>:<Store size={30}/>}<h2>{selectedOwnerRecord.type==='report'?'Daily Report':'Account Details'}</h2></div>
   <div className="unifiedReceipt">
    {selectedOwnerRecord.type==='account'&&<div className={'receiptHeading '+(String(selectedOwnerRecord.record.status).toLowerCase()==='active'?'receiptSuccess':'receiptPending')}><ShieldCheck size={28}/><div><h3>{String(selectedOwnerRecord.record.status).toLowerCase()==='active'?'Active Account':'Account '+(selectedOwnerRecord.record.status||'status unknown')}</h3><p>Account details and recorded wallet balance</p></div></div>}
-   {(selectedOwnerRecord.type==='account'?[['Account',selectedOwnerRecord.record.shop_name],['Type',selectedOwnerRecord.record.account_type],['Parent',selectedOwnerRecord.record.parent_name||'—'],['Email',selectedOwnerRecord.record.email],['Daftra Client',selectedOwnerRecord.record.daftra_client_id],['Balance',selectedOwnerRecord.record.balance==null?'—':money(selectedOwnerRecord.record.balance)],['Status',selectedOwnerRecord.record.status==='disabled'?'Inactive':selectedOwnerRecord.record.status]]:[['Date',String(selectedOwnerRecord.record.day).slice(0,10)],['Orders',selectedOwnerRecord.record.orders],['Successful',selectedOwnerRecord.record.successful],['Sales',money(selectedOwnerRecord.record.sales)]]).map(([k,v])=><div className="receiptRow" key={k}><span>{k}</span><strong>{v??'—'}</strong></div>)}
+   {(selectedOwnerRecord.type==='account'?[['Account',selectedOwnerRecord.record.shop_name],['Type',selectedOwnerRecord.record.account_type],['Parent',selectedOwnerRecord.record.parent_name||'—'],['Email',selectedOwnerRecord.record.email],['Balance',selectedOwnerRecord.record.balance==null?'—':money(selectedOwnerRecord.record.balance)],['Status',selectedOwnerRecord.record.status==='disabled'?'Inactive':selectedOwnerRecord.record.status]]:[['Date',String(selectedOwnerRecord.record.day).slice(0,10)],['Orders',selectedOwnerRecord.record.orders],['Successful',selectedOwnerRecord.record.successful],['Sales',money(selectedOwnerRecord.record.sales)]]).map(([k,v])=><div className="receiptRow" key={k}><span>{k}</span><strong>{v??'—'}</strong></div>)}
    {selectedOwnerRecord.type==='account'&&<div className="ownerAccountActions">
     {accountError&&<div className="catalogNotice error" role="alert">{accountError}</div>}
     <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>manageAccount('status')}>{accountBusy?'Updating…':selectedOwnerRecord.record.status==='active'?'Deactivate Account':'Activate Account'}</button>
