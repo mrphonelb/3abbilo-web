@@ -1854,3 +1854,23 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
   .dealerShopsBalanceModal .dealerShopsAmountSuggestions{gap:4px}
   .dealerShopsBalanceModal .dealerShopsAmountSuggestions button{font-size:9px}
 }
+
+/* Dealer wallet preview in Add Balance. Matches the shop current balance row. */
+.dealerShopsBalanceModal .dealerShopsDealerBalancePreview{
+ width:100%;margin:0 0 6px;
+}
+.dealerShopsBalanceModal .dealerShopsDealerBalancePreview>div{
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:11px 12px;min-width:0;box-sizing:border-box;border-radius:10px;
+ background:#f5f7fb;border:1px solid transparent;
+}
+.dealerShopsBalanceModal .dealerShopsDealerBalancePreview span{
+ color:#697b99;font-size:12px;font-weight:600;text-align:left;
+}
+.dealerShopsBalanceModal .dealerShopsDealerBalancePreview b{
+ color:#14213d;font-size:13px;font-weight:800;white-space:nowrap;
+}
+.dealerShopsBalanceModal .dealerShopsDealerBalancePreview.insufficient>div{
+ background:#fff0eb;border-color:#f2c3b7;
+}
+.dealerShopsBalanceModal .dealerShopsDealerBalancePreview.insufficient b{color:#b42318}
