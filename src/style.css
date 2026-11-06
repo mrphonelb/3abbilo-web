@@ -1936,3 +1936,9 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .modalShade > .productModal.dealerShopsCreateModal .createShopFields > * {
   min-width: 0;
 }
+
+
+.receiptCardDelivery .receiptDeliveryCenteredLabel{text-align:center;margin-bottom:10px}
+.receiptCodeCentered{justify-content:center;text-align:center}
+.receiptCodeCentered strong{width:100%;text-align:center}
+.receiptCardActionsCentered{justify-content:center}
