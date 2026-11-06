@@ -1945,3 +1945,31 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .receiptDivider{height:1px;background:#d9e3f0;margin:10px 0 4px;}
 .receiptCardActionsCentered{justify-content:center;}
 .receiptCardActionsCentered .receiptIconButton{margin-inline:2px;}
+
+/* 3ABBILO unified read-only Transactions & Profit / Owner Transactions & Sales */
+.financePage{width:100%;max-width:1250px;margin:0 auto;padding:0 0 35px;color:#132341}
+.financeTitle h2{margin:0 0 6px;font-size:23px;letter-spacing:-.5px}.financeTitle p{margin:0 0 21px;font-size:13px;color:#71809b;line-height:1.5}
+.financePeriod{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:15px}
+.financePeriod button{font:inherit;font-size:12px;font-weight:750;padding:10px 15px;background:#fff;border:1px solid #e0e7f1;border-radius:10px;color:#293b59;cursor:pointer}
+.financePeriod button.selected{background:#fff3e7;color:#e56600;border-color:#ffad5d}
+.financeCustom{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.financeCustom label{font-size:12px;color:#536583;font-weight:700;display:flex;flex-direction:column;gap:5px}
+.financeCustom input{height:40px;min-width:150px;border-radius:9px;border:1px solid #d8e1ec;background:#fff;padding:0 10px;font:inherit;color:#1a2c49}
+.financeSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+.financeMetric{padding:18px;border:1px solid #e2e8f0;background:#fff;border-radius:14px;display:flex;flex-direction:column;gap:10px;min-width:0;box-shadow:0 1px 3px #1c2e5410}
+.financeMetric span{font-size:12px;font-weight:650;color:#72809a}.financeMetric strong{font-size:22px;font-weight:800;color:#152440;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.financePositive,.financeMetric strong.financePositive{color:#13814a!important}
+.financeNote{font-size:12px;line-height:1.5;color:#62738f;margin:10px 0 18px}
+.financeFilters{display:flex;gap:10px;margin:16px 0}.financeFilters select,.financeFilters input{padding:11px 13px;border-radius:10px;border:1px solid #d9e2ef;background:#fff;color:#192b46;font:inherit;font-size:13px;min-width:0;box-sizing:border-box}
+.financeFilters select{flex:0 1 225px}.financeFilters input{flex:1}
+.financeListHeader{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}.financeListHeader strong{font-size:15px}.financeListHeader span{font-size:12px;color:#7a879f}
+.financeList{background:#fff;border:1px solid #e0e7f0;border-radius:14px;overflow:hidden}
+.financeEntry+.financeEntry{border-top:1px solid #edf0f6}.financeEntryTop{width:100%;display:flex;align-items:center;gap:12px;padding:15px 16px;text-align:left;font:inherit;background:#fff;border:0;color:#122342;cursor:pointer}
+.financeEntryTop:hover{background:#fcfcfd}.financeEntryIcon{display:flex;align-items:center;justify-content:center;background:#fff2e5;color:#e6750a;width:42px;height:42px;border-radius:11px;flex-shrink:0}
+.financeEntryInfo{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}.financeEntryInfo strong{font-size:13px}.financeEntryInfo small{font-size:11px;color:#7a89a0;overflow-wrap:anywhere}
+.financeEntryAmount{font-size:13px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}.financeEntryAmount.positive{color:#15834e}
+.financeEntryTop>svg{flex-shrink:0;transition:transform .15s;color:#8190a6}.financeExpanded{transform:rotate(180deg)}
+.financeEntryDetails{background:#f8fafd;padding:14px 18px 15px 70px;border-top:1px solid #ebeff5;display:flex;flex-direction:column;gap:11px}
+.financeEntryDetails>div{display:flex;justify-content:space-between;gap:12px;font-size:12px}.financeEntryDetails span{color:#71809a}.financeEntryDetails b{text-align:right;overflow-wrap:anywhere;color:#172b47}
+@media(max-width:850px){.financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.financeMetric{padding:13px}.financeMetric strong{font-size:17px}.financeFilters{flex-direction:column}.financeFilters select,.financeFilters input{flex:auto;width:100%}.financeEntryTop{padding:12px 10px;gap:7px}.financeEntryIcon{width:34px;height:34px}.financeEntryAmount{font-size:11px}.financeEntryDetails{padding-left:15px}.financePeriod button{padding:9px 12px}}

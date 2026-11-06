@@ -4,7 +4,7 @@ const services=[['Mobile Top-Up',Smartphone,'Alfa, Touch and instant mobile rech
 const Brand=({foot=false})=>{const logged=Boolean(localStorage.getItem('3abbilo_token'));return <a className={'brand '+(foot?'foot':'')} href={logged?'/dashboard':'/login'}><img src={logo3abbilo} alt="3ABBILO" /></a>};
 function Home(){return <><header><Brand/><a className="signin" href="/login"><LogIn size={17}/> Sign in</a></header><main><section className="hero"><div className="copy"><div className="eyebrow">BUILT FOR RESELLERS</div><h1>Recharge faster.<br/><em>Sell more.</em></h1><p>One modern workspace for dealers and shops to sell gaming cards, mobile top-ups and digital services.</p><a className="primary" href="/login">Sign in <ArrowRight size={18}/></a><div className="trust"><ShieldCheck size={17}/> Secure reseller platform</div></div><div className="visual"><div className="glow g1"></div><div className="glow g2"></div><div className="dash"><div className="dashTop"><div><small>3ABBILO WALLET</small><h3>Available balance</h3></div><WalletCards/></div><div className="money">$1,240.50</div><div className="stats"><div><small>Today’s orders</small><b>28</b></div><div><small>Digital sales</small><b>$685</b></div></div><div className="chips"><span>GAME TOP-UP</span><span>GIFT CARDS</span><span>MOBILE</span></div></div></div></section><section className="services"><div className="sectionHead"><div><div className="eyebrow">DIGITAL SERVICES</div><h2>Everything your counter needs.</h2></div><p>Fast access to the services your customers ask for every day.</p></div><div className="grid">{services.map(([n,I,d,c])=><div className={'card '+c} key={n}><div className="icon"><I/></div><h3>{n}</h3><p>{d}</p><span>Explore <ArrowRight size={15}/></span></div>)}</div></section><section className="banner"><div><div className="eyebrow light">ONE WALLET. MORE SERVICES.</div><h2>Built to keep your shop moving.</h2><p>Manage your balance, orders and digital sales from one clean workspace.</p></div><div className="orb"><Zap/><span>Instant<br/>delivery</span></div></section></main><footer><Brand foot/><p>Digital recharge for modern resellers.</p><small>© 2026 3ABBILO. All rights reserved.</small></footer></>}
 function Login(){const[email,setEmail]=useState(''),[p,setP]=useState(''),[err,setErr]=useState(''),[busy,setBusy]=useState(false);async function submit(e){e.preventDefault();setBusy(true);setErr('');try{const r=await fetch(API+'/api/wholesale/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.trim(),password:p})});const d=await r.json();if(!r.ok||!d.token)throw new Error(d.error||d.message||'Sign in failed');localStorage.setItem('3abbilo_token',d.token);const accountType=String(d.account?.account_type||'').toLowerCase();location.replace(['jounieh','jbeil'].includes(accountType)?'/dashboard?view=products':'/dashboard')}catch(x){setErr(x.message)}finally{setBusy(false)}}return <div className="loginPage"><div className="loginGlow"></div><form className="loginBox" onSubmit={submit}><Brand/><div className="loginSlogan">Top-Up Smarter</div><label>Email<input type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="Enter your email address"/></label><label>Password<input type="password" autoComplete="current-password" value={p} onChange={e=>setP(e.target.value)} required placeholder="Enter your password"/></label>{err&&<div className="loginError">{err}</div>}<button className="loginSubmit" disabled={busy}>{busy?'Signing in…':'Sign in'}<ArrowRight size={18}/></button><div className="loginSecure"><ShieldCheck size={16}/> Secure access to 3ABBILO</div></form></div>}
-const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[MessageCircle,'Support Tickets'],[MessageCircle,'Shop Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[MessageCircle,'Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
+const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[MessageCircle,'Support Tickets'],[MessageCircle,'Shop Support Tickets'],[History,'Transactions & Profit'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[MessageCircle,'Support Tickets'],[History,'Transactions & Profit'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
 const categoryIcons={games:Gamepad2,chat:MessageCircle,gift_cards:Gift,alfa:Smartphone,touch:Smartphone,dsl:Wifi,other_services:Package,esim:Globe2};
 function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abbilo_token')}}
 // Rev when known catalog artwork mappings change, to invalidate older browser/CDN images.
@@ -984,8 +984,8 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
 }
 
 const CATEGORY_NAMES={games:'GAME TOP-UP',chat:'CHAT APPS TOP-UP',gift_cards:'GIFT CARDS',alfa:'ALFA',touch:'TOUCH',dsl:'OGERO & INTERNET CARDS',other_services:'CARFAX',esim:'ESIM & TOPUP'};
-const PAGE_SLUGS={'Dashboard':'dashboard','Products':'products','My Shops':'my-shops','My Orders':'my-orders','Shop Orders':'shop-orders','Support Tickets':'support-tickets','Shop Support Tickets':'shop-support-tickets','Transactions':'transactions','Profit Report':'profit-report','Recharge Account':'recharge-account','My Account':'my-account','Change Password':'change-password'};
-function readNav(){const q=new URLSearchParams(location.search);return {page:Object.keys(PAGE_SLUGS).find(k=>PAGE_SLUGS[k]===q.get('view'))||null,category:q.get('category')||null,esim:q.get('esim')||''};}
+const PAGE_SLUGS={'Dashboard':'dashboard','Products':'products','My Shops':'my-shops','My Orders':'my-orders','Shop Orders':'shop-orders','Support Tickets':'support-tickets','Shop Support Tickets':'shop-support-tickets','Transactions & Profit':'transactions','Recharge Account':'recharge-account','My Account':'my-account','Change Password':'change-password'};
+function readNav(){const q=new URLSearchParams(location.search);return {page:(q.get('view')==='profit-report'?'Transactions & Profit':Object.keys(PAGE_SLUGS).find(k=>PAGE_SLUGS[k]===q.get('view')))||null,category:q.get('category')||null,esim:q.get('esim')||''};}
 function writeNav(changes,replace=false){const now=readNav(),next={...now,...changes};const q=new URLSearchParams(location.search);['view','category','esim'].forEach(k=>q.delete(k));if(next.page)q.set('view',PAGE_SLUGS[next.page]||'products');if(next.category)q.set('category',next.category);if(next.esim)q.set('esim',next.esim);const url=location.pathname+(q.size?'?'+q.toString():'');history[replace?'replaceState':'pushState']({},'',url);window.dispatchEvent(new Event('3abbilo:navigation'));}
 // Products overview: one cached catalog for every category and a global client-side search.
 // Keep product selections in this screen so category previews open the same purchase popup
@@ -1100,8 +1100,96 @@ function ProductsPage({branch=false,accountType="shop"}){
      {esimMode&&createPortal(<EsimCatalog key={esimMode} branch={branch} accountType={accountType} topup={esimMode==='topup'} close={()=>writeNav({esim:''})}/>,document.body)}
     </>:<StandardCatalog category={active} branch={branch}/>}</div>;
 }
-const demoProfit=[['#1042','PUBG Mobile — 660 UC',9.50,10.00],['#1041','Jawaker — 80,926 Tokens',9.35,11.00],['#1039','Mobile Top-Up — $10',9.60,10.00]];
-function ProfitPage({dealer}){const rows=demoProfit,total=rows.reduce((a,r)=>a+r[3]-r[2],0),sales=rows.reduce((a,r)=>a+r[3],0),cost=rows.reduce((a,r)=>a+r[2],0);return <div className="sectionPad"><div className="pageTitle"><small>{dealer?'DEALER':'SHOP'} PROFIT</small><h1>Profit Report</h1><p>{dealer?'Track your margin from successful sales and child-Shop activity.':'Track each successful sale using your cost, selling price and profit.'}</p></div><div className="profitSummary"><div><span>Total sales</span><strong>${sales.toFixed(2)}</strong></div><div><span>Total cost</span><strong>${cost.toFixed(2)}</strong></div><div><span>Total profit</span><strong className="profitPositive">${total.toFixed(2)}</strong></div></div><div className="profitTableWrap"><table className="profitTable"><thead><tr><th>Order</th><th>Product</th><th>Your cost</th><th>Selling price</th><th>Profit</th></tr></thead><tbody>{rows.map(r=><tr key={r[0]}><td>{r[0]}</td><td>{r[1]}</td><td>${r[2].toFixed(2)}</td><td>${r[3].toFixed(2)}</td><td className="profitPositive">${(r[3]-r[2]).toFixed(2)}</td></tr>)}</tbody></table></div><p style={{color:'#71809d',fontSize:12,marginTop:12}}>Preview data is shown until the product/order backend stores selling price and profit on completed orders.</p></div>}
+// Combined read-only financial history. Account ownership and field-level access
+// are enforced by the authenticated backend, never by frontend filtering alone.
+function FinancialPage({owner=false,dealer=false}){
+ const [period,setPeriod]=useState('30d');
+ const [from,setFrom]=useState('');
+ const [to,setTo]=useState('');
+ const [view,setView]=useState('all');
+ const [query,setQuery]=useState('');
+ const [data,setData]=useState(null);
+ const [busy,setBusy]=useState(true);
+ const [error,setError]=useState('');
+ const [selected,setSelected]=useState(null);
+ const customReady=period!=='custom'||(from&&to&&from<=to);
+ const fmt=v=>'$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:4,maximumFractionDigits:4});
+ const signed=v=>(Number(v)>=0?'+':'−')+fmt(Math.abs(Number(v||0)));
+ const date=v=>{try{return new Date(v).toLocaleString('en-LB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch{return '—'}};
+ useEffect(()=>{
+  if(!customReady){setError('Choose a valid From and To date.');return;}
+  let active=true;
+  setBusy(true);setError('');setSelected(null);
+  const params=new URLSearchParams({period});
+  if(period==='custom'){params.set('from',from);params.set('to',to)}
+  const url=API+'/api/wholesale/'+(owner?'owner':'orders')+'/financial-report?'+params;
+  fetch(url,{headers:authHeaders(),cache:'no-store'}).then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load financial history');return json}).then(json=>{if(active)setData(json)}).catch(e=>{if(active){setData(null);setError(e.message)}}).finally(()=>{if(active)setBusy(false)});
+  return()=>{active=false};
+ },[owner,period,from,to,customReady]);
+ const s=data?.summary||{};
+ const events=(data?.events||[]).filter(item=>{
+  if(owner){
+   const branch=['jounieh','jbeil'].includes(String(item.account_type||'').toLowerCase());
+   if(view==='sales'&&item.kind!=='sale')return false;
+   if(view==='nonbranch'&&(item.kind!=='sale'||branch))return false;
+   if(view==='branches'&&(item.kind!=='sale'||!branch))return false;
+   if(view==='funding'&&!(item.kind==='wallet'&&item.wallet_type==='deposit'))return false;
+   if(view==='transfers'&&!(item.kind==='wallet'&&/^dealer_transfer_/.test(item.wallet_type||'')))return false;
+   if(view==='refunds'&&!(item.kind==='wallet'&&item.wallet_type==='refund'))return false;
+  }else{
+   if(view==='mine'&&item.kind!=='own_sale')return false;
+   if(view==='shops'&&item.kind!=='shop_profit')return false;
+  }
+  return !query.trim()||[item.id,item.order_id,item.title,item.product,item.shop_name,item.account_name,item.parent_name,item.related_account,item.wallet_type,item.kind].some(x=>String(x||'').toLowerCase().includes(query.trim().toLowerCase()));
+ });
+ const walletLabel=t=>({deposit:'Wallet Recharge',refund:'Order Refund',dealer_transfer_out:'Balance Transfer Sent',dealer_transfer_in:'Balance Transfer Received',adjustment_credit:'Balance Adjustment',adjustment_debit:'Balance Adjustment'}[t]||'Wallet Transaction');
+ return <div className={'financePage'+(owner?' financeOwner':'')}>
+  <div className="financeTitle"><p>{owner?'Track platform sales, wallet funding and internal transfers without double-counting.':'Review your sales, earned profit and wallet activity in one place.'}</p></div>
+  <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','24h'],['7d','7 Days'],['30d','30 Days'],['all','All'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
+  {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
+  {error&&<div className="catalogNotice error" role="alert">{error}</div>}
+  <div className="financeSummary">
+   {(owner?[
+    ['Total Sales — All Accounts',s.all_sales,''],['Sales — Excluding Branches',s.external_sales,''],['Funds Added to Accounts',s.account_funding,''],['Outstanding Wallet Balances',s.outstanding,''],['Recorded Supplier Cost',s.supplier_cost,''],['Successful Orders',s.orders,'count']
+   ]:[
+    ['Wallet Balance',s.balance,''],['My Sales',s.sales,''],['My Cost',s.cost,''],['My Profit',s.own_profit,'positive'],...(dealer?[['Shops Profit',s.shops_profit,'positive'],['Total Profit',s.total_profit,'positive']]:[])
+   ]).map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{kind==='count'?Number(val||0).toLocaleString('en-US'):fmt(val)}</strong></div>)}
+  </div>
+  {owner&&<p className="financeNote">Sales means successful orders charged to accounts, not cash received from end customers. Funds Added counts new wallet deposits only; moving balance between a dealer and its shop does not add new funding. Outstanding balance is the current combined balance, regardless of date filter. {Number(s.missing_supplier_cost)>0?`${s.missing_supplier_cost} completed orders have no recorded supplier cost; supplier cost total is incomplete.`:''}</p>}
+  {!owner&&<p className="financeNote">Selling price is the amount entered at checkout, not a confirmed customer payment. Shop profit represents the dealer's recorded wholesale margin, not the shop's selling price.</p>}
+  <div className="financeFilters">
+   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction view">{(owner?[
+    ['all','All Transactions'],['sales','All Sales'],['nonbranch','Sales Without Branches'],['branches','Branch Sales'],['funding','Wallet Recharges'],['transfers','Dealer / Shop Transfers'],['refunds','Refunds']
+   ]:dealer?[
+    ['all','All Transactions'],['mine','My Profit'],['shops','Shops Profit']
+   ]:[['all','All Transactions'],['mine','My Profit']]).map(([k,label])=><option value={k} key={k}>{label}</option>)}</select>
+   <input type="search" placeholder={owner?'Search order, account, shop or transfer…':'Search order, product or shop…'} value={query} onChange={e=>setQuery(e.target.value)}/>
+  </div>
+  <div className="financeListHeader"><strong>Financial History</strong><span>{busy?'Loading…':`${events.length} records`}</span></div>
+  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading financial history…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No matching transactions</b><span>Try another period or filter.</span></div>:<div className="financeList">{events.map(item=>{
+   const isWallet=item.kind==='wallet',isShop=item.kind==='shop_profit',isSale=item.kind==='sale'||item.kind==='own_sale';
+   const name=isWallet?walletLabel(item.wallet_type):isShop?'Shop Order #'+item.order_id:(owner?'Order #':'My Order #')+item.order_id;
+   const secondary=isWallet?(item.related_account?'Related: '+item.related_account:'Account wallet'):isShop?item.shop_name:(item.product||item.title||'Product sale');
+   const amount=isWallet?Number(item.amount):isShop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
+   const moneyText=isWallet?signed(amount):(owner?fmt(amount):signed(amount));
+   const positive=isWallet?amount>=0:!owner;
+   return <div key={item.id} className="financeEntry"><button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
+    <span className="financeEntryIcon">{isWallet?<Wallet size={20}/>:isShop?<Store size={20}/>:<ReceiptText size={20}/>}</span><span className="financeEntryInfo"><strong>{name}</strong><small>{owner?(item.account_name||'Account')+(secondary?' · '+secondary:''):secondary}</small><small>{date(item.at)}</small></span><span className={'financeEntryAmount'+(positive?' positive':'')}>{moneyText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
+   </button>
+   {selected===item.id&&<div className="financeEntryDetails">
+    {isWallet?<>
+      {owner&&<div><span>Account</span><b>{item.account_name||'—'}</b></div>}
+      {item.related_account&&<div><span>Related account</span><b>{item.related_account}</b></div>}
+      {item.order_id&&<div><span>Order</span><b>#{item.order_id}</b></div>}
+      <div><span>Wallet movement</span><b className={amount>=0?'financePositive':''}>{signed(amount)}</b></div>
+      <div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div><div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>
+    </>:isShop?<><div><span>Shop</span><b>{item.shop_name}</b></div><div><span>Shop order</span><b>#{item.order_id}</b></div><div><span>Dealer profit</span><b className="financePositive">{fmt(item.profit)}</b></div></>:owner?<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Account type</span><b>{item.account_type||'—'}</b></div>{item.parent_name&&<div><span>Under dealer</span><b>{item.parent_name}</b></div>}<div><span>Account sales amount</span><b>{fmt(item.amount)}</b></div>{item.supplier_cost!=null&&<div><span>Recorded supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>}</>:<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Sales cost</span><b>{fmt(item.cost)}</b></div><div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div><div><span>Sale profit</span><b className="financePositive">{fmt(item.profit)}</b></div></>}
+   </div>}
+  </div>})}</div>}
+  {data?.limited&&<p className="financeNote">Showing the most recent 500 history entries for the selected period; totals are calculated across all matching records.</p>}
+ </div>;
+}
+
 function DealerShopsPage({dealerBalance,onWalletTransferred}){
  const emptyForm={shop_name:'',phone:'',email:'',password:''};
  const [shops,setShops]=useState([]),[loading,setLoading]=useState(true),[message,setMessage]=useState(''),[messageType,setMessageType]=useState('success');
@@ -1349,11 +1437,11 @@ function Dashboard(){const[token]=useState(()=>localStorage.getItem('3abbilo_tok
    if(response.ok){const data=await response.json();setWallet(data.wallet||data)}
   }catch{/* The background wallet refresh can retry; never repeat a completed transfer. */}
  }
- function navigatePage(next){if(next!=='My Orders')setRecentOrderId(null);writeNav({page:next,category:null,esim:''})}if(loading)return <div className="loading"><RefreshCw className="spin"/> Loading 3ABBILO…</div>;const type=String(me?.account_type||'shop').toLowerCase(),dealer=type==='dealer',branch=type==='jounieh'||type==='jbeil',nav=branch?branchNav:dealer?dealerNav:shopNav,name=type==='jounieh'?'Jounieh Branch':type==='jbeil'?'Jbeil Branch':(me?.shop_name||me?.business_name||me?.name||'Shop');function logout(){localStorage.removeItem('3abbilo_token');location.replace('/login')}return <div className="appShell"><aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">{name[0]?.toUpperCase()}</div><div><b>{name}</b><span>{branch?'Branch account':dealer?'Dealer account':'Shop account'}</span></div></div><nav>{nav.map(([I,n])=><button className={page===n?'active':''} key={n} onClick={()=>{navigatePage(n);setOpen(false)}}><I size={19}/>{n}{n==='Support Tickets'&&ticketAlerts.own>0&&<span className="ticketNotifyBadge">{ticketAlerts.own}</span>}{n==='Shop Support Tickets'&&ticketAlerts.shops>0&&<span className="ticketNotifyBadge">{ticketAlerts.shops}</span>}</button>)}</nav><button className="logout" onClick={logout}><LogOut size={19}/>Logout</button></aside><div className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page}</h2>{!branch&&<div className="topBalance"><span>Available balance</span><b>${Number(wallet?.balance||0).toFixed(4)}</b></div>}</div>{page==='Dashboard'&&!branch?<DashboardHome dealer={dealer} name={name} wallet={wallet} dailyProfit={dailyProfit} accountId={me?.id||me?.account_id} setPage={navigatePage}/>:page==='Products'?<><ProductsPage branch={branch} accountType={type}/></>:(page==='Support Tickets'||page==='Shop Support Tickets')&&!branch?<SupportTicketsPage key={page} shopOnly={page==='Shop Support Tickets'} accountId={me?.id||me?.account_id} onOpenOrder={setSupportOrderId}/>:page==='My Orders'?<OrdersPage dealer={dealer} me={me} highlightOrderId={recentOrderId}/>:!branch&&page==='Profit Report'?<ProfitPage dealer={dealer}/>:!branch&&page==='My Shops'&&dealer?<DealerShopsPage dealerBalance={wallet?.balance} onWalletTransferred={refreshDealerWallet}/>:!branch&&page==='Shop Orders'&&dealer?<OrdersPage dealer={dealer} me={me} shopOrders/>:!branch?<PlaceholderPage title={page}/>:null}{supportOrderId&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSupportOrderId(null)}><div className="productModal compactModal orderResultModal"><button type="button" className="modalClose" onClick={()=>setSupportOrderId(null)}><X size={21}/></button><div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div><PurchaseResult orderId={supportOrderId} onClose={()=>setSupportOrderId(null)}/></div></div>,document.body)}</div></div>}
+ function navigatePage(next){if(next!=='My Orders')setRecentOrderId(null);writeNav({page:next,category:null,esim:''})}if(loading)return <div className="loading"><RefreshCw className="spin"/> Loading 3ABBILO…</div>;const type=String(me?.account_type||'shop').toLowerCase(),dealer=type==='dealer',branch=type==='jounieh'||type==='jbeil',nav=branch?branchNav:dealer?dealerNav:shopNav,name=type==='jounieh'?'Jounieh Branch':type==='jbeil'?'Jbeil Branch':(me?.shop_name||me?.business_name||me?.name||'Shop');function logout(){localStorage.removeItem('3abbilo_token');location.replace('/login')}return <div className="appShell"><aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">{name[0]?.toUpperCase()}</div><div><b>{name}</b><span>{branch?'Branch account':dealer?'Dealer account':'Shop account'}</span></div></div><nav>{nav.map(([I,n])=><button className={page===n?'active':''} key={n} onClick={()=>{navigatePage(n);setOpen(false)}}><I size={19}/>{n}{n==='Support Tickets'&&ticketAlerts.own>0&&<span className="ticketNotifyBadge">{ticketAlerts.own}</span>}{n==='Shop Support Tickets'&&ticketAlerts.shops>0&&<span className="ticketNotifyBadge">{ticketAlerts.shops}</span>}</button>)}</nav><button className="logout" onClick={logout}><LogOut size={19}/>Logout</button></aside><div className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page}</h2>{!branch&&<div className="topBalance"><span>Available balance</span><b>${Number(wallet?.balance||0).toFixed(4)}</b></div>}</div>{page==='Dashboard'&&!branch?<DashboardHome dealer={dealer} name={name} wallet={wallet} dailyProfit={dailyProfit} accountId={me?.id||me?.account_id} setPage={navigatePage}/>:page==='Products'?<><ProductsPage branch={branch} accountType={type}/></>:(page==='Support Tickets'||page==='Shop Support Tickets')&&!branch?<SupportTicketsPage key={page} shopOnly={page==='Shop Support Tickets'} accountId={me?.id||me?.account_id} onOpenOrder={setSupportOrderId}/>:page==='My Orders'?<OrdersPage dealer={dealer} me={me} highlightOrderId={recentOrderId}/>:!branch&&page==='Transactions & Profit'?<div className="sectionPad"><FinancialPage dealer={dealer}/></div>:!branch&&page==='My Shops'&&dealer?<DealerShopsPage dealerBalance={wallet?.balance} onWalletTransferred={refreshDealerWallet}/>:!branch&&page==='Shop Orders'&&dealer?<OrdersPage dealer={dealer} me={me} shopOrders/>:!branch?<PlaceholderPage title={page}/>:null}{supportOrderId&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSupportOrderId(null)}><div className="productModal compactModal orderResultModal"><button type="button" className="modalClose" onClick={()=>setSupportOrderId(null)}><X size={21}/></button><div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div><PurchaseResult orderId={supportOrderId} onClose={()=>setSupportOrderId(null)}/></div></div>,document.body)}</div></div>}
 
-const ownerMenu=[[LayoutDashboard,'Dashboard'],[ReceiptText,'All Orders'],[MessageCircle,'Support Tickets'],[Store,'Accounts'],[BarChart3,'Reports']];
-const ownerSlugs={'Dashboard':'dashboard','All Orders':'all-orders','Support Tickets':'support-tickets','Accounts':'accounts','Wallets':'wallets','Reports':'reports'};
-function ownerPageFromUrl(){const slug=new URLSearchParams(location.search).get('owner');return slug==='wallets'?'Accounts':Object.keys(ownerSlugs).find(k=>ownerSlugs[k]===slug)||'Dashboard'}
+const ownerMenu=[[LayoutDashboard,'Dashboard'],[ReceiptText,'All Orders'],[MessageCircle,'Support Tickets'],[Store,'Accounts'],[History,'Transactions & Sales']];
+const ownerSlugs={'Dashboard':'dashboard','All Orders':'all-orders','Support Tickets':'support-tickets','Accounts':'accounts','Wallets':'wallets','Transactions & Sales':'transactions-and-sales'};
+function ownerPageFromUrl(){const slug=new URLSearchParams(location.search).get('owner');return slug==='wallets'?'Accounts':slug==='reports'?'Transactions & Sales':Object.keys(ownerSlugs).find(k=>ownerSlugs[k]===slug)||'Dashboard'}
 function ownerNavigate(page,replace=false){const q=new URLSearchParams(location.search);q.set('owner',ownerSlugs[page]||'dashboard');history[replace?'replaceState':'pushState']({},'',location.pathname+'?'+q.toString());window.dispatchEvent(new Event('3abbilo:owner-navigation'))}
 class OwnerErrorBoundary extends React.Component{
  constructor(props){super(props);this.state={error:null}}
@@ -1376,7 +1464,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   return()=>{active=false};
  },[page]);
  // Non-order owner sections load on navigation; the order list has its own live filter.
- useEffect(()=>{if(page==='All Orders')return;let live=true;setData(null);setLoading(true);setError('');const path=page==='Dashboard'?'dashboard':page==='Support Tickets'?'tickets':page==='Accounts'?'accounts':page==='Wallets'?'wallets':'reports';get(path).then(d=>{if(live)setData(d)}).catch(e=>{if(live)setError(e.message)}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[page]);
+ useEffect(()=>{if(page==='All Orders'||page==='Transactions & Sales')return;let live=true;setData(null);setLoading(true);setError('');const path=page==='Dashboard'?'dashboard':page==='Support Tickets'?'tickets':page==='Accounts'?'accounts':page==='Wallets'?'wallets':'reports';get(path).then(d=>{if(live)setData(d)}).catch(e=>{if(live)setError(e.message)}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[page]);
  // Match Dealer / Jounieh / Jbeil My Orders: load orders independently of the
  // search input, then filter locally so typing never resets focus or the list.
  useEffect(()=>{if(page!=='All Orders')return;let alive=true;let timer;
@@ -1487,6 +1575,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
    </form>
   </div>
  </div>,document.body)}
+ {page==='Transactions & Sales'&&<FinancialPage owner/>}
  {page==='Reports'&&<><div className="pageTitle"><small>REPORTS</small><h1>Last 30 Days</h1></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.map(r=><button type="button" key={String(r.day)} className="ownerRecordCard" onClick={()=>setSelectedOwnerRecord({type:'report',record:r})}><span className="ownerRecordIcon"><BarChart3 size={23}/></span><span className="ownerRecordMain"><strong>{String(r.day||'').slice(0,10)}</strong><small>{r.orders||0} orders · {r.successful||0} successful</small></span><strong className="ownerRecordAmount">{money(r.sales)}</strong><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><BarChart3/><b>No reports available</b></div>)}</>}
  {selectedOwnerOrder&&createPortal(
  <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedOwnerOrder(null)}>
