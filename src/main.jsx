@@ -7,7 +7,7 @@ function Login(){const[email,setEmail]=useState(''),[p,setP]=useState(''),[err,s
 const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[MessageCircle,'Support Tickets'],[MessageCircle,'Shop Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[MessageCircle,'Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
 const categoryIcons={games:Gamepad2,chat:MessageCircle,gift_cards:Gift,alfa:Smartphone,touch:Smartphone,dsl:Wifi,other_services:Package,esim:Globe2};
 function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abbilo_token')}}
-function productImage(p){return p?.key?'/product-images/'+encodeURIComponent(p.key):''}
+function productImage(p){return p?.key?API+'/api/wholesale/products/image/'+encodeURIComponent(p.key):''}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
 const serviceDetailValues=new Map();
@@ -69,15 +69,15 @@ function quantityQuote(key,suffix=''){
   const d=await r.json();if(!r.ok)throw new Error(d.error||'Price unavailable');return d.quote;
  });
 }
-function ProductArtwork({p,alt='',compact=false}){
+function ProductArtwork({p,alt='',compact=false,priority=false}){
  const [failed,setFailed]=useState(false);
  useEffect(()=>setFailed(false),[p?.key]);
  const title=String(p?.title||p?.name||alt||'CHAT APP').trim();
  const src=productImage(p);
- if(src&&!failed)return <img src={src} alt={alt||title} loading={compact?'eager':'lazy'} onError={()=>setFailed(true)}/>;
+ if(src&&!failed)return <img src={src} alt={alt||title} loading={priority?'eager':'lazy'} fetchPriority={priority?'high':'auto'} decoding="async" width={compact?50:360} height={compact?50:360} onError={()=>setFailed(true)}/>;
  return <div className="catalogFallback" role="img" aria-label={title} style={compact?{width:50,height:50,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:12,background:'#f4f7ff',color:'#152a54'}:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,background:'linear-gradient(145deg,#f6f2ff,#eef7ff)',color:'#1b335b',minHeight:140,padding:14}}><MessageCircle size={compact?23:38}/>{!compact&&<strong style={{fontSize:14,textAlign:'center',overflowWrap:'anywhere'}}>{title}</strong>}</div>;
 }
-function ProductTile({p,onOpen}){
+function ProductTile({p,onOpen,priority=false}){
  const tileRef=useRef(null);
  const prefetch=()=>{
   if(p.section==='gift_cards'||p.section==='alfa'||p.section==='touch'||p.section==='dsl'||p.key==='carfax')serviceDetails(p.key).catch(()=>{});
@@ -94,7 +94,7 @@ function ProductTile({p,onOpen}){
   observer.observe(tileRef.current);
   return()=>observer.disconnect();
  },[p.key,p.type,p.section]);
- return <button ref={tileRef} className="catalogProduct" onPointerEnter={prefetch} onFocus={prefetch} onTouchStart={prefetch} onClick={()=>onOpen(p)}><ProductArtwork p={p}/><b>{p.title||p.name||p.key}</b></button>;
+ return <button ref={tileRef} className="catalogProduct" onPointerEnter={prefetch} onFocus={prefetch} onTouchStart={prefetch} onClick={()=>onOpen(p)}><ProductArtwork p={p} priority={priority}/><b>{p.title||p.name||p.key}</b></button>;
 }
 function offerLabel(o){
  const raw=String(o.displayName||o.name||o.offerId||o.id||'Option').trim();
@@ -857,7 +857,7 @@ function ProductModal({p,close,branch=false}){
  const hasAccurateQuote=quote&&!quoting&&!quote.__preview&&Number(quote.quantity)===Number(quantity)&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote.recharge_amount??quote.recommended_selling_price))<0.005);
  const shownCost=quote&&Number(quote.quantity)===Number(quantity)?Number(quote.account_cost):null;
  const quotedForSelection=isQuantity?hasAccurateQuote&&(!branch||!amountMode||Math.abs(Number(rechargeAmount)-Number(quote?.recharge_amount??quote?.recommended_selling_price))<0.005):Boolean(quote)&&!offerPending;
- return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<div className="popupField"><span className="popupLabel">Choose Category</span><PackagePicker options={groups.map(([k,g])=>({id:k,name:g.title||k}))} value={firstGroup} onChange={v=>{purchaseRequestKey.current=null;setFirstGroup(v)}} placeholder="Choose Category"/></div>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>
+ return <div className="modalShade" onClick={e=>{if(e.target===e.currentTarget){e.stopPropagation();close()}}}><div className="productModal compactModal"><button className="modalClose" onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();close()}}><X size={21}/></button><div className="popupTitle"><ProductArtwork p={p} compact priority/><h2>{p.title}</h2></div><>{!isQuantity&&groups.length>1&&<div className="popupField"><span className="popupLabel">Choose Category</span><PackagePicker options={groups.map(([k,g])=>({id:k,name:g.title||k}))} value={firstGroup} onChange={v=>{purchaseRequestKey.current=null;setFirstGroup(v)}} placeholder="Choose Category"/></div>}{!isQuantity&&group?.offers?.length>0&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={group.offers} value={offer} onChange={loadQuote} priceFor={o=>{const q=offerPrices[String(o.offerId||o.id||'')];return branch?q?.recommended_selling_price:(q?.account_cost==null?null:{value:q.account_cost,decimals:q.decimals??4})}}/></div>}{fields.map((f,i)=><label className="popupField" key={f.key||i}>{f.label||f.name||'Account information'}{f.type==='select'&&Array.isArray(f.options)?<select value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}}><option value="">Choose {f.label||'option'}</option>{f.options.map((o,j)=><option key={o.value||o.id||j} value={o.value||o.id||o}>{o.label||o.name||o}</option>)}</select>:<input value={values[f.key]||''} onChange={e=>{setValues(v=>({...v,[f.key]:e.target.value}));setValidated(null)}} placeholder={f.placeholder||'Enter '+(f.label||'information')}/>}</label>)}{isQuantity&&<>
   {!branch&&<div className="quantityCost"><span>Your Cost</span><strong>{Number.isFinite(shownCost)&&shownCost>0?'$'+shownCost.toFixed(4):'—'}</strong></div>}
   <label className="popupField">Quantity
    {<div className="chatBranchQuantityControl">
@@ -884,7 +884,7 @@ function StandardCatalog({category,branch=false}){const[items,setItems]=useState
    // Warm a few at a time so the initial page and API aren't overwhelmed.
    const warm=async()=>{for(let i=0;i<tiles.length;i+=4){await Promise.all(tiles.slice(i,i+4).map(p=>serviceDetails(p.key).catch(()=>null)))}};
    warm();
-  }}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
+  }}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map((p,i)=><ProductTile key={p.key||p.title} p={p} priority={i<6} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
  const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countryOpen,setCountryOpen]=useState(false),[countrySearch,setCountrySearch]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState('1'),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
  const requestKey=useRef(null),planPicker=useRef(null),loadSerial=useRef(0);
@@ -1053,7 +1053,7 @@ function ProductsOverview({categories,branch,accountType}){
    :needle?(searchMatches.length===0
      ?<div className="catalogNotice">No products found. Try another search.</div>
      :<div className="productsSearchResults" aria-label="Matching products">
-       {searchMatches.map(p=><ProductTile key={p.key||p.title} p={p} onOpen={openProduct}/>)}
+       {searchMatches.map((p,i)=><ProductTile key={p.key||p.title} p={p} priority={i<6} onOpen={openProduct}/>)}
       </div>)
    :categorized.length===0?<div className="catalogNotice">No products available.</div>
    :categorized.map(c=><section className="productsCategorySection" key={c.key}>
@@ -1063,7 +1063,7 @@ function ProductsOverview({categories,branch,accountType}){
        aria-label={'Show all '+c.title}>Show All <ChevronRight size={17}/></button>
      </div>
      <div className="productsOverviewRow" aria-label={c.title+' products'}>
-      {c.matches.slice(0,12).map(p=><ProductTile key={p.key||p.title} p={p} onOpen={openProduct}/>)}
+      {c.matches.slice(0,12).map((p,i)=><ProductTile key={p.key||p.title} p={p} priority={c.key===categorized[0]?.key&&i<6} onOpen={openProduct}/>)}
      </div>
     </section>)}
   {selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}
