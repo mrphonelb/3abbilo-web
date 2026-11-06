@@ -1198,7 +1198,7 @@ function DealerShopsPage(){
     </div>
     <form onSubmit={transferBalance}>
      <label htmlFor="dealerShopTransferAmount" className="dealerShopsBalanceLabel">Amount to transfer (USD)</label>
-     <div className="dealerShopsAmountControl"><button type="button" onClick={()=>adjustAmount(-1)} disabled={transferBusy} aria-label="Decrease amount"><Minus size={20}/></button><input id="dealerShopTransferAmount" inputMode="decimal" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={e=>setAmount(e.target.value)} disabled={transferBusy} required/><button type="button" onClick={()=>adjustAmount(1)} disabled={transferBusy} aria-label="Increase amount"><Plus size={20}/></button></div>
+     <div className="dealerShopsAmountControl"><button type="button" onClick={()=>adjustAmount(-1)} disabled={transferBusy||!(Number(amount)>0)} aria-label="Decrease amount"><Minus size={20}/></button><input id="dealerShopTransferAmount" inputMode="decimal" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={e=>setAmount(e.target.value)} disabled={transferBusy} required/><button type="button" onClick={()=>adjustAmount(1)} disabled={transferBusy} aria-label="Increase amount"><Plus size={20}/></button></div>
      <div className="dealerShopsAmountSuggestions">{[50,100,150,200,250,300,400,500,750,1000].map(value=><button type="button" key={value} className={Number(amount)===value?'selected':''} disabled={transferBusy} onClick={()=>setSuggestedAmount(value)}>${value}</button>)}</div>
      
      {!shopActive&&<div role="alert" className="dealerShopsFormError">This shop is inactive. Balance transfers are unavailable.</div>}
