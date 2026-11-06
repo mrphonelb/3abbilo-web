@@ -1880,3 +1880,22 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .dealerShopsCreateModal .createShopField select{box-sizing:border-box;width:100%;min-width:0;padding:12px;border:1px solid #d9dde5;border-radius:10px;background:#fff;color:#14213d;font:inherit;font-weight:400}
 .ownerAccountsActions{display:flex;justify-content:flex-end;margin-bottom:16px}
 .ownerCreateAccountModal{width:min(560px,calc(100vw - 28px))}
+
+/* Compact, consistent account creation dialogs across dealer and owner. */
+.dealerShopsCreateModal,
+.ownerCreateAccountModal {
+  width: min(440px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  box-sizing: border-box;
+}
+.dealerShopsCreateModal .createShopFields,
+.ownerCreateAccountModal .createShopFields {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+@media (max-width: 480px) {
+  .dealerShopsCreateModal, .ownerCreateAccountModal {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 18px !important;
+  }
+}
