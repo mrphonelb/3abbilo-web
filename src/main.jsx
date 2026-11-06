@@ -7,7 +7,9 @@ function Login(){const[email,setEmail]=useState(''),[p,setP]=useState(''),[err,s
 const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[MessageCircle,'Support Tickets'],[MessageCircle,'Shop Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[MessageCircle,'Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
 const categoryIcons={games:Gamepad2,chat:MessageCircle,gift_cards:Gift,alfa:Smartphone,touch:Smartphone,dsl:Wifi,other_services:Package,esim:Globe2};
 function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abbilo_token')}}
-function productImage(p){return p?.key?API+'/product-photos/'+encodeURIComponent(p.key):''}
+// Rev when known catalog artwork mappings change, to invalidate older browser/CDN images.
+const PRODUCT_PHOTO_VERSION='20261106-corrected-art-v2';
+function productImage(p){return p?.key?API+'/product-photos/'+encodeURIComponent(p.key)+'?v='+PRODUCT_PHOTO_VERSION:''}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
 const serviceDetailValues=new Map();
