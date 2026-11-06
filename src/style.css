@@ -1919,3 +1919,21 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
   width:calc(100vw - 28px) !important;max-width:390px !important;padding:20px 16px !important;
  }
 }
+
+
+/* Keep Owner / Dealer creation dialogs EXACTLY the same width as Add Balance. */
+.modalShade > .productModal.dealerShopsCreateModal,
+.modalShade > .productModal.dealerShopsCreateModal.ownerCreateAccountModal,
+.modalShade > .productModal.dealerShopsBalanceModal {
+  width: min(390px, calc(100vw - 28px)) !important;
+  min-width: 0 !important;
+  max-width: min(390px, calc(100vw - 28px)) !important;
+  flex: 0 1 auto;
+  box-sizing: border-box;
+}
+.modalShade > .productModal.dealerShopsCreateModal .createShopFields {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.modalShade > .productModal.dealerShopsCreateModal .createShopFields > * {
+  min-width: 0;
+}
