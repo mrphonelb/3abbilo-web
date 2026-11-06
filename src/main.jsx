@@ -7,7 +7,8 @@ function Login(){const[email,setEmail]=useState(''),[p,setP]=useState(''),[err,s
 const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[MessageCircle,'Support Tickets'],[MessageCircle,'Shop Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[MessageCircle,'Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
 const categoryIcons={games:Gamepad2,chat:MessageCircle,gift_cards:Gift,alfa:Smartphone,touch:Smartphone,dsl:Wifi,other_services:Package,esim:Globe2};
 function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abbilo_token')}}
-function productImage(p){if(!p?.key)return '';const key=String(p.key);const url=API+'/product-photos/'+encodeURIComponent(key);return ['supermeet','superlive','ohlalive','oohlachat'].includes(key.toLowerCase())?url+'?v=20261106-3':url}
+const PRODUCT_PHOTO_VERSION='20261106d';
+function productImage(p){return p?.key?API+'/product-photos/'+encodeURIComponent(p.key)+'?v='+PRODUCT_PHOTO_VERSION:''}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
 const serviceDetailValues=new Map();
@@ -469,7 +470,7 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
  const cardTitle=order?.package_name||order?.product_title||'Digital card';
  const purchaserName=String(order?.purchaser_name||'').trim();
  const mrPhoneBranch=Boolean(branch)||/^(?:mr\.?\s*phone\s*)?(?:jounieh|jbeil)(?:\s+branch)?$/i.test(purchaserName);
- const receiptBrandName=mrPhoneBranch?'MR. PHONE':(purchaserName||'Your Shop');
+ const receiptBrandName=mrPhoneBranch?'Your Branch':(purchaserName||'Your Shop');
  const deliveredText=[
   receiptBrandName,
   'Digital Card Receipt',
@@ -510,10 +511,10 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
    {!!order?.customer_reference&&<div className="receiptRow"><span>Recipient / reference</span><strong>{order.customer_reference}</strong></div>}
    {!branch&&order?.account_cost!=null&&<div className="receiptRow"><span>Your cost</span><strong>${Number(order.account_cost).toFixed(4)}</strong></div>}
    {!hideShopSellingPrice&&order?.selling_price!=null&&<div className="receiptRow"><span>Selling price</span><strong>${Number(order.selling_price).toFixed(2)}</strong></div>}
-   {success&&code&&<div className="receiptDelivery receiptCardDelivery"><small className="receiptDeliveryCenteredLabel">Delivered recharge / redeem code</small><div className="receiptCode receiptCodeCentered"><strong>{code}</strong></div><div className="receiptDivider" aria-hidden="true"></div>
+   {success&&code&&<div className="receiptDelivery"><small>Delivered recharge / redeem code</small><div className="receiptCode"><strong>{code}</strong><button type="button" className="receiptIconButton" onClick={()=>copy(code)} title="Copy code" aria-label="Copy code"><Copy size={18}/></button></div>
      {!!serial&&<div className="receiptRow"><span>Card serial</span><strong>{serial}</strong></div>}
      {!!expiry&&<div className="receiptRow"><span>Expiry date</span><strong>{expiry}</strong></div>}
-     <div className="receiptCardActions receiptCardActionsCentered"><button type="button" className="receiptIconButton" onClick={()=>copy(deliveredText)} title="Copy card details" aria-label="Copy card details"><Copy size={20}/></button><button type="button" className="receiptIconButton" onClick={printCard} title="Print card on 80 mm thermal printer" aria-label="Print card on 80 mm thermal printer"><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={shareWhatsapp} title="Share card on WhatsApp" aria-label="Share card on WhatsApp"><WhatsappBrandIcon size={20}/></button></div>
+     <div className="receiptCardActions"><button type="button" className="receiptIconButton" onClick={()=>copy(deliveredText)} title="Copy card details" aria-label="Copy card details"><Copy size={20}/></button><button type="button" className="receiptIconButton" onClick={printCard} title="Print card on 80 mm thermal printer" aria-label="Print card on 80 mm thermal printer"><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={shareWhatsapp} title="Share card on WhatsApp" aria-label="Share card on WhatsApp"><WhatsappBrandIcon size={20}/></button></div>
    </div>}
    {success&&isBill&&order?.product_key!=='ogero_bill'&&bill&&<div className="receiptDelivery"><small>Bill payment details</small>
      {bill.bill_id!=null&&<div className="receiptRow"><span>Bill number</span><strong>{bill.bill_id}</strong></div>}
