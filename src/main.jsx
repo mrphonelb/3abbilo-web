@@ -7,7 +7,7 @@ function Login(){const[email,setEmail]=useState(''),[p,setP]=useState(''),[err,s
 const dealerNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[Store,'My Shops'],[ReceiptText,'My Orders'],[ReceiptText,'Shop Orders'],[MessageCircle,'Support Tickets'],[MessageCircle,'Shop Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];const branchNav=[[Package,'Products'],[ReceiptText,'My Orders']];const shopNav=[[LayoutDashboard,'Dashboard'],[Package,'Products'],[ReceiptText,'My Orders'],[MessageCircle,'Support Tickets'],[History,'Transactions'],[BarChart3,'Profit Report'],[Wallet,'Recharge Account'],[User,'My Account'],[KeyRound,'Change Password']];
 const categoryIcons={games:Gamepad2,chat:MessageCircle,gift_cards:Gift,alfa:Smartphone,touch:Smartphone,dsl:Wifi,other_services:Package,esim:Globe2};
 function authHeaders(){return{Authorization:'Bearer '+localStorage.getItem('3abbilo_token')}}
-function productImage(p){return p?.key?API+'/product-photos/'+encodeURIComponent(p.key):''}
+function productImage(p){if(!p?.key)return '';const key=String(p.key);const url=API+'/product-photos/'+encodeURIComponent(key);return ['supermeet','superlive'].includes(key.toLowerCase())?url+'?v=20261106-2':url}
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
 const serviceDetailValues=new Map();
