@@ -469,7 +469,7 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
  const cardTitle=order?.package_name||order?.product_title||'Digital card';
  const purchaserName=String(order?.purchaser_name||'').trim();
  const mrPhoneBranch=Boolean(branch)||/^(?:mr\.?\s*phone\s*)?(?:jounieh|jbeil)(?:\s+branch)?$/i.test(purchaserName);
- const receiptBrandName=mrPhoneBranch?'Your Branch':(purchaserName||'Your Shop');
+ const receiptBrandName=mrPhoneBranch?'MR. PHONE':(purchaserName||'Your Shop');
  const deliveredText=[
   receiptBrandName,
   'Digital Card Receipt',
