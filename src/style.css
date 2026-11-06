@@ -1874,3 +1874,9 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
  background:#fff0eb;border-color:#f2c3b7;
 }
 .dealerShopsBalanceModal .dealerShopsDealerBalancePreview.insufficient b{color:#b42318}
+
+/* Single-column account creation for dealers and owner, at every viewport size. */
+.dealerShopsCreateModal .createShopFields{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:14px}
+.dealerShopsCreateModal .createShopField select{box-sizing:border-box;width:100%;min-width:0;padding:12px;border:1px solid #d9dde5;border-radius:10px;background:#fff;color:#14213d;font:inherit;font-weight:400}
+.ownerAccountsActions{display:flex;justify-content:flex-end;margin-bottom:16px}
+.ownerCreateAccountModal{width:min(560px,calc(100vw - 28px))}

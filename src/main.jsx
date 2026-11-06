@@ -1358,7 +1358,7 @@ class OwnerErrorBoundary extends React.Component{
  static getDerivedStateFromError(error){return {error}}
  render(){return this.state.error?<div className="ownerCrash"><h2>Unable to display this section</h2><p>The admin session is still active. You can return to the dashboard safely.</p><button onClick={()=>{ownerNavigate('Dashboard',true);this.setState({error:null})}}>Back to Dashboard</button></div>:this.props.children}
 }
-function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
+function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
  async function get(path,options){const r=await fetch(API+'/api/wholesale/owner/'+path,{headers:headers(),...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
  async function load(pg=page,q=search,st=status){setLoading(true);setError('');try{const path=pg==='Dashboard'?'dashboard':pg==='All Orders'?'orders?q='+encodeURIComponent(q)+'&status='+encodeURIComponent(st):pg==='Support Tickets'?'tickets':pg==='Accounts'?'accounts':pg==='Wallets'?'wallets':'reports';setData(await get(path))}catch(e){setError(e.message)}finally{setLoading(false)}}
@@ -1402,6 +1402,18 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
    await load(page,search,status);
   }catch(e){setRecoveryMessage(e.message||'Recovery stopped. Contact 3ABBILO Support before retrying.');}
   finally{setRecoveryBusy(false);}
+ }
+ async function submitOwnerAccount(e){
+  e.preventDefault();if(ownerCreateBusy)return;
+  setOwnerCreateError('');setOwnerCreateBusy(true);
+  try{
+   const f=ownerCreateForm;
+   const payload={account_type:f.account_type,parent_account_id:f.account_type==='shop'&&f.parent_account_id?Number(f.parent_account_id):null,shop_name:f.shop_name.trim(),phone:f.phone.trim(),email:f.email.trim(),password:f.password};
+   const result=await get('accounts',{method:'POST',body:JSON.stringify(payload)});
+   if(!result.ok)throw Error(result.error||'Unable to create account');
+   setOwnerCreateOpen(false);setOwnerCreateForm({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''});
+   setData(await get('accounts'));
+  }catch(err){setOwnerCreateError(err.message||'Unable to create account. Please contact 3ABBILO Support before retrying.')}finally{setOwnerCreateBusy(false)}
  }
  async function manageAccount(action){
   const record=selectedOwnerRecord?.type==='account'?selectedOwnerRecord.record:null;
@@ -1448,7 +1460,7 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
  </div>}
  {page==='Support Tickets'&&<><div className="orderTools supportSearch"><input value={ticketSearch} onChange={e=>setTicketSearch(e.target.value)} placeholder="Search ticket number, account, product or order..."/></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.filter(r=>[r.id,r.order_id,r.shop_name,r.subject,r.description,r.product_title,r.package_name].some(v=>String(v||'').toLowerCase().includes(ticketSearch.trim().toLowerCase()))).map(r=><button type="button" key={r.id} className={'ownerRecordCard supportTicketRow '+(ticketAlert(r,'owner','owner')?'ticketRowUnread':'')} onClick={()=>openTicket(r)}><span className="ownerRecordIcon"><MessageCircle size={23}/></span><span className="ownerRecordMain"><strong>{r.subject||`Ticket #${r.id}`} {ticketAlert(r,'owner','owner')&&<span className="ticketNewLabel">New</span>}</strong><small>Ticket #{r.id} · Order #{r.order_id||'—'} · {r.shop_name||'Account'}</small><span>{r.description}</span></span><span className={'orderStatus '+(r.status==='resolved'?'success':r.status==='open'?'pending':'processing')}>{String(r.status||'open').replace('_',' ')}</span><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><MessageCircle/><b>No support tickets</b></div>)}</>}
  {page==='Accounts'&&<>
-  
+  <div className="ownerAccountsActions"><button type="button" className="dealerShopsAddButton" onClick={()=>{setOwnerCreateError('');setOwnerCreateOpen(true)}}><Plus size={18}/> Add New Account</button></div>
   <div className="orderTools ownerOrderTools ownerAccountsSearch"><input type="search" placeholder="Search account, dealer, shop or email..." aria-label="Search accounts" value={accountSearch} onChange={e=>setAccountSearch(e.target.value)}/></div>
   {!loading&&(accountRows.length?<div className="ownerRecordList">{accountRows.map(r=><button type="button" key={r.id} className="ownerRecordCard ownerAccountCard" onClick={()=>setSelectedOwnerRecord({type:'account',record:r})}>
    <span className="ownerRecordIcon"><Store size={23}/></span>
@@ -1458,6 +1470,21 @@ function OwnerPanel(){const [page,setPage]=useState(ownerPageFromUrl),[accountSe
    <ChevronRight size={18} className="ownerRecordArrow"/>
   </button>)}</div>:<div className="ordersEmpty"><Store/><b>No accounts found</b></div>)}
  </>}
+ {ownerCreateOpen&&createPortal(<div className="modalShade" onMouseDown={e=>{if(e.target===e.currentTarget&&!ownerCreateBusy)setOwnerCreateOpen(false)}}>
+  <div className="productModal dealerShopsCreateModal ownerCreateAccountModal" role="dialog" aria-modal="true" aria-label="Create Account">
+   <button type="button" className="modalClose" disabled={ownerCreateBusy} onClick={()=>setOwnerCreateOpen(false)}><X size={21}/></button>
+   <div className="popupTitle"><Store size={30}/><h2>Create Account</h2></div>
+   <form onSubmit={submitOwnerAccount}>
+    <div className="createShopFields">
+     <label className="createShopField"><span>Account Type</span><select value={ownerCreateForm.account_type} onChange={e=>setOwnerCreateForm(f=>({...f,account_type:e.target.value,parent_account_id:''}))}><option value="dealer">Dealer</option><option value="shop">Shop</option></select></label>
+     {ownerCreateForm.account_type==='shop'&&<label className="createShopField"><span>Account Related To</span><select value={ownerCreateForm.parent_account_id} onChange={e=>setOwnerCreateForm(f=>({...f,parent_account_id:e.target.value}))}><option value="">3ABBILO (MRPHONE category — direct shop)</option>{allRows.filter(a=>a.account_type==='dealer'&&a.status==='active').map(a=><option key={a.id} value={a.id}>{a.shop_name}</option>)}</select></label>}
+     {[["shop_name",ownerCreateForm.account_type==='dealer'?'Dealer Name':'Shop Name','text'],['phone','Phone Number','tel'],['email','Email Address','email'],['password','Password (minimum 8 characters)','password']].map(([key,label,type])=><label className="createShopField" key={key}><span>{label}</span><input type={type} required minLength={key==='password'?8:undefined} autoComplete="off" value={ownerCreateForm[key]} onChange={e=>setOwnerCreateForm(f=>({...f,[key]:e.target.value}))}/></label>)}
+    </div>
+    {ownerCreateError&&<p role="alert" className="shopCreateError">{ownerCreateError}</p>}
+    <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={ownerCreateBusy}>{ownerCreateBusy?'Creating account…':'Create Account'}</button>
+   </form>
+  </div>
+ </div>,document.body)}
  {page==='Reports'&&<><div className="pageTitle"><small>REPORTS</small><h1>Last 30 Days</h1></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.map(r=><button type="button" key={String(r.day)} className="ownerRecordCard" onClick={()=>setSelectedOwnerRecord({type:'report',record:r})}><span className="ownerRecordIcon"><BarChart3 size={23}/></span><span className="ownerRecordMain"><strong>{String(r.day||'').slice(0,10)}</strong><small>{r.orders||0} orders · {r.successful||0} successful</small></span><strong className="ownerRecordAmount">{money(r.sales)}</strong><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><BarChart3/><b>No reports available</b></div>)}</>}
  {selectedOwnerOrder&&createPortal(
  <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedOwnerOrder(null)}>
