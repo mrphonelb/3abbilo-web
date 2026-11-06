@@ -1942,3 +1942,5 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .receiptCodeCentered{justify-content:center;text-align:center}
 .receiptCodeCentered strong{width:100%;text-align:center}
 .receiptCardActionsCentered{justify-content:center}
+
+.receiptDivider{height:1px;background:#d7deec;margin:12px 0 10px 0;width:100%}
