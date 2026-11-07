@@ -1310,7 +1310,7 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
   </div>,document.body)}
  </div>;
 }
-function OrderListRow({o,shopOrders=false,onOpen,highlight=false,showPrice=true}){
+function OrderListRow({o,shopOrders=false,onOpen,highlight=false,showPrice=true,ownerView=false}){
  const status=String(o.status||'pending').toLowerCase();
  const label=status==='success'?'Success':status==='failed'||status==='refunded'?'Failed':'Pending';
  const date=o.completed_at||o.created_at;
@@ -1318,7 +1318,7 @@ function OrderListRow({o,shopOrders=false,onOpen,highlight=false,showPrice=true}
  if(date){try{formatted=new Date(date).toLocaleString()}catch{formatted=String(date)}}
  return <button type="button" className={'ordersRecentRow '+(highlight?'orderRecentlyPlaced':'')} onClick={onOpen} aria-label={'View result for order '+o.id}>
   <span className="ordersRecentImage"><ProductArtwork p={{key:o.product_key,title:o.product_title||o.package_name}} compact/></span>
-  <span className="ordersRecentName"><strong>{o.package_name||o.product_title||o.product_key}</strong><small>#{o.id}</small></span>
+  <span className="ordersRecentName"><strong>{ownerView&&o.package_name&&o.product_title&&String(o.package_name).trim().toLowerCase()!==String(o.product_title).trim().toLowerCase()?o.product_title+" — "+o.package_name:o.package_name||o.product_title||o.product_key}</strong><small>#{o.id}</small></span>
   <span className="ordersRecentCustomer">{shopOrders?<span className="shopOrderIdentity"><strong>{o.purchaser_name||'Shop'}</strong><small>{o.customer_reference||'—'}</small></span>:(o.customer_reference||'—')}</span>
   {showPrice&&<strong className="ordersRecentPrice">${Number(o.account_cost||0).toFixed(4)}</strong>}
   <span className="ordersRecentState"><span className={'orderStatus '+label.toLowerCase()}>{label}</span></span>
@@ -1448,7 +1448,7 @@ class OwnerErrorBoundary extends React.Component{
  static getDerivedStateFromError(error){return {error}}
  render(){return this.state.error?<div className="ownerCrash"><h2>Unable to display this section</h2><p>The admin session is still active. You can return to the dashboard safely.</p><button onClick={()=>{ownerNavigate('Dashboard',true);this.setState({error:null})}}>Back to Dashboard</button></div>:this.props.children}
 }
-function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
+function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
  async function get(path,options){const r=await fetch(API+'/api/wholesale/owner/'+path,{headers:headers(),...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
  async function load(pg=page,q=search,st=status){setLoading(true);setError('');try{const path=pg==='Dashboard'?'dashboard':pg==='All Orders'?'orders?q='+encodeURIComponent(q)+'&status='+encodeURIComponent(st):pg==='Support Tickets'?'tickets':pg==='Accounts'?'accounts':pg==='Wallets'?'wallets':'reports';setData(await get(path))}catch(e){setError(e.message)}finally{setLoading(false)}}
@@ -1475,6 +1475,23 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   refresh(true);timer=setInterval(()=>refresh(false),3000);
   return()=>{alive=false;clearInterval(timer)}
  },[page]);
+ // Fetch full delivery details only when an Owner opens a specific order.
+ // Never put redeem codes in the frequently refreshed list of 500 orders.
+ useEffect(()=>{
+  const id=Number(selectedOwnerOrder?.id);
+  if(!Number.isSafeInteger(id)||id<=0){setOwnerReceipt(null);setOwnerReceiptLoading(false);setOwnerReceiptError('');setOwnerCopyMessage('');return;}
+  let active=true;
+  setOwnerReceipt(null);setOwnerReceiptLoading(true);setOwnerReceiptError('');setOwnerCopyMessage('');
+  get('orders/'+id+'/receipt',{cache:'no-store'}).then(result=>{
+   if(active)setOwnerReceipt(result.order||null);
+  }).catch(err=>{if(active)setOwnerReceiptError(err.message||'Unable to load order details')})
+   .finally(()=>{if(active)setOwnerReceiptLoading(false)});
+  return()=>{active=false};
+ },[selectedOwnerOrder?.id]);
+ async function copyOwnerCode(value){
+  try{await navigator.clipboard.writeText(String(value));setOwnerCopyMessage('Code copied')}
+  catch{setOwnerCopyMessage('Copy unavailable. Select the code to copy manually.')}
+ }
  function navigateOwner(next){if(next===page){setOpen(false);return}setTicket(null);setSelectedOwnerOrder(null);setSelectedOwnerRecord(null);setSearch('');setStatus('');setOpen(false);ownerNavigate(next)}
  async function recoverPaidAlfaCard(){
   if(Number(selectedOwnerOrder?.id)!==25||selectedOwnerOrder?.status!=='pending'||recoveryBusy)return;
@@ -1531,14 +1548,14 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   const normalizedStatus=rawStatus==='success'?'success':(['failed','refunded'].includes(rawStatus)?'failed':'pending');
   if(status&&normalizedStatus!==status)return false;
   if(!ownerQuery)return true;
-  return [r.id,r.product_title,r.product_key,r.customer_reference,r.purchaser,r.parent_name,r.dealer_name].some(v=>String(v??'').toLowerCase().includes(ownerQuery));
+  return [r.id,r.product_title,r.package_name,r.product_key,r.customer_reference,r.purchaser,r.parent_name,r.dealer_name].some(v=>String(v??'').toLowerCase().includes(ownerQuery));
  }):allRows;
  return <div className="appShell ownerShell">{open&&<button type="button" className="ownerMobileBackdrop" aria-label="Close menu" onClick={()=>setOpen(false)}/>}<aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">O</div><div><b>3ABBILO Owner</b><span>sales@mrphonelb.com</span></div></div><nav>{ownerMenu.map(([Icon,n])=><button type="button" key={n} className={page===n?'active':''} onClick={()=>navigateOwner(n)}><Icon size={19}/><span>{n}</span>{n==='Support Tickets'&&ownerTicketAlerts>0&&<span className="ticketNotifyBadge">{ownerTicketAlerts}</span>}</button>)}</nav><button className="logout" onClick={()=>{localStorage.removeItem('3abbilo_token');location.replace('/login')}}><LogOut size={18}/>Logout</button></aside><main className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page==='Accounts'?`Accounts (${allRows.length})`:page}</h2></div><div className="sectionPad ownerContent">{error&&<div className="loginError">{error}</div>}{loading&&<p>Loading…</p>}
  {page==='Dashboard'&&data&&<><div className="dashboardOrderSummary ownerDashboardSummary"><div className="dashboardStatsGrid">{[['Total Orders',data.orders?.total,'total'],['Successful',data.orders?.success,'completed'],['Failed',data.orders?.failed,'failed'],['Pending',data.orders?.pending,'pending'],['Sales',money(data.orders?.sales),'spent'],['Open Tickets',data.tickets?.open,'profit']].map(([k,v,kind])=><div className={'dashboardStatCard '+kind} key={k}><span>{k}</span><strong>{v??0}</strong></div>)}</div></div><div className="dashboardRecentSections ownerDashboardRecent">
- <section className="dashSection dashboardRecentSection"><div className="dashboardRecentHeader"><h2>ALL ORDERS</h2><button type="button" onClick={()=>navigateOwner('All Orders')}>View all <ArrowRight size={16}/></button></div>{dashboardRecent.loading?<div className="dashboardRecentEmpty">Loading orders…</div>:dashboardRecent.error?<div className="dashboardRecentEmpty">Orders temporarily unavailable.</div>:dashboardRecent.orders.length?<div className="ordersRecentList dashboardOrdersList">{dashboardRecent.orders.map(r=><OrderListRow key={r.id} o={{...r,package_name:r.product_title,account_cost:r.charged_price,purchaser_name:r.purchaser,completed_at:null}} shopOrders onOpen={()=>{setRecoveryMessage('');setSelectedOwnerOrder(r)}}/>)}</div>:<div className="dashboardRecentEmpty">No orders yet.</div>}</section>
+ <section className="dashSection dashboardRecentSection"><div className="dashboardRecentHeader"><h2>ALL ORDERS</h2><button type="button" onClick={()=>navigateOwner('All Orders')}>View all <ArrowRight size={16}/></button></div>{dashboardRecent.loading?<div className="dashboardRecentEmpty">Loading orders…</div>:dashboardRecent.error?<div className="dashboardRecentEmpty">Orders temporarily unavailable.</div>:dashboardRecent.orders.length?<div className="ordersRecentList dashboardOrdersList">{dashboardRecent.orders.map(r=><OrderListRow key={r.id} o={{...r,package_name:r.package_name||r.product_title,account_cost:r.charged_price,purchaser_name:r.purchaser,completed_at:null}} shopOrders ownerView onOpen={()=>{setRecoveryMessage('');setSelectedOwnerOrder(r)}}/>)}</div>:<div className="dashboardRecentEmpty">No orders yet.</div>}</section>
  <section className="dashSection dashboardRecentSection"><div className="dashboardRecentHeader"><h2>SUPPORT TICKETS</h2><button type="button" onClick={()=>navigateOwner('Support Tickets')}>View all <ArrowRight size={16}/></button></div>{dashboardRecent.loading?<div className="dashboardRecentEmpty">Loading tickets…</div>:dashboardRecent.error?<div className="dashboardRecentEmpty">Tickets temporarily unavailable.</div>:dashboardRecent.tickets.length?<div className="ownerRecordList">{dashboardRecent.tickets.map(r=><button type="button" key={r.id} className={'ownerRecordCard supportTicketRow '+(ticketAlert(r,'owner','owner')?'ticketRowUnread':'')} onClick={()=>{navigateOwner('Support Tickets');openTicket(r)}}><span className="ownerRecordIcon"><MessageCircle size={23}/></span><span className="ownerRecordMain"><strong>{r.subject||`Ticket #${r.id}`} {ticketAlert(r,'owner','owner')&&<span className="ticketNewLabel">New</span>}</strong><small>Ticket #{r.id} · Order #{r.order_id||'—'} · {r.shop_name||'Account'}</small><span>{r.description}</span></span><span className={'orderStatus '+(r.status==='resolved'?'success':r.status==='open'?'pending':'processing')}>{String(r.status||'open').replace('_',' ')}</span><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="dashboardRecentEmpty">No support tickets yet.</div>}</section>
  </div></>}
- {page==='All Orders'&&<><div className="orderTools ownerOrderTools"><input type="search" aria-label="Search all platform orders" placeholder="Search product, order, shop, dealer or recipient…" value={search} onChange={e=>setSearch(e.target.value)}/><select aria-label="Filter all orders by status" value={status} onChange={e=>setStatus(e.target.value)}><option value="">All Status</option><option value="pending">Pending</option><option value="success">Success</option><option value="failed">Failed</option></select></div>{!loading&&(rows.length?<div className="ordersRecentList ownerOrdersList">{rows.map(r=><OrderListRow key={r.id} o={{...r,package_name:r.product_title,account_cost:r.charged_price,purchaser_name:r.purchaser,completed_at:null}} shopOrders onOpen={()=>{setRecoveryMessage('');setSelectedOwnerOrder(r)}}/>)}</div>:<div className="ordersEmpty"><ReceiptText/><b>No matching orders</b><span>Try another search or status.</span></div>)}</>}
+ {page==='All Orders'&&<><div className="orderTools ownerOrderTools"><input type="search" aria-label="Search all platform orders" placeholder="Search product, order, shop, dealer or recipient…" value={search} onChange={e=>setSearch(e.target.value)}/><select aria-label="Filter all orders by status" value={status} onChange={e=>setStatus(e.target.value)}><option value="">All Status</option><option value="pending">Pending</option><option value="success">Success</option><option value="failed">Failed</option></select></div>{!loading&&(rows.length?<div className="ordersRecentList ownerOrdersList">{rows.map(r=><OrderListRow key={r.id} o={{...r,package_name:r.package_name||r.product_title,account_cost:r.charged_price,purchaser_name:r.purchaser,completed_at:null}} shopOrders ownerView onOpen={()=>{setRecoveryMessage('');setSelectedOwnerOrder(r)}}/>)}</div>:<div className="ordersEmpty"><ReceiptText/><b>No matching orders</b><span>Try another search or status.</span></div>)}</>}
  {page==='Support Tickets'&&ticket&&<div className="supportPanel ownerSupportPanel" aria-label={'Support Ticket '+ticket.id}>
   <div className="supportPanelHeader"><h3>Ticket #{ticket.id} — {ticket.status==='resolved'?'Closed':ticket.status==='in_progress'?'In Progress':'Open'}</h3><button type="button" onClick={()=>setTicket(null)}>Close</button></div>
   <p><b>Account:</b> {ticket.shop_name||'—'} · <b>Product:</b> {ticket.product_title||'—'} · <b>Related to:</b> {ticket.parent_name||'—'}</p>
@@ -1584,7 +1601,9 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
    <div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div>
    <div className="unifiedReceipt ownerUnifiedReceipt">
     {(()=>{
-     const current=selectedOwnerOrder;
+     const current=ownerReceipt&&Number(ownerReceipt.id)===Number(selectedOwnerOrder.id)?ownerReceipt:selectedOwnerOrder;
+     const card=current.card_receipt&&typeof current.card_receipt==='object'?current.card_receipt:{};
+     const code=String(current.redeem_code||'').trim();
      const state=String(current.status||'pending').toLowerCase();
      const success=state==='success',failed=['failed','refunded'].includes(state),pending=!success&&!failed;
      return <>
@@ -1596,12 +1615,26 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
       <div className="receiptRow"><span>Order number</span><strong>#{current.id}</strong></div>
       <div className="receiptRow"><span>Shop / account</span><strong>{current.purchaser||'—'}</strong></div>
       <div className="receiptRow"><span>Product</span><strong>{current.product_title||'—'}</strong></div>
+      <div className="receiptRow"><span>Purchased package</span><strong>{current.package_name||current.product_title||'—'}</strong></div>
+      {ownerReceiptLoading&&<div className="ownerReceiptLoading"><RefreshCw size={15} className="spin"/> Loading saved delivery details…</div>}
+      {ownerReceiptError&&<div className="receiptNote receiptNoteError">{ownerReceiptError}</div>}
+      {!ownerReceiptLoading&&!ownerReceiptError&&code&&<div className="receiptDelivery receiptDeliveryCard ownerSavedCode"><small>Delivered recharge / redeem code</small><div className="receiptCode"><strong>{code}</strong></div><div className="ownerCodeActions"><button type="button" className="popupSecondary" onClick={()=>copyOwnerCode(code)}><Copy size={16}/> Copy Code</button><span role="status">{ownerCopyMessage}</span></div>{failed&&<small className="ownerCodeWarning">This code belongs to a failed/refunded order. Verify before sharing it.</small>}</div>}
+      {!ownerReceiptLoading&&!ownerReceiptError&&current.purchase_method==='code'&&!code&&<div className="receiptNote receiptNoteError">No redeem code is saved for this order. Check its delivery status before resending anything.</div>}
+      {!!card.serial_number&&<div className="receiptRow"><span>Card serial</span><strong className="ownerCodeValue">{card.serial_number}</strong></div>}
+      {!!card.expiry_date&&<div className="receiptRow"><span>Card expiry</span><strong>{card.expiry_date}</strong></div>}
+      {current.report_url&&<div className="receiptRow"><span>CARFAX report</span><a href={current.report_url} target="_blank" rel="noopener noreferrer">Open report</a></div>}
+      {current.install?.qr_code_url&&<div className="receiptRow"><span>eSIM QR</span><a href={current.install.qr_code_url} target="_blank" rel="noopener noreferrer">View QR code</a></div>}
+      {current.install?.short_url&&<div className="receiptRow"><span>eSIM activation</span><a href={current.install.short_url} target="_blank" rel="noopener noreferrer">Open installation</a></div>}
+      {current.ogero_bill_url&&<div className="receiptRow"><span>Ogero receipt</span><a href={current.ogero_bill_url} target="_blank" rel="noopener noreferrer">Open receipt</a></div>}
       <div className="receiptRow"><span>Recipient / reference</span><strong>{current.customer_reference||'—'}</strong></div>
       <div className="receiptRow"><span>Cost</span><strong>{money(current.charged_price)}</strong></div>
+      {current.selling_price!=null&&<div className="receiptRow"><span>Selected selling price</span><strong>{money(current.selling_price)}</strong></div>}
+      {!!current.supplier_reference&&<div className="receiptRow"><span>Purchase reference</span><strong>{current.supplier_reference}</strong></div>}
+      {failed&&current.failure_reason&&<div className="receiptRow"><span>Failure reason</span><strong>{current.failure_reason}</strong></div>}
       {current.account_type&&<div className="receiptRow"><span>Account type</span><strong>{current.account_type}</strong></div>}
       {(current.parent_name||current.dealer_name)&&<div className="receiptRow"><span>Related to</span><strong>{current.parent_name||current.dealer_name}</strong></div>}
       <div className="receiptRow"><span>Date</span><strong>{current.created_at?new Date(current.created_at).toLocaleString():'—'}</strong></div>
-      {success&&<div className="receiptNote">Purchase confirmed. View the original account's order receipt for any delivered codes or installation details.</div>}
+      {success&&!ownerReceiptLoading&&!ownerReceiptError&&!code&&!current.report_url&&!current.install?.qr_code_url&&<div className="receiptNote">This order has no stored redeem code; direct recharges and account top-ups normally do not issue one.</div>}
       {pending&&<div className="receiptNote">This is the saved platform order. Do not submit another purchase while confirmation is pending.</div>}
       {failed&&<div className="receiptNote receiptNoteError">This order was not completed successfully.</div>}
      </>;

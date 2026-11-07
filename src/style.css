@@ -1973,3 +1973,15 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .financeEntryDetails>div{display:flex;justify-content:space-between;gap:12px;font-size:12px}.financeEntryDetails span{color:#71809a}.financeEntryDetails b{text-align:right;overflow-wrap:anywhere;color:#172b47}
 @media(max-width:850px){.financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:550px){.financeMetric{padding:13px}.financeMetric strong{font-size:17px}.financeFilters{flex-direction:column}.financeFilters select,.financeFilters input{flex:auto;width:100%}.financeEntryTop{padding:12px 10px;gap:7px}.financeEntryIcon{width:34px;height:34px}.financeEntryAmount{font-size:11px}.financeEntryDetails{padding-left:15px}.financePeriod button{padding:9px 12px}}
+
+/* Owner-only purchased package and saved delivery receipt */
+.ownerOrderModal .ownerReceiptLoading{display:flex;align-items:center;gap:8px;padding:12px 3px;color:#687991;font-size:12px}
+.ownerOrderModal .ownerSavedCode{margin:12px 0;border:1px solid #dce7f4;border-radius:12px;background:#f8fbff;padding:13px}
+.ownerOrderModal .ownerSavedCode .receiptCode{margin:8px 0;user-select:text;overflow-wrap:anywhere}
+.ownerOrderModal .ownerCodeActions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:10px 0 0}
+.ownerOrderModal .ownerCodeActions button{display:inline-flex;align-items:center;gap:7px;border-radius:9px;padding:8px 12px;cursor:pointer}
+.ownerOrderModal .ownerCodeActions span{font-size:12px;color:#18845f}
+.ownerOrderModal .ownerCodeValue{user-select:text}
+.ownerOrderModal .receiptRow a{color:#1463ba;font-size:13px;font-weight:700;word-break:break-all;text-align:right}
+
+.ownerOrderModal .ownerCodeWarning{display:block;margin-top:9px;color:#ac3a27;font-size:12px}
