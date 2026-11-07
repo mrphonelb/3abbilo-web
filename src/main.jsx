@@ -1148,11 +1148,11 @@ function FinancialPage({owner=false,dealer=false}){
  ]:dealer?[
   ['all','All Activity'],['sales','My Sales'],['shops','Shop Profit'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
  ]:[
-  ['all','All Activity'],['sales','Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+  ['all','All Activity'],['sales','My Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
  ];
  const events=source.filter(item=>{
   const isWallet=item.kind==='wallet';
-  if(view==='sales'&&!['sale','own_sale'].includes(item.kind))return false;
+  if(view==='sales'&&(!['sale','own_sale','purchase'].includes(item.kind)||(item.kind==='purchase'&&item.order_status&&item.order_status!=='success')))return false;
   if(view==='shops'&&item.kind!=='shop_profit')return false;
   if(view==='funding'&&!(isWallet&&item.wallet_type==='deposit'))return false;
   if(view==='transfers'&&!(isWallet&&item.wallet_type.startsWith('dealer_transfer_')))return false;
@@ -1172,9 +1172,9 @@ function FinancialPage({owner=false,dealer=false}){
  const metrics=owner?[
   ['Sales',s.all_sales],['Supplier Cost',s.supplier_cost],['Wallet Recharges',s.account_funding],['Wallet Balances',s.outstanding]
  ]:dealer?[
-  ['Sales',s.sales],['Sales Cost',s.cost],['My Profit',s.own_profit,'positive'],['Shop Profit',s.shops_profit,'positive'],['Wallet Balance',s.balance]
+  ['My Purchases',s.purchases],['Refunds',s.refunds],['Sales Profit',s.own_profit,'positive'],['Shop Profit',s.shops_profit,'positive'],['Wallet Balance',s.balance]
  ]:[
-  ['Sales',s.sales],['Sales Cost',s.cost],['Profit',s.own_profit,'positive'],['Wallet Balance',s.balance]
+  ['My Purchases',s.purchases],['Refunds',s.refunds],['Sales Profit',s.own_profit,'positive'],['Wallet Balance',s.balance]
  ];
  return <div className={'financePage financeSimple'+(owner?' financeOwner':'')}>
   <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
@@ -1187,21 +1187,24 @@ function FinancialPage({owner=false,dealer=false}){
   </div>
   <div className="financeListHeader"><strong>Transactions</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
   {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading transactions…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No transactions found</b><span>Try another date or category.</span></div>:<div className="financeList">{events.map(item=>{
-   const wallet=item.kind==='wallet',shop=item.kind==='shop_profit',sale=item.kind==='sale'||item.kind==='own_sale';
-   const label=wallet?walletTitle(item):shop?'Shop Profit — Order #'+item.order_id:'Sale — Order #'+item.order_id;
+   const wallet=item.kind==='wallet',purchase=item.kind==='purchase'||item.kind==='own_sale';
+   const shop=item.kind==='shop_profit',sale=purchase||item.kind==='sale';
+   const label=wallet?walletTitle(item):shop?'Shop Profit — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
-   const sub=wallet?(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet')):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Sale');
-   const amount=wallet?Number(item.amount):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
-   const amountText=wallet?signed(amount):owner&&!shop?fmt(amount):signed(amount);
+   const sub=wallet?(item.wallet_type==='refund'&&item.product?(item.product+' · Order #'+item.order_id):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
+   // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
+   const amount=wallet?Number(item.amount):purchase?Number(item.amount??-Number(item.cost||0)):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
+   const amountText=wallet||purchase||shop?signed(amount):fmt(amount);
+   const finished=item.order_status==='success';
    return <div key={item.id} className="financeEntry">
     <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
      <span className="financeEntryIcon">{wallet?<Wallet size={20}/>:shop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
      <span className="financeEntryInfo"><strong>{label}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
-      {sale&&<small className="financeEntryPreview">Cost {fmt(item.cost??item.amount)} · Selling {fmt(item.selling_price)} · Profit {fmt(item.profit??item.account_profit)}</small>}
+      {sale&&<small className="financeEntryPreview">Cost {fmt(item.cost??Math.abs(Number(item.amount||0)))}{item.selling_price!=null&&<> · Selling {fmt(item.selling_price)}</>}{(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{purchase&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
       {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
       <small>{date(item.at)}</small>
      </span>
-     <span className={'financeEntryAmount'+(wallet&&amount>0||!wallet&&!owner?' positive':'')}>{amountText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
+     <span className={'financeEntryAmount'+(amount>0?' positive':'')}>{amountText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
     </button>
     {selected===item.id&&<div className="financeEntryDetails">
      {wallet?<>
@@ -1219,9 +1222,10 @@ function FinancialPage({owner=false,dealer=false}){
        <div><span>Profit</span><b className="financePositive">{fmt(item.profit)}</b></div>
       </>:<>
        <div><span>Package</span><b>{item.product||item.title||'Sale'}</b></div>
-       <div><span>Sales cost</span><b>{fmt(item.cost??item.amount)}</b></div>
-       <div><span>Selling price</span><b>{fmt(item.selling_price)}</b></div>
-       <div><span>Profit</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>
+       <div><span>Purchase cost</span><b>{fmt(item.cost??Math.abs(Number(item.amount||0)))}</b></div>
+       {item.order_status&&<div><span>Order status</span><b>{item.order_status==='refunded'?'Failed':item.order_status}</b></div>}
+       {item.selling_price!=null&&<div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div>}
+       {(finished||item.kind==='sale')&&<div><span>Recorded profit</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>}
       </>}
     </div>}
    </div>;
