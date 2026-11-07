@@ -1985,3 +1985,15 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .ownerOrderModal .receiptRow a{color:#1463ba;font-size:13px;font-weight:700;word-break:break-all;text-align:right}
 
 .ownerOrderModal .ownerCodeWarning{display:block;margin-top:9px;color:#ac3a27;font-size:12px}
+
+/* Financial history: clear commercial prices, separate legacy-ledger audit */
+.financeEntryPreview{font-size:11px!important;font-weight:650;color:#485e80!important;line-height:1.4}
+.financeFilterHint{margin:-6px 0 13px;color:#74829a;font-size:11px;line-height:1.45}
+.financeAuditBanner{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:13px 16px;margin:14px 0;background:#fffaf0;border:1px solid #f2d69a;border-radius:12px;color:#664716}
+.financeAuditBanner>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.financeAuditBanner strong{font-size:12px;line-height:1.4}
+.financeAuditBanner span{font-size:11px;line-height:1.5;color:#795c33}
+.financeAuditBanner button{border:1px solid #eab85a;background:#fff;border-radius:9px;color:#865515;padding:9px 11px;cursor:pointer;font:inherit;font-size:11px;font-weight:750;white-space:nowrap}
+.financeAuditEntry .financeEntryIcon{background:#fff0da;color:#a26318}
+.financeAuditFootnote{margin:3px 0 0;color:#90672b;font-size:11px;line-height:1.5}
+@media(max-width:550px){.financeAuditBanner{align-items:flex-start;flex-direction:column}.financeAuditBanner button{align-self:flex-start}.financeEntryPreview{font-size:10px!important}}

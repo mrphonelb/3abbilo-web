@@ -1106,7 +1106,9 @@ function FinancialPage({owner=false,dealer=false}){
  const [period,setPeriod]=useState('30d');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
- const [view,setView]=useState('all');
+ // Keep routine sales/transfers visible by default. Technical adjustments are
+ // still accessible under All Transactions, Wallet Adjustments and Ledger Audit.
+ const [view,setView]=useState('activity');
  const [query,setQuery]=useState('');
  const [data,setData]=useState(null);
  const [busy,setBusy]=useState(true);
@@ -1117,7 +1119,7 @@ function FinancialPage({owner=false,dealer=false}){
  const signed=v=>(Number(v)>=0?'+':'−')+fmt(Math.abs(Number(v||0)));
  const date=v=>{try{return new Date(v).toLocaleString('en-LB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch{return '—'}};
  useEffect(()=>{
-  if(!customReady){setError('Choose a valid From and To date.');return;}
+  if(!customReady){setData(null);setBusy(false);setError('Choose a valid From and To date.');return;}
   let active=true;
   setBusy(true);setError('');setSelected(null);
   const params=new URLSearchParams({period});
@@ -1127,66 +1129,88 @@ function FinancialPage({owner=false,dealer=false}){
   return()=>{active=false};
  },[owner,period,from,to,customReady]);
  const s=data?.summary||{};
- const events=(data?.events||[]).filter(item=>{
-  if(owner){
-   const branch=['jounieh','jbeil'].includes(String(item.account_type||'').toLowerCase());
-   if(view==='sales'&&item.kind!=='sale')return false;
-   if(view==='nonbranch'&&(item.kind!=='sale'||branch))return false;
-   if(view==='branches'&&(item.kind!=='sale'||!branch))return false;
-   if(view==='funding'&&!(item.kind==='wallet'&&item.wallet_type==='deposit'))return false;
-   if(view==='transfers'&&!(item.kind==='wallet'&&/^dealer_transfer_/.test(item.wallet_type||'')))return false;
-   if(view==='refunds'&&!(item.kind==='wallet'&&item.wallet_type==='refund'))return false;
-  }else{
-   if(view==='mine'&&item.kind!=='own_sale')return false;
-   if(view==='shops'&&item.kind!=='shop_profit')return false;
-  }
-  return !query.trim()||[item.id,item.order_id,item.title,item.product,item.shop_name,item.account_name,item.parent_name,item.related_account,item.wallet_type,item.kind].some(x=>String(x||'').toLowerCase().includes(query.trim().toLowerCase()));
+ const auditCount=Number(data?.audit_count||0);
+ const walletLabel=t=>({deposit:'Wallet Recharge',refund:'Order Refund',dealer_transfer_out:'Balance Transfer Sent',dealer_transfer_in:'Balance Transfer Received',adjustment_credit:'Wallet Adjustment',adjustment_debit:'Wallet Adjustment'}[t]||'Wallet Transaction');
+ const isAdjustment=t=>/^adjustment_/.test(String(t||''));
+ const isTransfer=t=>/^dealer_transfer_/.test(String(t||''));
+ const source=view==='audit'?(data?.audit_events||[]):(data?.events||[]);
+ const events=source.filter(item=>{
+  const isWallet=item.kind==='wallet';
+  const branch=['jounieh','jbeil'].includes(String(item.account_type||'').toLowerCase());
+  if(view==='activity'&&isWallet&&isAdjustment(item.wallet_type))return false;
+  if(view==='sales'&&item.kind!=='sale'&&item.kind!=='own_sale')return false;
+  if(view==='mine'&&item.kind!=='own_sale')return false;
+  if(view==='shops'&&item.kind!=='shop_profit')return false;
+  if(view==='nonbranch'&&(item.kind!=='sale'||branch))return false;
+  if(view==='branches'&&(item.kind!=='sale'||!branch))return false;
+  if(view==='funding'&&!(isWallet&&item.wallet_type==='deposit'))return false;
+  if(view==='transfers'&&!(isWallet&&isTransfer(item.wallet_type)))return false;
+  if(view==='refunds'&&!(isWallet&&item.wallet_type==='refund'))return false;
+  if(view==='adjustments'&&!(isWallet&&isAdjustment(item.wallet_type)))return false;
+  const q=query.trim().toLowerCase();
+  return !q||[item.id,item.order_id,item.title,item.product,item.shop_name,item.account_name,item.parent_name,item.related_account,item.wallet_type,item.kind,item.reference,item.notes].some(x=>String(x||'').toLowerCase().includes(q));
  });
- const walletLabel=t=>({deposit:'Wallet Recharge',refund:'Order Refund',dealer_transfer_out:'Balance Transfer Sent',dealer_transfer_in:'Balance Transfer Received',adjustment_credit:'Balance Adjustment',adjustment_debit:'Balance Adjustment'}[t]||'Wallet Transaction');
+ const options=owner?[
+  ['activity','Main Activity'],['all','All Transactions'],['sales','Account Sales'],['nonbranch','Sales Without Branches'],['branches','Branch Sales'],['funding','Wallet Recharges'],['transfers','Dealer / Shop Transfers'],['refunds','Refunds'],['adjustments','Wallet Adjustments'],['audit','Ledger Audit']
+ ]:dealer?[
+  ['activity','Main Activity'],['all','All Transactions'],['mine','My Sales & Profit'],['shops','Shops Profit'],['funding','Wallet Recharges'],['transfers','Shop Transfers'],['refunds','Refunds'],['adjustments','Wallet Adjustments'],['audit','Ledger Audit']
+ ]:[
+  ['activity','Main Activity'],['all','All Transactions'],['mine','My Sales & Profit'],['funding','Wallet Recharges'],['transfers','Wallet Transfers'],['refunds','Refunds'],['adjustments','Wallet Adjustments'],['audit','Ledger Audit']
+ ];
  return <div className={'financePage'+(owner?' financeOwner':'')}>
-  <div className="financeTitle"><p>{owner?'Track platform sales, wallet funding and internal transfers without double-counting.':'Review your sales, earned profit and wallet activity in one place.'}</p></div>
+  <div className="financeTitle"><p>{owner?'Track account sales, wallet funding and transfers without double-counting.':'Review your actual sales cost, selected selling price, profit, and wallet activity in one place.'}</p></div>
   <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','24h'],['7d','7 Days'],['30d','30 Days'],['all','All'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
   {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}
   <div className="financeSummary">
    {(owner?[
-    ['Total Sales — All Accounts',s.all_sales,''],['Sales — Excluding Branches',s.external_sales,''],['Funds Added to Accounts',s.account_funding,''],['Outstanding Wallet Balances',s.outstanding,''],['Recorded Supplier Cost',s.supplier_cost,''],['Successful Orders',s.orders,'count']
+    ['Account Sales — All Accounts',s.all_sales,''],['Sales — Excluding Branches',s.external_sales,''],['Funds Added to Accounts',s.account_funding,''],['Outstanding Wallet Balances',s.outstanding,''],['Recorded Supplier Cost',s.supplier_cost,''],['Selected Selling Prices',s.selected_selling_total,''],['Successful Orders',s.orders,'count']
    ]:[
-    ['Wallet Balance',s.balance,''],['My Sales',s.sales,''],['My Cost',s.cost,''],['My Profit',s.own_profit,'positive'],...(dealer?[['Shops Profit',s.shops_profit,'positive'],['Total Profit',s.total_profit,'positive']]:[])
+    ['Wallet Balance',s.balance,''],['My Selling Prices',s.sales,''],['My Sales Cost',s.cost,''],['My Sales Profit',s.own_profit,'positive'],...(dealer?[['Shops Profit',s.shops_profit,'positive'],['Total Profit',s.total_profit,'positive']]:[])
    ]).map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{kind==='count'?Number(val||0).toLocaleString('en-US'):fmt(val)}</strong></div>)}
   </div>
-  {owner&&<p className="financeNote">Sales means successful orders charged to accounts, not cash received from end customers. Funds Added counts new wallet deposits only; moving balance between a dealer and its shop does not add new funding. Outstanding balance is the current combined balance, regardless of date filter. {Number(s.missing_supplier_cost)>0?`${s.missing_supplier_cost} completed orders have no recorded supplier cost; supplier cost total is incomplete.`:''}</p>}
-  {!owner&&<p className="financeNote">Selling price is the amount entered at checkout, not a confirmed customer payment. Shop profit represents the dealer's recorded wholesale margin, not the shop's selling price.</p>}
+  {owner?<p className="financeNote">Account sales are successful orders charged to accounts, not proof of customer payment. Selected selling prices are checkout entries, not cash collected. Funds added counts new deposits only; transfers are not new funding. Outstanding balance is current regardless of date filter. {Number(s.missing_supplier_cost)>0?`${s.missing_supplier_cost} completed orders have no recorded supplier cost.`:''}</p>
+  :<p className="financeNote">Selling price is what was entered at checkout, not a confirmed customer payment. Shop profit is the dealer's wholesale margin. Dealers cannot view a shop's own end-customer selling price.</p>}
+  {auditCount>0&&<div className="financeAuditBanner" role="note"><div><strong>{auditCount.toLocaleString('en-US')} historical wallet ledger {auditCount===1?'entry does':'entries do'} not match the recorded balance change.</strong><span>Older four-decimal adjustments may have been recorded without changing the balance. They are kept for review in Ledger Audit, not shown as actual money moved. No historical balances have been altered.</span></div><button type="button" onClick={()=>{setView('audit');setSelected(null)}}>Review entries</button></div>}
   <div className="financeFilters">
-   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction view">{(owner?[
-    ['all','All Transactions'],['sales','All Sales'],['nonbranch','Sales Without Branches'],['branches','Branch Sales'],['funding','Wallet Recharges'],['transfers','Dealer / Shop Transfers'],['refunds','Refunds']
-   ]:dealer?[
-    ['all','All Transactions'],['mine','My Profit'],['shops','Shops Profit']
-   ]:[['all','All Transactions'],['mine','My Profit']]).map(([k,label])=><option value={k} key={k}>{label}</option>)}</select>
-   <input type="search" placeholder={owner?'Search order, account, shop or transfer…':'Search order, product or shop…'} value={query} onChange={e=>setQuery(e.target.value)}/>
+   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction view">{options.map(([k,label])=><option value={k} key={k}>{label}</option>)}</select>
+   <input type="search" placeholder={owner?'Search order, account, shop, payment or reference…':'Search order, product, transfer or reference…'} value={query} onChange={e=>setQuery(e.target.value)}/>
   </div>
-  <div className="financeListHeader"><strong>Financial History</strong><span>{busy?'Loading…':`${events.length} records`}</span></div>
-  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading financial history…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No matching transactions</b><span>Try another period or filter.</span></div>:<div className="financeList">{events.map(item=>{
-   const isWallet=item.kind==='wallet',isShop=item.kind==='shop_profit',isSale=item.kind==='sale'||item.kind==='own_sale';
-   const name=isWallet?walletLabel(item.wallet_type):isShop?'Shop Order #'+item.order_id:(owner?'Order #':'My Order #')+item.order_id;
-   const secondary=isWallet?(item.related_account?'Related: '+item.related_account:'Account wallet'):isShop?item.shop_name:(item.product||item.title||'Product sale');
-   const amount=isWallet?Number(item.amount):isShop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
-   const moneyText=isWallet?signed(amount):(owner?fmt(amount):signed(amount));
-   const positive=isWallet?amount>=0:!owner;
-   return <div key={item.id} className="financeEntry"><button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
-    <span className="financeEntryIcon">{isWallet?<Wallet size={20}/>:isShop?<Store size={20}/>:<ReceiptText size={20}/>}</span><span className="financeEntryInfo"><strong>{name}</strong><small>{owner?(item.account_name||'Account')+(secondary?' · '+secondary:''):secondary}</small><small>{date(item.at)}</small></span><span className={'financeEntryAmount'+(positive?' positive':'')}>{moneyText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
+  <div className="financeListHeader"><strong>{view==='audit'?'Ledger Audit':'Financial History'}</strong><span>{busy?'Loading…':`${events.length} ${view==='audit'?'audit entries':'records'} shown`}</span></div>
+  {view==='activity'&&<p className="financeFilterHint">Main Activity includes sales, profits, wallet recharges, transfers and refunds. Select “All Transactions” to also see technical wallet adjustments.</p>}
+  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading financial history…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No matching transactions</b><span>Try another date or transaction type.</span></div>:<div className="financeList">{events.map(item=>{
+   const isWallet=item.kind==='wallet',isShop=item.kind==='shop_profit',isSale=item.kind==='sale'||item.kind==='own_sale',isAudit=item.kind==='audit';
+   const name=isAudit?'Ledger discrepancy':isWallet?walletLabel(item.wallet_type):isShop?'Shop Order #'+item.order_id:(owner?'Order #':'My Order #')+item.order_id;
+   const secondary=isAudit?('Reference: '+(item.reference||'not recorded')):isWallet?(item.related_account?'Related: '+item.related_account:(item.reference?'Reference: '+item.reference:'Account wallet')):isShop?(item.shop_name+' · '+(item.product||'Sale')):(item.product||item.title||'Product sale');
+   const amount=isAudit?Number(item.amount):isWallet?Number(item.amount):isShop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
+   const moneyText=isAudit?signed(amount):isWallet?signed(amount):owner&&!isShop?fmt(amount):signed(amount);
+   const positive=!isAudit&&(isWallet?amount>=0:!owner||isShop);
+   return <div key={item.id} className={'financeEntry'+(isAudit?' financeAuditEntry':'')}><button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
+    <span className="financeEntryIcon">{isAudit?<ShieldCheck size={20}/>:isWallet?<Wallet size={20}/>:isShop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
+    <span className="financeEntryInfo"><strong>{name}</strong><small>{owner&&(item.account_name||'')?(item.account_name+' · '):''}{secondary}</small>
+     {isSale&&<small className="financeEntryPreview">Cost {fmt(item.cost??item.amount)} · Selling {fmt(item.selling_price)} · Profit {fmt(item.profit??item.account_profit)}</small>}
+     {isShop&&<small className="financeEntryPreview">Dealer cost {fmt(item.dealer_cost)} · To shop {fmt(item.shop_cost)} · Margin {fmt(item.profit)}</small>}
+     {isAudit&&<small className="financeEntryPreview">Recorded {signed(item.amount)} · Balance actually changed {signed(item.observed_amount)}</small>}
+     <small>{date(item.at)}</small>
+    </span><span className={'financeEntryAmount'+(positive?' positive':'')}>{moneyText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
    </button>
    {selected===item.id&&<div className="financeEntryDetails">
-    {isWallet?<>
+    {isAudit?<><div><span>Account</span><b>{owner?item.account_name||'—':'My wallet'}</b></div><div><span>Original transaction type</span><b>{item.wallet_type||'—'}</b></div><div><span>Recorded amount</span><b>{signed(item.amount)}</b></div><div><span>Actual balance movement</span><b>{signed(item.observed_amount)}</b></div><div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div><div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>{item.reference&&<div><span>Reference</span><b>{item.reference}</b></div>}{item.notes&&<div><span>Ledger note</span><b>{item.notes}</b></div>}<p className="financeAuditFootnote">Audit only. This record has not been deleted and no wallet or Daftra changes were made.</p></>
+    :isWallet?<>
       {owner&&<div><span>Account</span><b>{item.account_name||'—'}</b></div>}
       {item.related_account&&<div><span>Related account</span><b>{item.related_account}</b></div>}
       {item.order_id&&<div><span>Order</span><b>#{item.order_id}</b></div>}
+      {item.reference&&<div><span>Reference</span><b>{item.reference}</b></div>}
+      {item.notes&&<div><span>Details</span><b>{item.notes}</b></div>}
       <div><span>Wallet movement</span><b className={amount>=0?'financePositive':''}>{signed(amount)}</b></div>
       <div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div><div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>
-    </>:isShop?<><div><span>Shop</span><b>{item.shop_name}</b></div><div><span>Shop order</span><b>#{item.order_id}</b></div><div><span>Dealer profit</span><b className="financePositive">{fmt(item.profit)}</b></div></>:owner?<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Account type</span><b>{item.account_type||'—'}</b></div>{item.parent_name&&<div><span>Under dealer</span><b>{item.parent_name}</b></div>}<div><span>Account sales amount</span><b>{fmt(item.amount)}</b></div>{item.supplier_cost!=null&&<div><span>Recorded supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>}</>:<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Sales cost</span><b>{fmt(item.cost)}</b></div><div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div><div><span>Sale profit</span><b className="financePositive">{fmt(item.profit)}</b></div></>}
+    </>:isShop?<><div><span>Shop</span><b>{item.shop_name}</b></div><div><span>Product / package</span><b>{item.product||'—'}</b></div><div><span>Shop order</span><b>#{item.order_id}</b></div><div><span>Dealer purchase cost</span><b>{fmt(item.dealer_cost)}</b></div><div><span>Wholesale price to shop</span><b>{fmt(item.shop_cost)}</b></div><div><span>Dealer margin</span><b className="financePositive">{fmt(item.profit)}</b></div></>
+    :owner?<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Account type</span><b>{item.account_type||'—'}</b></div>{item.parent_name&&<div><span>Under dealer</span><b>{item.parent_name}</b></div>}<div><span>Account purchase cost</span><b>{fmt(item.amount)}</b></div><div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div><div><span>Recorded sale profit</span><b>{fmt(item.account_profit)}</b></div>{item.supplier_cost!=null&&<div><span>Recorded supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>}</>
+    :<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Product / package</span><b>{item.title||item.product||'—'}</b></div><div><span>Sales cost</span><b>{fmt(item.cost)}</b></div><div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div><div><span>Sale profit</span><b className="financePositive">{fmt(item.profit)}</b></div></>}
    </div>}
   </div>})}</div>}
-  {data?.limited&&<p className="financeNote">Showing the most recent 500 history entries for the selected period; totals are calculated across all matching records.</p>}
+  {view==='audit'&&data?.audit_limited&&<p className="financeNote">Showing the latest 100 audit entries. Narrow the date range to inspect older discrepancies.</p>}
+  {view!=='audit'&&data?.limited&&<p className="financeNote">Showing the most recent 500 valid entries for the selected period; summary totals use all matching completed orders and recorded deposits. Narrow the date range for older transactions.</p>}
  </div>;
 }
 
