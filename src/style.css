@@ -1997,3 +1997,13 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .financeAuditEntry .financeEntryIcon{background:#fff0da;color:#a26318}
 .financeAuditFootnote{margin:3px 0 0;color:#90672b;font-size:11px;line-height:1.5}
 @media(max-width:550px){.financeAuditBanner{align-items:flex-start;flex-direction:column}.financeAuditBanner button{align-self:flex-start}.financeEntryPreview{font-size:10px!important}}
+
+/* Simpler financial history: sales and real wallet activity only. */
+.financeSimple .financeSummary{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:8px 0 18px}
+.financeSimple .financeMetric{padding:15px 17px;gap:8px;box-shadow:none}
+.financeSimple .financeMetric strong{font-size:21px}
+.financeSimple .financeFilters{margin:8px 0 18px}
+.financeSimple .financeListHeader{margin-bottom:10px}
+.financeSimple .financeEntryPreview{font-weight:600;color:#4d6080!important}
+.financeSimple .financeEntryTop{padding:16px}
+@media(max-width:600px){.financeSimple .financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}.financeSimple .financeMetric{padding:12px}.financeSimple .financeMetric strong{font-size:17px}}

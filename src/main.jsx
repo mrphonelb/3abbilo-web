@@ -1106,111 +1106,127 @@ function FinancialPage({owner=false,dealer=false}){
  const [period,setPeriod]=useState('30d');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
- // Keep routine sales/transfers visible by default. Technical adjustments are
- // still accessible under All Transactions, Wallet Adjustments and Ledger Audit.
- const [view,setView]=useState('activity');
+ const [view,setView]=useState('all');
  const [query,setQuery]=useState('');
  const [data,setData]=useState(null);
  const [busy,setBusy]=useState(true);
  const [error,setError]=useState('');
  const [selected,setSelected]=useState(null);
- const customReady=period!=='custom'||(from&&to&&from<=to);
- const fmt=v=>'$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:4,maximumFractionDigits:4});
+ const customReady=period!=='custom'||Boolean(from&&to&&from<=to);
+ const fmt=v=>{
+  const n=Number(v||0);
+  return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:Math.abs(n*100-Math.round(n*100))>0.0001?4:2});
+ };
  const signed=v=>(Number(v)>=0?'+':'−')+fmt(Math.abs(Number(v||0)));
  const date=v=>{try{return new Date(v).toLocaleString('en-LB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch{return '—'}};
+ // Extra display protection when an older API deployment is temporarily active.
+ const publicName=value=>{
+  const name=String(value||'').trim();
+  if(!name)return '';
+  if(/^mr\.?\s*phone(?:\s*(?:lb|sarl|shop|direct shop))?$/i.test(name))return 'Shop';
+  if(/^mr\.?\s*phone\s+jounieh$/i.test(name))return 'Jounieh Branch';
+  if(/^mr\.?\s*phone\s+jbeil$/i.test(name))return 'Jbeil Branch';
+  return name;
+ };
  useEffect(()=>{
-  if(!customReady){setData(null);setBusy(false);setError('Choose a valid From and To date.');return;}
+  if(!customReady){setData(null);setBusy(false);setError('Choose a valid date range.');return;}
   let active=true;
   setBusy(true);setError('');setSelected(null);
   const params=new URLSearchParams({period});
   if(period==='custom'){params.set('from',from);params.set('to',to)}
   const url=API+'/api/wholesale/'+(owner?'owner':'orders')+'/financial-report?'+params;
-  fetch(url,{headers:authHeaders(),cache:'no-store'}).then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load financial history');return json}).then(json=>{if(active)setData(json)}).catch(e=>{if(active){setData(null);setError(e.message)}}).finally(()=>{if(active)setBusy(false)});
+  fetch(url,{headers:authHeaders(),cache:'no-store'}).then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load transactions');return json}).then(json=>{if(active)setData(json)}).catch(e=>{if(active){setData(null);setError(e.message)}}).finally(()=>{if(active)setBusy(false)});
   return()=>{active=false};
  },[owner,period,from,to,customReady]);
  const s=data?.summary||{};
- const auditCount=Number(data?.audit_count||0);
- const walletLabel=t=>({deposit:'Wallet Recharge',refund:'Order Refund',dealer_transfer_out:'Balance Transfer Sent',dealer_transfer_in:'Balance Transfer Received',adjustment_credit:'Wallet Adjustment',adjustment_debit:'Wallet Adjustment'}[t]||'Wallet Transaction');
- const isAdjustment=t=>/^adjustment_/.test(String(t||''));
- const isTransfer=t=>/^dealer_transfer_/.test(String(t||''));
- const source=view==='audit'?(data?.audit_events||[]):(data?.events||[]);
+ const walletTypes=new Set(['deposit','refund','dealer_transfer_in','dealer_transfer_out']);
+ // Never show reconciliation adjustments or internal audit records, even if an
+ // older backend response includes them. They remain in the accounting DB.
+ const source=(data?.events||[]).filter(item=>item.kind!=='audit'&&(item.kind!=='wallet'||walletTypes.has(item.wallet_type)));
+ const views=owner?[
+  ['all','All Activity'],['sales','Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+ ]:dealer?[
+  ['all','All Activity'],['sales','My Sales'],['shops','Shop Profit'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+ ]:[
+  ['all','All Activity'],['sales','Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+ ];
  const events=source.filter(item=>{
   const isWallet=item.kind==='wallet';
-  const branch=['jounieh','jbeil'].includes(String(item.account_type||'').toLowerCase());
-  if(view==='activity'&&isWallet&&isAdjustment(item.wallet_type))return false;
-  if(view==='sales'&&item.kind!=='sale'&&item.kind!=='own_sale')return false;
-  if(view==='mine'&&item.kind!=='own_sale')return false;
+  if(view==='sales'&&!['sale','own_sale'].includes(item.kind))return false;
   if(view==='shops'&&item.kind!=='shop_profit')return false;
-  if(view==='nonbranch'&&(item.kind!=='sale'||branch))return false;
-  if(view==='branches'&&(item.kind!=='sale'||!branch))return false;
   if(view==='funding'&&!(isWallet&&item.wallet_type==='deposit'))return false;
-  if(view==='transfers'&&!(isWallet&&isTransfer(item.wallet_type)))return false;
+  if(view==='transfers'&&!(isWallet&&item.wallet_type.startsWith('dealer_transfer_')))return false;
   if(view==='refunds'&&!(isWallet&&item.wallet_type==='refund'))return false;
-  if(view==='adjustments'&&!(isWallet&&isAdjustment(item.wallet_type)))return false;
   const q=query.trim().toLowerCase();
-  return !q||[item.id,item.order_id,item.title,item.product,item.shop_name,item.account_name,item.parent_name,item.related_account,item.wallet_type,item.kind,item.reference,item.notes].some(x=>String(x||'').toLowerCase().includes(q));
+  return !q||[item.order_id,item.title,item.product,item.shop_name,publicName(item.account_name),publicName(item.related_account),item.id].some(x=>String(x||'').toLowerCase().includes(q));
  });
- const options=owner?[
-  ['activity','Main Activity'],['all','All Transactions'],['sales','Account Sales'],['nonbranch','Sales Without Branches'],['branches','Branch Sales'],['funding','Wallet Recharges'],['transfers','Dealer / Shop Transfers'],['refunds','Refunds'],['adjustments','Wallet Adjustments'],['audit','Ledger Audit']
+ const walletTitle=item=>{
+  switch(item.wallet_type){
+   case 'deposit':return 'Wallet Recharge';
+   case 'refund':return item.order_id?'Refund — Order #'+item.order_id:'Refund';
+   case 'dealer_transfer_out':return 'Transfer Sent';
+   case 'dealer_transfer_in':return 'Transfer Received';
+   default:return 'Wallet Transaction';
+  }
+ };
+ const metrics=owner?[
+  ['Sales',s.all_sales],['Supplier Cost',s.supplier_cost],['Wallet Recharges',s.account_funding],['Wallet Balances',s.outstanding]
  ]:dealer?[
-  ['activity','Main Activity'],['all','All Transactions'],['mine','My Sales & Profit'],['shops','Shops Profit'],['funding','Wallet Recharges'],['transfers','Shop Transfers'],['refunds','Refunds'],['adjustments','Wallet Adjustments'],['audit','Ledger Audit']
+  ['Sales',s.sales],['Sales Cost',s.cost],['My Profit',s.own_profit,'positive'],['Shop Profit',s.shops_profit,'positive'],['Wallet Balance',s.balance]
  ]:[
-  ['activity','Main Activity'],['all','All Transactions'],['mine','My Sales & Profit'],['funding','Wallet Recharges'],['transfers','Wallet Transfers'],['refunds','Refunds'],['adjustments','Wallet Adjustments'],['audit','Ledger Audit']
+  ['Sales',s.sales],['Sales Cost',s.cost],['Profit',s.own_profit,'positive'],['Wallet Balance',s.balance]
  ];
- return <div className={'financePage'+(owner?' financeOwner':'')}>
-  <div className="financeTitle"><p>{owner?'Track account sales, wallet funding and transfers without double-counting.':'Review your actual sales cost, selected selling price, profit, and wallet activity in one place.'}</p></div>
-  <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','24h'],['7d','7 Days'],['30d','30 Days'],['all','All'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
+ return <div className={'financePage financeSimple'+(owner?' financeOwner':'')}>
+  <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
   {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}
-  <div className="financeSummary">
-   {(owner?[
-    ['Account Sales — All Accounts',s.all_sales,''],['Sales — Excluding Branches',s.external_sales,''],['Funds Added to Accounts',s.account_funding,''],['Outstanding Wallet Balances',s.outstanding,''],['Recorded Supplier Cost',s.supplier_cost,''],['Selected Selling Prices',s.selected_selling_total,''],['Successful Orders',s.orders,'count']
-   ]:[
-    ['Wallet Balance',s.balance,''],['My Selling Prices',s.sales,''],['My Sales Cost',s.cost,''],['My Sales Profit',s.own_profit,'positive'],...(dealer?[['Shops Profit',s.shops_profit,'positive'],['Total Profit',s.total_profit,'positive']]:[])
-   ]).map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{kind==='count'?Number(val||0).toLocaleString('en-US'):fmt(val)}</strong></div>)}
-  </div>
-  {owner?<p className="financeNote">Account sales are successful orders charged to accounts, not proof of customer payment. Selected selling prices are checkout entries, not cash collected. Funds added counts new deposits only; transfers are not new funding. Outstanding balance is current regardless of date filter. {Number(s.missing_supplier_cost)>0?`${s.missing_supplier_cost} completed orders have no recorded supplier cost.`:''}</p>
-  :<p className="financeNote">Selling price is what was entered at checkout, not a confirmed customer payment. Shop profit is the dealer's wholesale margin. Dealers cannot view a shop's own end-customer selling price.</p>}
-  {auditCount>0&&<div className="financeAuditBanner" role="note"><div><strong>{auditCount.toLocaleString('en-US')} historical wallet ledger {auditCount===1?'entry does':'entries do'} not match the recorded balance change.</strong><span>Older four-decimal adjustments may have been recorded without changing the balance. They are kept for review in Ledger Audit, not shown as actual money moved. No historical balances have been altered.</span></div><button type="button" onClick={()=>{setView('audit');setSelected(null)}}>Review entries</button></div>}
+  <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{fmt(val)}</strong></div>)}</div>
   <div className="financeFilters">
-   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction view">{options.map(([k,label])=><option value={k} key={k}>{label}</option>)}</select>
-   <input type="search" placeholder={owner?'Search order, account, shop, payment or reference…':'Search order, product, transfer or reference…'} value={query} onChange={e=>setQuery(e.target.value)}/>
+   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
+   <input type="search" placeholder="Search order, product or shop..." value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search transactions"/>
   </div>
-  <div className="financeListHeader"><strong>{view==='audit'?'Ledger Audit':'Financial History'}</strong><span>{busy?'Loading…':`${events.length} ${view==='audit'?'audit entries':'records'} shown`}</span></div>
-  {view==='activity'&&<p className="financeFilterHint">Main Activity includes sales, profits, wallet recharges, transfers and refunds. Select “All Transactions” to also see technical wallet adjustments.</p>}
-  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading financial history…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No matching transactions</b><span>Try another date or transaction type.</span></div>:<div className="financeList">{events.map(item=>{
-   const isWallet=item.kind==='wallet',isShop=item.kind==='shop_profit',isSale=item.kind==='sale'||item.kind==='own_sale',isAudit=item.kind==='audit';
-   const name=isAudit?'Ledger discrepancy':isWallet?walletLabel(item.wallet_type):isShop?'Shop Order #'+item.order_id:(owner?'Order #':'My Order #')+item.order_id;
-   const secondary=isAudit?('Reference: '+(item.reference||'not recorded')):isWallet?(item.related_account?'Related: '+item.related_account:(item.reference?'Reference: '+item.reference:'Account wallet')):isShop?(item.shop_name+' · '+(item.product||'Sale')):(item.product||item.title||'Product sale');
-   const amount=isAudit?Number(item.amount):isWallet?Number(item.amount):isShop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
-   const moneyText=isAudit?signed(amount):isWallet?signed(amount):owner&&!isShop?fmt(amount):signed(amount);
-   const positive=!isAudit&&(isWallet?amount>=0:!owner||isShop);
-   return <div key={item.id} className={'financeEntry'+(isAudit?' financeAuditEntry':'')}><button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
-    <span className="financeEntryIcon">{isAudit?<ShieldCheck size={20}/>:isWallet?<Wallet size={20}/>:isShop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
-    <span className="financeEntryInfo"><strong>{name}</strong><small>{owner&&(item.account_name||'')?(item.account_name+' · '):''}{secondary}</small>
-     {isSale&&<small className="financeEntryPreview">Cost {fmt(item.cost??item.amount)} · Selling {fmt(item.selling_price)} · Profit {fmt(item.profit??item.account_profit)}</small>}
-     {isShop&&<small className="financeEntryPreview">Dealer cost {fmt(item.dealer_cost)} · To shop {fmt(item.shop_cost)} · Margin {fmt(item.profit)}</small>}
-     {isAudit&&<small className="financeEntryPreview">Recorded {signed(item.amount)} · Balance actually changed {signed(item.observed_amount)}</small>}
-     <small>{date(item.at)}</small>
-    </span><span className={'financeEntryAmount'+(positive?' positive':'')}>{moneyText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
-   </button>
-   {selected===item.id&&<div className="financeEntryDetails">
-    {isAudit?<><div><span>Account</span><b>{owner?item.account_name||'—':'My wallet'}</b></div><div><span>Original transaction type</span><b>{item.wallet_type||'—'}</b></div><div><span>Recorded amount</span><b>{signed(item.amount)}</b></div><div><span>Actual balance movement</span><b>{signed(item.observed_amount)}</b></div><div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div><div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>{item.reference&&<div><span>Reference</span><b>{item.reference}</b></div>}{item.notes&&<div><span>Ledger note</span><b>{item.notes}</b></div>}<p className="financeAuditFootnote">Audit only. This record has not been deleted and no wallet or Daftra changes were made.</p></>
-    :isWallet?<>
-      {owner&&<div><span>Account</span><b>{item.account_name||'—'}</b></div>}
-      {item.related_account&&<div><span>Related account</span><b>{item.related_account}</b></div>}
-      {item.order_id&&<div><span>Order</span><b>#{item.order_id}</b></div>}
-      {item.reference&&<div><span>Reference</span><b>{item.reference}</b></div>}
-      {item.notes&&<div><span>Details</span><b>{item.notes}</b></div>}
-      <div><span>Wallet movement</span><b className={amount>=0?'financePositive':''}>{signed(amount)}</b></div>
-      <div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div><div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>
-    </>:isShop?<><div><span>Shop</span><b>{item.shop_name}</b></div><div><span>Product / package</span><b>{item.product||'—'}</b></div><div><span>Shop order</span><b>#{item.order_id}</b></div><div><span>Dealer purchase cost</span><b>{fmt(item.dealer_cost)}</b></div><div><span>Wholesale price to shop</span><b>{fmt(item.shop_cost)}</b></div><div><span>Dealer margin</span><b className="financePositive">{fmt(item.profit)}</b></div></>
-    :owner?<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Account type</span><b>{item.account_type||'—'}</b></div>{item.parent_name&&<div><span>Under dealer</span><b>{item.parent_name}</b></div>}<div><span>Account purchase cost</span><b>{fmt(item.amount)}</b></div><div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div><div><span>Recorded sale profit</span><b>{fmt(item.account_profit)}</b></div>{item.supplier_cost!=null&&<div><span>Recorded supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>}</>
-    :<><div><span>Order</span><b>#{item.order_id}</b></div><div><span>Product / package</span><b>{item.title||item.product||'—'}</b></div><div><span>Sales cost</span><b>{fmt(item.cost)}</b></div><div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div><div><span>Sale profit</span><b className="financePositive">{fmt(item.profit)}</b></div></>}
-   </div>}
-  </div>})}</div>}
-  {view==='audit'&&data?.audit_limited&&<p className="financeNote">Showing the latest 100 audit entries. Narrow the date range to inspect older discrepancies.</p>}
-  {view!=='audit'&&data?.limited&&<p className="financeNote">Showing the most recent 500 valid entries for the selected period; summary totals use all matching completed orders and recorded deposits. Narrow the date range for older transactions.</p>}
+  <div className="financeListHeader"><strong>Transactions</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
+  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading transactions…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No transactions found</b><span>Try another date or category.</span></div>:<div className="financeList">{events.map(item=>{
+   const wallet=item.kind==='wallet',shop=item.kind==='shop_profit',sale=item.kind==='sale'||item.kind==='own_sale';
+   const label=wallet?walletTitle(item):shop?'Shop Profit — Order #'+item.order_id:'Sale — Order #'+item.order_id;
+   const itemName=publicName(item.account_name),related=publicName(item.related_account);
+   const sub=wallet?(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet')):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Sale');
+   const amount=wallet?Number(item.amount):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
+   const amountText=wallet?signed(amount):owner&&!shop?fmt(amount):signed(amount);
+   return <div key={item.id} className="financeEntry">
+    <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
+     <span className="financeEntryIcon">{wallet?<Wallet size={20}/>:shop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
+     <span className="financeEntryInfo"><strong>{label}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
+      {sale&&<small className="financeEntryPreview">Cost {fmt(item.cost??item.amount)} · Selling {fmt(item.selling_price)} · Profit {fmt(item.profit??item.account_profit)}</small>}
+      {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
+      <small>{date(item.at)}</small>
+     </span>
+     <span className={'financeEntryAmount'+(wallet&&amount>0||!wallet&&!owner?' positive':'')}>{amountText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
+    </button>
+    {selected===item.id&&<div className="financeEntryDetails">
+     {wallet?<>
+       {owner&&<div><span>Account</span><b>{itemName||'Shop'}</b></div>}
+       {related&&<div><span>{item.wallet_type==='dealer_transfer_out'?'Sent to':'Related account'}</span><b>{related}</b></div>}
+       {item.order_id&&<div><span>Order</span><b>#{item.order_id}</b></div>}
+       <div><span>Amount</span><b>{signed(amount)}</b></div>
+       <div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div>
+       <div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>
+      </>:shop?<>
+       <div><span>Shop</span><b>{publicName(item.shop_name)||'Shop'}</b></div>
+       <div><span>Package</span><b>{item.product||'Sale'}</b></div>
+       <div><span>My cost</span><b>{fmt(item.dealer_cost)}</b></div>
+       <div><span>Price to shop</span><b>{fmt(item.shop_cost)}</b></div>
+       <div><span>Profit</span><b className="financePositive">{fmt(item.profit)}</b></div>
+      </>:<>
+       <div><span>Package</span><b>{item.product||item.title||'Sale'}</b></div>
+       <div><span>Sales cost</span><b>{fmt(item.cost??item.amount)}</b></div>
+       <div><span>Selling price</span><b>{fmt(item.selling_price)}</b></div>
+       <div><span>Profit</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>
+      </>}
+    </div>}
+   </div>;
+  })}</div>}
+  {data?.limited&&<p className="financeNote">Showing the latest transactions. Choose a shorter date range to view earlier records.</p>}
  </div>;
 }
 
@@ -1461,7 +1477,7 @@ function Dashboard(){const[token]=useState(()=>localStorage.getItem('3abbilo_tok
    if(response.ok){const data=await response.json();setWallet(data.wallet||data)}
   }catch{/* The background wallet refresh can retry; never repeat a completed transfer. */}
  }
- function navigatePage(next){if(next!=='My Orders')setRecentOrderId(null);writeNav({page:next,category:null,esim:''})}if(loading)return <div className="loading"><RefreshCw className="spin"/> Loading 3ABBILO…</div>;const type=String(me?.account_type||'shop').toLowerCase(),dealer=type==='dealer',branch=type==='jounieh'||type==='jbeil',nav=branch?branchNav:dealer?dealerNav:shopNav,name=type==='jounieh'?'Jounieh Branch':type==='jbeil'?'Jbeil Branch':(me?.shop_name||me?.business_name||me?.name||'Shop');function logout(){localStorage.removeItem('3abbilo_token');location.replace('/login')}return <div className="appShell"><aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">{name[0]?.toUpperCase()}</div><div><b>{name}</b><span>{branch?'Branch account':dealer?'Dealer account':'Shop account'}</span></div></div><nav>{nav.map(([I,n])=><button className={page===n?'active':''} key={n} onClick={()=>{navigatePage(n);setOpen(false)}}><I size={19}/>{n}{n==='Support Tickets'&&ticketAlerts.own>0&&<span className="ticketNotifyBadge">{ticketAlerts.own}</span>}{n==='Shop Support Tickets'&&ticketAlerts.shops>0&&<span className="ticketNotifyBadge">{ticketAlerts.shops}</span>}</button>)}</nav><button className="logout" onClick={logout}><LogOut size={19}/>Logout</button></aside><div className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page}</h2>{!branch&&<div className="topBalance"><span>Available balance</span><b>${Number(wallet?.balance||0).toFixed(4)}</b></div>}</div>{page==='Dashboard'&&!branch?<DashboardHome dealer={dealer} name={name} wallet={wallet} dailyProfit={dailyProfit} accountId={me?.id||me?.account_id} setPage={navigatePage}/>:page==='Products'?<><ProductsPage branch={branch} accountType={type}/></>:(page==='Support Tickets'||page==='Shop Support Tickets')&&!branch?<SupportTicketsPage key={page} shopOnly={page==='Shop Support Tickets'} accountId={me?.id||me?.account_id} onOpenOrder={setSupportOrderId}/>:page==='My Orders'?<OrdersPage dealer={dealer} me={me} highlightOrderId={recentOrderId}/>:!branch&&page==='Transactions & Profit'?<div className="sectionPad"><FinancialPage dealer={dealer}/></div>:!branch&&page==='My Shops'&&dealer?<DealerShopsPage dealerBalance={wallet?.balance} onWalletTransferred={refreshDealerWallet}/>:!branch&&page==='Shop Orders'&&dealer?<OrdersPage dealer={dealer} me={me} shopOrders/>:!branch?<PlaceholderPage title={page}/>:null}{supportOrderId&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSupportOrderId(null)}><div className="productModal compactModal orderResultModal"><button type="button" className="modalClose" onClick={()=>setSupportOrderId(null)}><X size={21}/></button><div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div><PurchaseResult orderId={supportOrderId} onClose={()=>setSupportOrderId(null)}/></div></div>,document.body)}</div></div>}
+ function navigatePage(next){if(next!=='My Orders')setRecentOrderId(null);writeNav({page:next,category:null,esim:''})}if(loading)return <div className="loading"><RefreshCw className="spin"/> Loading 3ABBILO…</div>;const type=String(me?.account_type||'shop').toLowerCase(),dealer=type==='dealer',branch=type==='jounieh'||type==='jbeil',nav=branch?branchNav:dealer?dealerNav:shopNav,rawName=String(me?.shop_name||me?.business_name||me?.name||'Shop'),name=type==='jounieh'?'Jounieh Branch':type==='jbeil'?'Jbeil Branch':(/^mr\.?\s*phone(?:\s*(?:lb|sarl|shop|direct shop))?$/i.test(rawName.trim())?'Shop':rawName);function logout(){localStorage.removeItem('3abbilo_token');location.replace('/login')}return <div className="appShell"><aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">{name[0]?.toUpperCase()}</div><div><b>{name}</b><span>{branch?'Branch account':dealer?'Dealer account':'Shop account'}</span></div></div><nav>{nav.map(([I,n])=><button className={page===n?'active':''} key={n} onClick={()=>{navigatePage(n);setOpen(false)}}><I size={19}/>{n}{n==='Support Tickets'&&ticketAlerts.own>0&&<span className="ticketNotifyBadge">{ticketAlerts.own}</span>}{n==='Shop Support Tickets'&&ticketAlerts.shops>0&&<span className="ticketNotifyBadge">{ticketAlerts.shops}</span>}</button>)}</nav><button className="logout" onClick={logout}><LogOut size={19}/>Logout</button></aside><div className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page}</h2>{!branch&&<div className="topBalance"><span>Available balance</span><b>${Number(wallet?.balance||0).toFixed(4)}</b></div>}</div>{page==='Dashboard'&&!branch?<DashboardHome dealer={dealer} name={name} wallet={wallet} dailyProfit={dailyProfit} accountId={me?.id||me?.account_id} setPage={navigatePage}/>:page==='Products'?<><ProductsPage branch={branch} accountType={type}/></>:(page==='Support Tickets'||page==='Shop Support Tickets')&&!branch?<SupportTicketsPage key={page} shopOnly={page==='Shop Support Tickets'} accountId={me?.id||me?.account_id} onOpenOrder={setSupportOrderId}/>:page==='My Orders'?<OrdersPage dealer={dealer} me={me} highlightOrderId={recentOrderId}/>:!branch&&page==='Transactions & Profit'?<div className="sectionPad"><FinancialPage dealer={dealer}/></div>:!branch&&page==='My Shops'&&dealer?<DealerShopsPage dealerBalance={wallet?.balance} onWalletTransferred={refreshDealerWallet}/>:!branch&&page==='Shop Orders'&&dealer?<OrdersPage dealer={dealer} me={me} shopOrders/>:!branch?<PlaceholderPage title={page}/>:null}{supportOrderId&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSupportOrderId(null)}><div className="productModal compactModal orderResultModal"><button type="button" className="modalClose" onClick={()=>setSupportOrderId(null)}><X size={21}/></button><div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div><PurchaseResult orderId={supportOrderId} onClose={()=>setSupportOrderId(null)}/></div></div>,document.body)}</div></div>}
 
 const ownerMenu=[[LayoutDashboard,'Dashboard'],[ReceiptText,'All Orders'],[MessageCircle,'Support Tickets'],[Store,'Accounts'],[History,'Transactions & Sales']];
 const ownerSlugs={'Dashboard':'dashboard','All Orders':'all-orders','Support Tickets':'support-tickets','Accounts':'accounts','Wallets':'wallets','Transactions & Sales':'transactions-and-sales'};
