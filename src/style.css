@@ -2128,3 +2128,9 @@ body>.modalShade>.productModal.accountPasswordModal{width:min(362px,calc(100vw -
 .rechargeDeleteActions{display:flex;gap:12px}
 .rechargeDeleteActions>button{flex:1;min-width:0;padding:12px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer}
 .rechargeDeleteConfirmBtn{border:1px solid #b42318;background:#b42318;color:#fff}
+
+/* Official user-provided Whish Money logo */
+.rechargeWhishLogo{display:block;width:110px;height:110px;object-fit:contain;padding:0;border-radius:14px;background:transparent;letter-spacing:normal;font-size:initial}
+.rechargeAddMethodList .rechargeMethodListLogo{display:block;width:60px;height:60px;object-fit:contain;border-radius:12px;background:transparent;font-size:initial;letter-spacing:normal}
+.rechargeAddMethodList .rechargeMethodListItem{display:flex;align-items:center;gap:14px;justify-content:flex-start}
+.rechargeAddMethodList .rechargeMethodListText{flex:1;text-align:right;align-items:flex-end}
