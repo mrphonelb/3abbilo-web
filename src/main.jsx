@@ -1249,6 +1249,8 @@ function FinancialPage({owner=false,dealer=false}){
    const shop=item.kind==='shop_profit',ownerProfit=item.kind==='owner_profit'||item.kind==='owner_profit_return';
    const returned=item.kind==='sale_return',sale=purchase||item.kind==='sale'||returned;
    const label=wallet?walletTitle(item):ownerProfit?(item.kind==='owner_profit_return'?'Profit Reversed':'My Profit')+' — '+(item.account_type==='dealer'?'Dealer':'Shop')+' · Order #'+item.order_id:shop?'Shop Profit — Order #'+item.order_id:returned?'Return — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
+   const cleanOwnerSales=owner&&view==='sales'&&sale;
+   const displayLabel=cleanOwnerSales?'Order #'+item.order_id:label;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
    const sub=wallet?(item.product?(item.product+(item.order_id?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
@@ -1258,8 +1260,8 @@ function FinancialPage({owner=false,dealer=false}){
    return <div key={item.id} className="financeEntry">
     <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
      <span className="financeEntryIcon">{wallet?<Wallet size={20}/>:shop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
-     <span className="financeEntryInfo"><strong>{label}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
-      {sale&&<small className="financeEntryPreview">{returned?'Returned Cost':'Cost'} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.selling_price!=null&&<> · Selected Selling {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{!returned&&purchase&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
+     <span className="financeEntryInfo"><strong>{displayLabel}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
+      {sale&&!cleanOwnerSales&&<small className="financeEntryPreview">{returned?'Returned Cost':'Cost'} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.selling_price!=null&&<> · Selected Selling {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{!returned&&purchase&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
       {ownerProfit&&<small className="financeEntryPreview">Supplier {fmt(item.supplier_cost)} · {item.parent_type==='dealer'?'Price to dealer':'Account cost'} {fmt(item.parent_type==='dealer'?item.platform_price:item.cost)} · My profit {signed(item.amount)}</small>}
       {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
       <small>{date(item.at)}</small>
