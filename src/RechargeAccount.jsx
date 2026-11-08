@@ -95,7 +95,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
  });
  const selectedRecipient=(details?.recipients||[]).find(r=>String(r.id)===String(recipientId));
  const canRequest=!owner&&view!=='shops'&&!!details?.destination?.is_active&&!!details?.destination?.whish_number;
- return <div className="sectionPad rechargePage">
+ return <div className={owner?"rechargePage":"sectionPad rechargePage"}>
   {isManager&&<div className="rechargePageActions"><button className="dealerShopsAddButton rechargeAddMethodButton" type="button" onClick={()=>setAddMethodOpen(true)}><Plus size={18}/> Add Payment Method</button><button className="dealerShopsAddButton rechargeAddBalanceButton" type="button" onClick={()=>{setShowBalance(true);setError('')}}><Plus size={18}/> Add Wallet Balance</button></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}{notice&&<div className="dealerShopsNotice success" role="status">{notice}</div>}
   {loading&&!details?<div className="ordersLoading"><RefreshCw className="spin"/> Loading recharge details…</div>:<>

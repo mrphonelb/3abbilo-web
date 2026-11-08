@@ -2204,3 +2204,19 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeOrderRow.rechargeRequestNew{border-width:1.5px!important;background:#fff9f2!important}
 .rechargeOrderRow .rechargeOrderLogo{height:48px;width:48px}
 @media(max-width:700px){.rechargeOrdersFilters{flex-wrap:wrap}.rechargeOrdersFilters input{flex-basis:100%}.rechargeOrdersFilters select{flex:1;max-width:none}.rechargeOrderRow{min-height:70px!important}}
+
+/* Recharge Account: same content width and typography as All Orders.
+   Owner already renders inside .sectionPad.ownerContent; avoid double padding. */
+.ownerShell .ownerContent > .rechargePage{width:100%;max-width:none;margin:0;padding:0;box-sizing:border-box}
+.rechargePage{box-sizing:border-box;font:inherit;color:#152341}
+.rechargePage .rechargeOrderRow{font:inherit;box-sizing:border-box;width:100%;min-width:0;gap:14px;padding:12px 15px!important;min-height:82px!important;border-radius:14px!important;transition:border-color .15s,background .15s}
+.rechargePage .rechargeOrderName b{font-size:14px;font-weight:800;line-height:1.35}
+.rechargePage .rechargeOrderName small{font-size:12px;font-weight:600;color:#71819d}
+.rechargePage .rechargeOrderAmount{font-size:14px;font-weight:800;text-align:right}
+.rechargePage .rechargeOrderDate{font-size:12px;font-weight:600;text-align:right;white-space:nowrap}
+.rechargePage .rechargeOrderLogo{width:56px;height:56px;border-radius:10px}
+.rechargePage .rechargeOrderChevron{font-size:22px}
+.rechargePage .rechargeOrdersFilters{gap:10px;margin-bottom:14px}
+.rechargePage .rechargeOrdersFilters input,.rechargePage .rechargeOrdersFilters select{height:40px;min-height:40px;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;border-color:#dfe5ee}
+.rechargePage .rechargeOrdersFilters select{max-width:none;min-width:105px}
+@media(max-width:700px){.rechargePage .rechargeOrderRow{gap:8px;min-height:70px!important;padding:11px!important}.rechargePage .rechargeOrderLogo{width:44px;height:44px}.rechargePage .rechargeOrderAmount{font-size:13px}.rechargePage .rechargeOrderDate{font-size:11px}}
