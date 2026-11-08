@@ -1191,7 +1191,7 @@ function FinancialPage({owner=false,dealer=false}){
  const source=(data?.events||[]).filter(item=>item.kind!=='audit'&&(item.kind!=='wallet'||walletTypes.has(item.wallet_type)));
  const views=owner?[
   ['all','All Activity'],['sales','Sales & Returns'],['dealer_profit','Profit - Dealers'],
-  ['shop_profit','Profit - Shops'],['wallets','Wallet Transactions']
+  ['shop_profit','Profit - Shops'],['wallets','Wallet Movements']
  ]:dealer?[
   ['all','All Activity'],['sales','Sales & Returns'],['my_profit','My Profit'],['shops','Shop Profit'],['movements','Wallet Movements']
  ]:[
@@ -1212,11 +1212,11 @@ function FinancialPage({owner=false,dealer=false}){
  const walletTitle=item=>{
   switch(item.wallet_type){
    case 'deposit':return item.is_dealer_commission?'Dealer Commission Received':'Wallet Recharge';
-   case 'purchase':return item.order_id?'Wallet Purchase — Order #'+item.order_id:'Wallet Purchase';
+   case 'purchase':return item.order_id?'Order #'+item.order_id:'Purchase';
    case 'dealer_profit':return 'Dealer Commission';
    case 'adjustment_credit':return 'Wallet Correction';
    case 'adjustment_debit':return 'Wallet Correction';
-   case 'refund':return item.order_id?'Refund — Order #'+item.order_id:'Refund';
+   case 'refund':return item.order_id?'Order #'+item.order_id+' (Returned)':'Return';
    case 'dealer_transfer_out':return 'Transfer Sent';
    case 'dealer_transfer_in':return 'Transfer Received';
    default:return 'Wallet Transaction';
@@ -1251,11 +1251,12 @@ function FinancialPage({owner=false,dealer=false}){
    const shop=item.kind==='shop_profit',ownerProfit=item.kind==='owner_profit'||item.kind==='owner_profit_return';
    const returned=item.kind==='sale_return',sale=purchase||item.kind==='sale'||returned;
    const label=wallet?walletTitle(item):ownerProfit?(item.kind==='owner_profit_return'?'Profit Reversed':'My Profit')+' — '+(item.account_type==='dealer'?'Dealer':'Shop')+' · Order #'+item.order_id:shop?'Shop Profit — Order #'+item.order_id:returned?'Return — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
-   const cleanOwnerSales=view==='sales'&&(sale||(wallet&&item.wallet_type==='refund'));
+   const cleanOwnerSales=owner&&(view==='sales'||view==='all')&&sale;
+   const cleanAccountSales=!owner&&(view==='sales'||view==='all')&&wallet&&['purchase','refund'].includes(item.wallet_type);
    const cleanOwnerProfit=owner&&ownerProfit&&(view==='dealer_profit'||view==='shop_profit');
-   const displayLabel=!owner&&view==='my_profit'&&purchase?'My Profit — Order #'+item.order_id:cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+((returned||(wallet&&item.wallet_type==='refund'))?' (Returned)':''):label;
+   const displayLabel=!owner&&view==='my_profit'&&purchase?'My Profit — Order #'+item.order_id:cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+(returned?' (Returned)':''):cleanAccountSales?'Order #'+item.order_id+(item.wallet_type==='refund'?' (Returned)':''):label;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
-   const sub=wallet?(item.product?(item.product+(item.order_id&&!cleanOwnerSales?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
+   const sub=wallet?(item.product?(item.product+(item.order_id&&!cleanOwnerSales&&!cleanAccountSales?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
    const amount=wallet?Number(item.amount):purchase?Number(item.amount??-Number(item.cost||0)):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
    const shownAmount=!owner&&view==='my_profit'&&purchase?Number(item.profit||0):amount;
@@ -1265,7 +1266,7 @@ function FinancialPage({owner=false,dealer=false}){
     <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
      <span className="financeEntryIcon">{wallet?<Wallet size={20}/>:shop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
      <span className="financeEntryInfo"><strong>{displayLabel}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
-      {sale&&!cleanOwnerSales&&<small className="financeEntryPreview">{returned?'Returned Cost':'Cost'} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.selling_price!=null&&<> · Selected Selling {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{!returned&&purchase&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
+      {(sale&&!cleanOwnerSales||cleanAccountSales)&&<small className="financeEntryPreview">{returned||(cleanAccountSales&&item.wallet_type==='refund')?'Returned Cost':'Cost'} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.wallet_type!=='refund'&&item.selling_price!=null&&<> · Selected Selling {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{!returned&&(purchase||cleanAccountSales&&item.wallet_type==='purchase')&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
       {ownerProfit&&!cleanOwnerProfit&&<small className="financeEntryPreview">Supplier {fmt(item.supplier_cost)} · {item.parent_type==='dealer'?'Price to dealer':'Account cost'} {fmt(item.parent_type==='dealer'?item.platform_price:item.cost)} · My profit {signed(item.amount)}</small>}
       {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
       <small>{date(item.at)}</small>
