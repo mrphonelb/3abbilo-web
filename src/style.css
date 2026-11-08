@@ -2220,3 +2220,22 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargePage .rechargeOrdersFilters input,.rechargePage .rechargeOrdersFilters select{height:40px;min-height:40px;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;border-color:#dfe5ee}
 .rechargePage .rechargeOrdersFilters select{max-width:none;min-width:105px}
 @media(max-width:700px){.rechargePage .rechargeOrderRow{gap:8px;min-height:70px!important;padding:11px!important}.rechargePage .rechargeOrderLogo{width:44px;height:44px}.rechargePage .rechargeOrderAmount{font-size:13px}.rechargePage .rechargeOrderDate{font-size:11px}}
+
+/* Recharge Account uses the exact All Orders controls and row columns. */
+.rechargePage .rechargeOrdersFilters{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 14px}
+.rechargePage .rechargeOrdersFilters input,.rechargePage .rechargeOrdersFilters select{box-sizing:border-box;height:40px;min-height:40px;border:1px solid #dfe5ee;border-radius:10px;padding:10px 12px;background:#fff;color:#0f2d5c;font-family:Inter,Arial,sans-serif;font-size:13px;font-weight:400;line-height:normal}
+.rechargePage .rechargeOrdersFilters input{flex:1 1 auto;width:100%;min-width:0}
+.rechargePage .rechargeOrdersFilters select{flex:0 0 auto;min-width:105px;max-width:none}
+.rechargePage .rechargeOrdersFilters input::placeholder{font-size:13px;font-weight:400}
+.rechargePage .rechargeOrderList{display:grid;gap:10px;margin-top:0}
+.rechargePage .rechargeOrderRow{display:grid;grid-template-columns:56px minmax(170px,2fr) minmax(100px,1fr) minmax(85px,.75fr) minmax(90px,.75fr) minmax(135px,1fr) 19px;align-items:center;column-gap:14px;min-height:82px!important;padding:12px 15px!important;border-radius:14px!important;font:inherit}
+.rechargePage .rechargeOrderRow .ordersRecentName strong{font-size:14px;font-weight:800;line-height:normal}
+.rechargePage .rechargeOrderRow .ordersRecentName small{font-size:12px;font-weight:600}
+.rechargePage .rechargeOrderRow .ordersRecentCustomer{font-size:13px;font-weight:600}
+.rechargePage .rechargeOrderRow .ordersRecentPrice{font-size:14px;font-weight:700;text-align:right}
+.rechargePage .rechargeOrderRow .ordersRecentTime{font-size:12px;font-weight:400;text-align:right}
+.rechargePage .rechargeOrderRow .ordersRecentImage{width:56px;height:56px}
+.rechargePage .rechargeOrderRow .ordersRecentChevron{font-size:22px;color:#f47700}
+.rechargePage .rechargeOrderRow .reStatus{font-size:12px}
+@media(max-width:900px) and (min-width:651px){.rechargePage .rechargeOrderRow{grid-template-columns:48px minmax(125px,1.7fr) minmax(70px,1fr) minmax(70px,.7fr) minmax(75px,.7fr) minmax(100px,1fr) 16px;gap:9px}.rechargePage .rechargeOrderRow .ordersRecentImage{width:48px;height:48px}}
+@media(max-width:650px){.rechargePage .rechargeOrderRow{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"image product status" "image customer price" "image time time";gap:5px 10px;min-height:0!important;padding:11px!important}.rechargePage .rechargeOrderRow .ordersRecentImage{grid-area:image;width:44px;height:44px}.rechargePage .rechargeOrderRow .ordersRecentName{grid-area:product}.rechargePage .rechargeOrderRow .ordersRecentCustomer{grid-area:customer}.rechargePage .rechargeOrderRow .ordersRecentPrice{grid-area:price}.rechargePage .rechargeOrderRow .ordersRecentState{grid-area:status;justify-self:end}.rechargePage .rechargeOrderRow .ordersRecentTime{grid-area:time;text-align:left}.rechargePage .rechargeOrderRow .ordersRecentChevron{display:none}}
