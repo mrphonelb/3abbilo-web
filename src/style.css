@@ -2387,3 +2387,23 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeModal .rechargeSettings .rechargeWhishFileName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6f7e96;font-size:12px;font-weight:600;}
 .rechargeModal .rechargeSettings .rechargeWhishFilePicker:focus-within{outline:2px solid #ff8900;outline-offset:2px;}
 .rechargeModal .rechargeSettings .rechargeWhishFilePicker:hover .rechargeWhishFileButton{background:#fff6ed;}
+
+/* Recharge controls: Add Payment Method left; Unpaid Balances and Add Wallet Balance together on right. */
+.rechargePageActions .rechargeUnpaidButton {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  background: #ff8a00 !important;
+  color: #fff !important;
+  border: 0 !important;
+}
+.rechargePageActions .rechargeUnpaidButton:hover {
+  background: #ed7900 !important;
+  color: #fff !important;
+}
+.rechargePageActions .rechargeAddBalanceButton {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+@media (max-width:560px) {
+  .rechargePageActions .rechargeUnpaidButton { margin-left: 0 !important; }
+}
