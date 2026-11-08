@@ -2407,3 +2407,25 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 @media (max-width:560px) {
   .rechargePageActions .rechargeUnpaidButton { margin-left: 0 !important; }
 }
+
+
+/* Manual Add Balance: same compact typography/controls as the 3ABBILO game purchase popup. */
+.rechargeAddBalanceModal {font-family:inherit;font-size:14px;color:#14213d;}
+.rechargeAddBalanceModal .popupTitle {margin-bottom:16px;}
+.rechargeAddBalanceModal .popupTitle h2 {font-size:22px;line-height:1.2;font-weight:850;}
+.rechargeAddBalanceModal .popupField {display:block;margin:10px 0 13px;text-align:center;}
+.rechargeAddBalanceModal .popupField>span {display:block;margin:0 0 7px;text-align:center;font-size:13px;line-height:1.3;font-weight:800;color:#14213d;}
+.rechargeAddBalanceModal .popupField>select,
+.rechargeAddBalanceModal .popupField>input {box-sizing:border-box;width:100%;min-height:44px;border:1.5px solid #d4ddeb;border-radius:11px;font-family:inherit;font-size:14px;font-weight:650;color:#14213d;background:#fff;text-align:center;padding:9px 12px;}
+.rechargeAddBalanceModal .rechargeAmountSteps {gap:9px;}
+.rechargeAddBalanceModal .rechargeAmountSteps input {box-sizing:border-box;min-width:0;min-height:44px;border:1.5px solid #d4ddeb;border-radius:11px;font-family:inherit;font-size:15px;font-weight:700;text-align:center;}
+.rechargeAddBalanceModal .rechargeAmountSteps button {width:44px;height:44px;min-width:44px;font-family:inherit;}
+.rechargeAddBalanceModal .rechargePresets {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0 16px;}
+.rechargeAddBalanceModal .rechargePresets button {box-sizing:border-box;min-width:0;min-height:42px;padding:7px 1px;border:1.5px solid #ff8900;border-radius:10px;font-family:inherit;font-size:13px;line-height:1.2;font-weight:800;color:#14213d;white-space:nowrap;}
+.rechargeAddBalanceModal .popupAction {width:100%;min-height:46px;border-radius:11px;font-family:inherit;font-size:15px;font-weight:800;}
+@media(max-width:650px) {
+  .rechargeAddBalanceModal .rechargePresets {grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;}
+  .rechargeAddBalanceModal .rechargePresets button {min-height:40px;padding:6px 0;font-size:clamp(10px,2.8vw,13px);}
+  .rechargeAddBalanceModal .rechargeAmountSteps button {width:39px;height:39px;min-width:39px;}
+  .rechargeAddBalanceModal .popupTitle h2 {font-size:20px;}
+}
