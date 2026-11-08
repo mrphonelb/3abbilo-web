@@ -2379,3 +2379,11 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeWhishNoteInput{display:block;box-sizing:border-box;width:100%;min-height:86px;padding:12px 14px;border:1px solid #d7deeb;border-radius:12px;background:#fff;color:#142449;font:inherit;resize:vertical;line-height:1.4;}
 .rechargeWhishNoteInput:focus{outline:2px solid #ff8c00;outline-offset:1px;}
 .rechargeWhishRecipientNote{margin:10px 0!important;padding:12px 14px;border:1px solid #ffd7a8;border-radius:12px;background:#fff7ef;color:#193153;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;text-align:left;}
+
+/* Styled Whish configuration upload: the whole selector is a label target. */
+.rechargeModal .rechargeSettings .rechargeWhishFilePicker{position:relative;display:flex;align-items:center;gap:11px;width:100%;min-height:45px;padding:7px 10px;box-sizing:border-box;border:1.5px solid #d4ddeb;border-radius:11px;background:#fff;cursor:pointer;}
+.rechargeModal .rechargeSettings .rechargeWhishFileInput{position:absolute!important;opacity:0!important;width:100%!important;height:100%!important;inset:0;cursor:pointer;padding:0!important;z-index:2;}
+.rechargeModal .rechargeSettings .rechargeWhishFileButton{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;min-height:31px;padding:6px 13px;box-sizing:border-box;background:#fff;color:#172a50;border:1.5px solid #ff8900;border-radius:9px;font-size:13px;font-weight:800;line-height:1.1;}
+.rechargeModal .rechargeSettings .rechargeWhishFileName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6f7e96;font-size:12px;font-weight:600;}
+.rechargeModal .rechargeSettings .rechargeWhishFilePicker:focus-within{outline:2px solid #ff8900;outline-offset:2px;}
+.rechargeModal .rechargeSettings .rechargeWhishFilePicker:hover .rechargeWhishFileButton{background:#fff6ed;}
