@@ -2309,3 +2309,67 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeDetailsModal .rechargeViewReceiptBtn:focus-visible,
 .rechargeDetailsModal .rechargeTicketButton:focus-visible {outline:3px solid #ffb25b;outline-offset:3px;}
 .rechargeDetailsModal button:disabled {opacity:.55;cursor:not-allowed;}
+
+
+/* Unpaid Balances: match the Recharge Order / 3ABBILO popup typography and controls. */
+.productModal.rechargeUnpaidModal {
+  width:min(94vw, 510px);
+  max-width:510px;
+  box-sizing:border-box;
+  padding:26px 24px 24px;
+  font-family:inherit;
+  color:#17233f;
+}
+.rechargeUnpaidModal .popupTitle {margin-bottom:14px!important;}
+.rechargeUnpaidModal .popupTitle>svg {width:29px;height:29px;margin:0 auto 5px;color:#101b31;}
+.rechargeUnpaidModal .popupTitle h2 {font-family:inherit;font-size:17px;line-height:1.3;font-weight:850;margin:0 0 5px;}
+.rechargeUnpaidModal .rechargeUnpaidTotal {
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  background:#fff5e9;border-radius:12px;margin:0 0 12px;padding:13px 15px;
+  font-size:14px;line-height:1.35;font-weight:800;
+}
+.rechargeUnpaidModal .rechargeUnpaidTotal strong {font-size:17px;font-weight:850;white-space:nowrap;}
+.rechargeUnpaidModal .rechargeUnpaidRow {
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;
+  gap:12px;min-height:66px;padding:12px 0;
+  border-bottom:1px solid #e0e5ef;
+  font-size:13px;line-height:1.35;
+}
+.rechargeUnpaidModal .rechargeUnpaidIdentity {
+  min-width:0;display:flex;flex-direction:column;align-items:flex-start;
+  text-align:left;gap:3px;
+}
+.rechargeUnpaidModal .rechargeUnpaidIdentity strong {
+  width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:14px;font-weight:850;color:#17233f;
+}
+.rechargeUnpaidModal .rechargeUnpaidIdentity small {
+  color:#73829d;font-size:12px;font-weight:500;line-height:1.35;
+}
+.rechargeUnpaidModal .rechargeUnpaidAmount {
+  color:#17233f;font-size:15px;font-weight:850;white-space:nowrap;
+}
+.rechargeUnpaidModal .rechargeMarkPaidBtn {
+  border:1.5px solid #ff8a00;background:#fff;color:#14294f;
+  border-radius:11px;padding:10px 13px;min-height:40px;
+  font-family:inherit;font-size:13px;font-weight:800;line-height:1.25;
+  white-space:nowrap;cursor:pointer;
+}
+.rechargeUnpaidModal .rechargeMarkPaidBtn:hover {background:#fff6ed;}
+.rechargeUnpaidModal .rechargeCloseResult {
+  display:block;width:100%;box-sizing:border-box;margin:18px 0 0;
+  min-height:52px;padding:12px 15px;
+  background:#ff8900;border:0;border-radius:13px;color:#fff;
+  font-family:inherit;font-size:14px;font-weight:850;line-height:1.35;
+  text-align:center;cursor:pointer;
+}
+.rechargeUnpaidModal .rechargeCloseResult:hover {background:#ed7c00;}
+.rechargeUnpaidModal .rechargeCloseResult:focus-visible,
+.rechargeUnpaidModal .rechargeMarkPaidBtn:focus-visible {
+  outline:3px solid #ffb35a;outline-offset:2px;
+}
+@media(max-width:500px) {
+  .productModal.rechargeUnpaidModal {padding:24px 16px 18px;}
+  .rechargeUnpaidModal .rechargeUnpaidRow {grid-template-columns:minmax(0,1fr) auto;gap:9px 8px;}
+  .rechargeUnpaidModal .rechargeMarkPaidBtn {grid-column:1 / -1;width:100%;}
+}
