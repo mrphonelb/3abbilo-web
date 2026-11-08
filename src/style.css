@@ -2239,3 +2239,13 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargePage .rechargeOrderRow .reStatus{font-size:12px}
 @media(max-width:900px) and (min-width:651px){.rechargePage .rechargeOrderRow{grid-template-columns:48px minmax(125px,1.7fr) minmax(70px,1fr) minmax(70px,.7fr) minmax(75px,.7fr) minmax(100px,1fr) 16px;gap:9px}.rechargePage .rechargeOrderRow .ordersRecentImage{width:48px;height:48px}}
 @media(max-width:650px){.rechargePage .rechargeOrderRow{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"image product status" "image customer price" "image time time";gap:5px 10px;min-height:0!important;padding:11px!important}.rechargePage .rechargeOrderRow .ordersRecentImage{grid-area:image;width:44px;height:44px}.rechargePage .rechargeOrderRow .ordersRecentName{grid-area:product}.rechargePage .rechargeOrderRow .ordersRecentCustomer{grid-area:customer}.rechargePage .rechargeOrderRow .ordersRecentPrice{grid-area:price}.rechargePage .rechargeOrderRow .ordersRecentState{grid-area:status;justify-self:end}.rechargePage .rechargeOrderRow .ordersRecentTime{grid-area:time;text-align:left}.rechargePage .rechargeOrderRow .ordersRecentChevron{display:none}}
+
+
+/* Recharge order details — match 3ABBILO order result modal. */
+.rechargeDetailsModal .rechargeCenteredStatus {display:flex;justify-content:center;align-items:center;flex:1;min-width:0;}
+.rechargeDetailsModal .rechargeCloseResult {
+ display:block;width:100%;margin-top:18px;padding:13px 16px;
+ border:0;border-radius:12px;background:#ff8900;color:#fff;
+ font:700 15px/1.25 inherit;cursor:pointer;text-align:center;
+}
+.rechargeDetailsModal .rechargeCloseResult:hover {background:#ed7c00;}
