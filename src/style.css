@@ -2118,3 +2118,13 @@ body>.modalShade>.productModal.accountPasswordModal{width:min(362px,calc(100vw -
 .rechargeAddMethodList .rechargeMethodListText{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:16px}
 .rechargeAddMethodList .rechargeMethodListText small{font-size:12px;color:#7b8496;font-weight:500}
 .rechargeAddMethodList .rechargeMethodListLogo{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:66px;height:43px;border-radius:10px;background:#f21738;color:white;font-size:20px;letter-spacing:-1px;font-weight:900}
+
+/* Recharge payment method list and removal */
+.rechargeAddMethodList .rechargeMethodListItem{justify-content:flex-start;text-align:left}
+.rechargeAddMethodList .rechargeMethodListText{flex:1}
+.rechargeDeleteMethodBtn{display:block;width:100%;padding:12px 16px;margin-top:12px;border:1.5px solid #e9a2a2;border-radius:12px;background:#fff7f7;color:#b42318;font:inherit;font-weight:700;cursor:pointer}
+.rechargeDeleteMethodBtn:hover{background:#ffeded}
+.rechargeDeleteExplanation{line-height:1.5;text-align:center;margin:12px 0 20px}
+.rechargeDeleteActions{display:flex;gap:12px}
+.rechargeDeleteActions>button{flex:1;min-width:0;padding:12px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer}
+.rechargeDeleteConfirmBtn{border:1px solid #b42318;background:#b42318;color:#fff}
