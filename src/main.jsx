@@ -1313,11 +1313,20 @@ function FinancialPage({owner=false,dealer=false}){
  </div>;
 }
 
+function AccountAdminModal({record,endpoint,onClose,onSaved}){
+ const [mode,setMode]=useState('profile'),[form,setForm]=useState({shop_name:record.shop_name||'',email:record.email||'',phone:record.phone||'',new_password:'',confirm_password:''}),[busy,setBusy]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState('');
+ async function save(e){e.preventDefault();if(busy)return;setBusy(true);setError('');setSuccess('');try{
+  const password=mode==='password';const r=await fetch(API+endpoint+(password?'/reset-password':'/profile'),{method:password?'POST':'PUT',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify(password?{new_password:form.new_password,confirm_password:form.confirm_password}:{shop_name:form.shop_name,email:form.email,phone:form.phone})});const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to update account');
+  setSuccess(password?'Temporary password saved. User must change it on next login.':'Account information updated.');setForm(f=>({...f,new_password:'',confirm_password:''}));await onSaved?.(d);if(!password)onClose();
+ }catch(e){setError(e.message||'Account update failed')}finally{setBusy(false)}}
+ return createPortal(<div className="modalShade"><div className="productModal compactModal accountPasswordModal" role="dialog" aria-modal="true" aria-label="Manage Account"><button type="button" className="modalClose" disabled={busy} onClick={onClose}><X size={21}/></button><div className="popupTitle"><Store size={30}/><h2>Manage Account</h2></div><p>{record.shop_name}</p><div className="dashboardPeriodTabs"><button type="button" className={mode==='profile'?'active':''} onClick={()=>{setMode('profile');setError('');setSuccess('')}}>Edit Information</button><button type="button" className={mode==='password'?'active':''} onClick={()=>{setMode('password');setError('');setSuccess('')}}>Reset Password</button></div><form onSubmit={save}>{(mode==='profile'?[['shop_name','Account Name','text'],['email','Email Address','email'],['phone','Phone Number','tel']]:[['new_password','New Temporary Password','password'],['confirm_password','Confirm Password','password']]).map(([key,label,type])=><label key={key} className="popupField accountPasswordField"><span className="popupLabel">{label}</span><input type={type} required minLength={type==='password'?10:undefined} autoComplete="off" value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))}/></label>)}{error&&<p className="loginError" role="alert">{error}</p>}{success&&<p role="status">{success}</p>}<button type="submit" className="popupAction" disabled={busy}>{busy?'Saving…':mode==='password'?'Reset Password':'Save Changes'}</button></form></div></div>,document.body);
+}
+
 function DealerShopsPage({dealerBalance,onWalletTransferred}){
  const emptyForm={shop_name:'',phone:'',email:'',password:''};
  const [shops,setShops]=useState([]),[loading,setLoading]=useState(true),[message,setMessage]=useState(''),[messageType,setMessageType]=useState('success');
  const [search,setSearch]=useState(''),[creating,setCreating]=useState(false),[creatingBusy,setCreatingBusy]=useState(false),[createError,setCreateError]=useState('');
- const [form,setForm]=useState(emptyForm),[selectedShop,setSelectedShop]=useState(null),[amount,setAmount]=useState(''),[transferBusy,setTransferBusy]=useState(false),[transferError,setTransferError]=useState('');
+ const [managedShop,setManagedShop]=useState(null),[form,setForm]=useState(emptyForm),[selectedShop,setSelectedShop]=useState(null),[amount,setAmount]=useState(''),[transferBusy,setTransferBusy]=useState(false),[transferError,setTransferError]=useState('');
  const transferGuard=useRef(false);
  async function loadShops(showLoading=false){
   if(showLoading)setLoading(true);
@@ -1397,6 +1406,7 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
     <span className={'dealerShopsListStatus '+(String(shop.status||'active').toLowerCase()==='active'?'active':'inactive')}>{String(shop.status||'active').toLowerCase()==='active'?'Active':'Inactive'}</span>
     <ChevronRight size={17} className="dealerShopsListArrow"/>
    </button>)}</div>}
+  {managedShop&&<AccountAdminModal record={managedShop} endpoint={'/api/wholesale/dealer/shops/'+encodeURIComponent(managedShop.id)} onClose={()=>setManagedShop(null)} onSaved={()=>loadShops()}/>}
   {creating&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeCreate()}>
    <div className="productModal dealerShopsCreateModal" role="dialog" aria-modal="true" aria-label="Create Shop Account">
     <button type="button" className="modalClose" onClick={closeCreate} disabled={creatingBusy} aria-label="Close"><X size={21}/></button>
@@ -1411,7 +1421,7 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
   {selectedShop&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeBalance()}>
    <div className="productModal compactModal dealerShopsBalanceModal" role="dialog" aria-modal="true" aria-label={'Add balance to '+selectedShop.shop_name}>
     <button type="button" className="modalClose" onClick={closeBalance} disabled={transferBusy} aria-label="Close"><X size={21}/></button>
-    <div className="popupTitle"><Wallet size={30}/><h2>Add Balance</h2></div>
+    <div className="popupTitle"><Wallet size={30}/><h2>Add Balance</h2></div><button type="button" className="popupSecondary" onClick={()=>{const shop=selectedShop;setSelectedShop(null);setManagedShop(shop)}}>Edit Account / Reset Password</button>
     <div className="dealerShopsBalanceIdentity"><strong>{selectedShop.shop_name}</strong>
      <div className="dealerShopsBalanceSummary"><div><span>Current Balance</span><b>${currentShopBalance.toFixed(4)}</b></div>
       <div className="dealerShopsProjectedBalance" aria-live="polite" aria-atomic="true"><span>Balance After Transfer</span><b>${balanceAfterTransfer.toFixed(4)}</b></div>
@@ -1580,7 +1590,7 @@ class OwnerErrorBoundary extends React.Component{
  static getDerivedStateFromError(error){return {error}}
  render(){return this.state.error?<div className="ownerCrash"><h2>Unable to display this section</h2><p>The admin session is still active. You can return to the dashboard safely.</p><button onClick={()=>{ownerNavigate('Dashboard',true);this.setState({error:null})}}>Back to Dashboard</button></div>:this.props.children}
 }
-function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
+function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[ownerManageRecord,setOwnerManageRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
  async function get(path,options){const r=await fetch(API+'/api/wholesale/owner/'+path,{headers:headers(),...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
  async function load(pg=page,q=search,st=status){setLoading(true);setError('');try{const path=pg==='Dashboard'?'dashboard':pg==='All Orders'?'orders?q='+encodeURIComponent(q)+'&status='+encodeURIComponent(st):pg==='Support Tickets'?'tickets':pg==='Accounts'?'accounts':pg==='Wallets'?'wallets':'reports';setData(await get(path))}catch(e){setError(e.message)}finally{setLoading(false)}}
@@ -1779,6 +1789,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  </div>,document.body)}
 
 
+ {ownerManageRecord&&<AccountAdminModal record={ownerManageRecord} endpoint={'/api/wholesale/owner/accounts/'+encodeURIComponent(ownerManageRecord.id)} onClose={()=>setOwnerManageRecord(null)} onSaved={async()=>{setData(await get('accounts'));setSelectedOwnerRecord(null)}}/>}
  {selectedOwnerRecord&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedOwnerRecord(null)}>
  <div className="productModal compactModal orderResultModal ownerDetailModal ownerAccountModal">
   <button type="button" className="modalClose" onClick={()=>setSelectedOwnerRecord(null)} aria-label="Close"><X size={21}/></button>
@@ -1788,6 +1799,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
    {(selectedOwnerRecord.type==='account'?[['Account',selectedOwnerRecord.record.shop_name],['Type',selectedOwnerRecord.record.account_type],['Parent',selectedOwnerRecord.record.parent_name||'—'],['Email',selectedOwnerRecord.record.email],['Balance',selectedOwnerRecord.record.balance==null?'—':money(selectedOwnerRecord.record.balance)],['Status',selectedOwnerRecord.record.status==='disabled'?'Inactive':selectedOwnerRecord.record.status]]:[['Date',String(selectedOwnerRecord.record.day).slice(0,10)],['Orders',selectedOwnerRecord.record.orders],['Successful',selectedOwnerRecord.record.successful],['Sales',money(selectedOwnerRecord.record.sales)]]).map(([k,v])=><div className="receiptRow" key={k}><span>{k}</span><strong>{v??'—'}</strong></div>)}
    {selectedOwnerRecord.type==='account'&&<div className="ownerAccountActions">
     {accountError&&<div className="catalogNotice error" role="alert">{accountError}</div>}
+    <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>{setOwnerManageRecord(selectedOwnerRecord.record);setSelectedOwnerRecord(null)}}>Edit Account / Reset Password</button>
     <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>manageAccount('status')}>{accountBusy?'Updating…':selectedOwnerRecord.record.status==='active'?'Deactivate Account':'Activate Account'}</button>
     <button type="button" className="ownerDeleteAccount" disabled={accountBusy} onClick={()=>manageAccount('delete')}>Delete Account (if eligible)</button>
    </div>}
