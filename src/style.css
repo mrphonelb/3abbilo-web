@@ -2015,3 +2015,23 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .financeOwner .financeSummary{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:1080px){.financeOwner .financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.financeOwner .financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Owner-only, read-only wallet reconciliation preview */
+.ownerAccountsActions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.ownerAuditButton{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:1px solid #dbe2ed;border-radius:10px;background:#fff;color:#192c4d;font-weight:700;cursor:pointer}
+.ownerAuditButton:disabled{opacity:.55;cursor:wait}
+.ownerWalletAudit{background:#fff;border:1px solid #e1e7f1;border-radius:15px;margin:15px 0 22px;padding:17px;color:#1a2d4b}
+.ownerWalletAuditHeading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ownerWalletAuditHeading strong{font-size:18px}
+.ownerWalletAuditHeading small,.ownerWalletAuditRow small{display:block;color:#647692;font-size:12px;margin-top:4px}
+.ownerWalletAuditHeading button{background:transparent;border:1px solid #d6dfeb;border-radius:8px;padding:8px 13px;cursor:pointer}
+.ownerWalletAudit p{color:#63738f;font-size:13px}
+.ownerWalletAuditRows{max-height:440px;overflow:auto;border:1px solid #e3e8f0;border-radius:10px}
+.ownerWalletAuditRow{display:grid;grid-template-columns:minmax(170px,2fr) minmax(120px,1fr) minmax(135px,1.5fr);gap:12px;padding:13px 14px;border-bottom:1px solid #eef0f4;align-items:center}
+.ownerWalletAuditRow:last-child{border-bottom:0}
+.ownerAuditReview{color:#ad5719;font-weight:700;overflow-wrap:anywhere}
+.ownerAuditClean{color:#18754d;font-weight:700}
+@media(max-width:600px){.ownerWalletAuditRow{grid-template-columns:1fr 1fr}.ownerWalletAuditRow>span:last-child{grid-column:1/-1}}
+
+.ownerAuditVerify{display:block;margin-top:6px;padding:6px 9px;border:1px solid #d9e1ee;border-radius:8px;background:#fff;color:#243b63;font-size:12px;font-weight:650;cursor:pointer}
+.ownerAuditVerify:disabled{opacity:.5;cursor:wait}

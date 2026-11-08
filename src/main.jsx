@@ -1567,7 +1567,7 @@ class OwnerErrorBoundary extends React.Component{
  static getDerivedStateFromError(error){return {error}}
  render(){return this.state.error?<div className="ownerCrash"><h2>Unable to display this section</h2><p>The admin session is still active. You can return to the dashboard safely.</p><button onClick={()=>{ownerNavigate('Dashboard',true);this.setState({error:null})}}>Back to Dashboard</button></div>:this.props.children}
 }
-function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
+function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[walletAudit,setWalletAudit]=useState(null),[walletAuditBusy,setWalletAuditBusy]=useState(false),[walletAuditError,setWalletAuditError]=useState(''),[daftraChecks,setDaftraChecks]=useState({}),[daftraCheckBusy,setDaftraCheckBusy]=useState(null),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
  async function get(path,options){const r=await fetch(API+'/api/wholesale/owner/'+path,{headers:headers(),...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
  async function load(pg=page,q=search,st=status){setLoading(true);setError('');try{const path=pg==='Dashboard'?'dashboard':pg==='All Orders'?'orders?q='+encodeURIComponent(q)+'&status='+encodeURIComponent(st):pg==='Support Tickets'?'tickets':pg==='Accounts'?'accounts':pg==='Wallets'?'wallets':'reports';setData(await get(path))}catch(e){setError(e.message)}finally{setLoading(false)}}
@@ -1629,6 +1629,22 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   }catch(e){setRecoveryMessage(e.message||'Recovery stopped. Contact 3ABBILO Support before retrying.');}
   finally{setRecoveryBusy(false);}
  }
+ async function inspectOwnerWallets(){
+  if(walletAuditBusy)return;
+  setWalletAuditBusy(true);setWalletAuditError('');
+  try{const result=await get('wallet-audit',{cache:'no-store'});setWalletAudit(result)}
+  catch(e){setWalletAuditError(e.message||'Unable to check wallet ledgers')}
+  finally{setWalletAuditBusy(false)}
+ }
+ async function checkOwnerDaftraClient(accountId){
+  if(daftraCheckBusy!==null)return;
+  setDaftraCheckBusy(accountId);
+  try{const result=await get('wallet-audit/'+accountId+'/daftra-check',{cache:'no-store'});
+    setDaftraChecks(previous=>({...previous,[accountId]:result.client_id_matches?
+      (result.account_name_matches?'Client ID verified':'Client ID verified · name needs review'):'Client ID mismatch'}));}
+  catch(e){setDaftraChecks(previous=>({...previous,[accountId]:e.message||'Daftra verification unavailable'}))}
+  finally{setDaftraCheckBusy(null)}
+ }
  async function submitOwnerAccount(e){
   e.preventDefault();if(ownerCreateBusy)return;
   setOwnerCreateError('');setOwnerCreateBusy(true);
@@ -1686,7 +1702,17 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  </div>}
  {page==='Support Tickets'&&<><div className="orderTools supportSearch"><input value={ticketSearch} onChange={e=>setTicketSearch(e.target.value)} placeholder="Search ticket number, account, product or order..."/></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.filter(r=>[r.id,r.order_id,r.shop_name,r.subject,r.description,r.product_title,r.package_name].some(v=>String(v||'').toLowerCase().includes(ticketSearch.trim().toLowerCase()))).map(r=><button type="button" key={r.id} className={'ownerRecordCard supportTicketRow '+(ticketAlert(r,'owner','owner')?'ticketRowUnread':'')} onClick={()=>openTicket(r)}><span className="ownerRecordIcon"><MessageCircle size={23}/></span><span className="ownerRecordMain"><strong>{r.subject||`Ticket #${r.id}`} {ticketAlert(r,'owner','owner')&&<span className="ticketNewLabel">New</span>}</strong><small>Ticket #{r.id} · Order #{r.order_id||'—'} · {r.shop_name||'Account'}</small><span>{r.description}</span></span><span className={'orderStatus '+(r.status==='resolved'?'success':r.status==='open'?'pending':'processing')}>{String(r.status||'open').replace('_',' ')}</span><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><MessageCircle/><b>No support tickets</b></div>)}</>}
  {page==='Accounts'&&<>
-  <div className="ownerAccountsActions"><button type="button" className="dealerShopsAddButton" onClick={()=>{setOwnerCreateError('');setOwnerCreateOpen(true)}}><Plus size={18}/> Add New Account</button></div>
+  <div className="ownerAccountsActions"><button type="button" className="dealerShopsAddButton" onClick={()=>{setOwnerCreateError('');setOwnerCreateOpen(true)}}><Plus size={18}/> Add New Account</button><button type="button" className="ownerAuditButton" disabled={walletAuditBusy} onClick={inspectOwnerWallets}><ShieldCheck size={18}/>{walletAuditBusy?'Checking balances…':'Check Wallet Balances'}</button></div>
+  {walletAuditError&&<div role="alert" className="catalogNotice error">{walletAuditError}</div>}
+  {walletAudit&&<section className="ownerWalletAudit" aria-label="Read-only wallet audit">
+   <div className="ownerWalletAuditHeading"><div><strong>Wallet Reconciliation Check</strong><small>{walletAudit.summary?.accounts||0} accounts · {walletAudit.summary?.accounts_needing_review||0} need review · Total available ${Number(walletAudit.summary?.total_wallet_balance||0).toFixed(4)}</small></div><button type="button" onClick={()=>setWalletAudit(null)}>Close</button></div>
+   <p>Read-only check against recorded wallet movements. Differences need verification with the corresponding external client account before any balance correction.</p>
+   <div className="ownerWalletAuditRows">{(walletAudit.accounts||[]).map(a=><div className="ownerWalletAuditRow" key={a.account_id}>
+    <span><b>{a.shop_name||'Account'}</b><small>{a.account_type==='dealer'?'Dealer':'Shop'} · Client #{a.daftra_client_id||'Not mapped'}</small></span>
+    <span><b>${Number(a.wallet_balance||0).toFixed(4)}</b><small>{a.ledger_expected_balance==null?'No ledger baseline':'Ledger estimate $'+Number(a.ledger_expected_balance).toFixed(4)}</small></span>
+    <span className={a.requires_review?'ownerAuditReview':'ownerAuditClean'}>{a.requires_review?'Review required':'Ledger consistent'}{a.flags?.length>0&&<small>{a.flags.join(', ').replaceAll('_',' ')}</small>}<button type="button" className="ownerAuditVerify" disabled={daftraCheckBusy!==null} onClick={()=>checkOwnerDaftraClient(a.account_id)}>{daftraCheckBusy===a.account_id?'Checking…':'Verify Daftra Client'}</button>{daftraChecks[a.account_id]&&<small>{daftraChecks[a.account_id]}</small>}</span>
+   </div>)}</div>
+  </section>}
   <div className="orderTools ownerOrderTools ownerAccountsSearch"><input type="search" placeholder="Search account, dealer, shop or email..." aria-label="Search accounts" value={accountSearch} onChange={e=>setAccountSearch(e.target.value)}/></div>
   {!loading&&(accountRows.length?<div className="ownerRecordList">{accountRows.map(r=><button type="button" key={r.id} className="ownerRecordCard ownerAccountCard" onClick={()=>setSelectedOwnerRecord({type:'account',record:r})}>
    <span className="ownerRecordIcon"><Store size={23}/></span>
