@@ -2452,3 +2452,11 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeMethodListItem.omtWalletCard { background:#fff; color:#152442; }
 .rechargeMethodListItem.omtWalletCard:hover { background:#fffaf4; }
 .rechargeMethodListItem.omtWalletCard .rechargeMethodListText b { color:inherit; }
+
+/* OMT receipt picker matches the custom 3ABBILO file-upload control. */
+.rechargeModal .rechargeForm .rechargeReceiptFilePicker{position:relative;display:flex;align-items:center;gap:11px;width:100%;min-height:52px;padding:8px 10px;box-sizing:border-box;border:1.5px solid #d4ddeb;border-radius:12px;background:#fff;cursor:pointer;text-align:left;}
+.rechargeModal .rechargeForm .rechargeReceiptFileInput{position:absolute!important;opacity:0!important;width:100%!important;height:100%!important;inset:0;cursor:pointer;padding:0!important;z-index:2;}
+.rechargeModal .rechargeForm .rechargeReceiptFileButton{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:7px 12px;box-sizing:border-box;background:#fff;color:#172a50;border:1.5px solid #ff8900;border-radius:9px;font-size:13px;font-weight:800;line-height:1.1;}
+.rechargeModal .rechargeForm .rechargeReceiptFileName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6f7e96;font-size:12px;font-weight:600;}
+.rechargeModal .rechargeForm .rechargeReceiptFilePicker:focus-within{outline:2px solid #ff8900;outline-offset:2px;}
+.rechargeModal .rechargeForm .rechargeReceiptFilePicker:hover .rechargeReceiptFileButton{background:#fff6ed;}
