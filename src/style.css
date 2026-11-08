@@ -2429,3 +2429,15 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
   .rechargeAddBalanceModal .rechargeAmountSteps button {width:39px;height:39px;min-width:39px;}
   .rechargeAddBalanceModal .popupTitle h2 {font-size:20px;}
 }
+
+/* Hosted Whish Pay cards share the same 3ABBILO payment-method design. */
+.rechargePage .rechargeMethodsSection {display:flex;flex-wrap:wrap;align-items:flex-start;gap:14px;}
+.rechargePayExplanation {font-size:14px;font-weight:500;line-height:1.55;color:#344563;margin:12px 0 20px;}
+.rechargePaySummary {border:1px solid #ffcd99;border-radius:14px;background:#fff8ee;padding:13px 16px;margin:12px 0;display:grid;gap:10px;}
+.rechargePaySummary>div {display:flex;justify-content:space-between;gap:12px;font-size:14px;}
+.rechargePaySummary>div:last-child {border-top:1px solid #ffd3a8;padding-top:10px;color:#ea7600;}
+.rechargePayTitleLogo {display:block;width:50px;height:50px;border-radius:12px;object-fit:cover;margin:0 auto 7px;}
+
+.rechargePage .rechargePayHistory {margin-bottom:18px;}
+.rechargePage .rechargePayHistory h3 {font-size:17px;font-weight:800;margin:0 0 13px;}
+.rechargePayFeeSmall {display:block;font-size:11px;font-weight:500;color:#74839a;margin-top:3px;text-align:right;}
