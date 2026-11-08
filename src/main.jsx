@@ -1418,27 +1418,13 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
     </form>
    </div>
   </div>,document.body)}
-  {selectedShop&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeBalance()}>
-   <div className="productModal compactModal dealerShopsBalanceModal" role="dialog" aria-modal="true" aria-label={'Add balance to '+selectedShop.shop_name}>
-    <button type="button" className="modalClose" onClick={closeBalance} disabled={transferBusy} aria-label="Close"><X size={21}/></button>
-    <div className="popupTitle"><Wallet size={30}/><h2>Add Balance</h2></div><button type="button" className="popupSecondary" onClick={()=>{const shop=selectedShop;setSelectedShop(null);setManagedShop(shop)}}>Edit Account / Reset Password</button>
-    <div className="dealerShopsBalanceIdentity"><strong>{selectedShop.shop_name}</strong>
-     <div className="dealerShopsBalanceSummary"><div><span>Current Balance</span><b>${currentShopBalance.toFixed(4)}</b></div>
-      <div className="dealerShopsProjectedBalance" aria-live="polite" aria-atomic="true"><span>Balance After Transfer</span><b>${balanceAfterTransfer.toFixed(4)}</b></div>
-     </div>
-    </div>
-    <form onSubmit={transferBalance}>
-     <label htmlFor="dealerShopTransferAmount" className="dealerShopsBalanceLabel">Amount to transfer (USD)</label>
-     <div className="dealerShopsAmountControl"><button type="button" onClick={()=>adjustAmount(-1)} disabled={transferBusy||!(Number(amount)>0)} aria-label="Decrease amount"><Minus size={20}/></button><input id="dealerShopTransferAmount" inputMode="decimal" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={e=>setAmount(e.target.value)} disabled={transferBusy} required/><button type="button" onClick={()=>adjustAmount(1)} disabled={transferBusy} aria-label="Increase amount"><Plus size={20}/></button></div>
-     <div className="dealerShopsAmountSuggestions">{[50,100,150,200,250,300,400,500,750,1000].map(value=><button type="button" key={value} className={Number(amount)===value?'selected':''} disabled={transferBusy} onClick={()=>setSuggestedAmount(value)}>${value}</button>)}</div>
-     <div className={'dealerShopsBalanceSummary dealerShopsDealerBalancePreview '+(enoughDealerBalance?'':'insufficient')}>
-      <div aria-live="polite" aria-atomic="true"><span>Your Balance After Transfer</span><b>{dealerBalanceAfterTransfer===null?'—':'$'+dealerBalanceAfterTransfer.toFixed(4)}</b></div>
-     </div>
-     {!enoughDealerBalance&&hasDealerBalance&&validAmount&&<div role="alert" className="dealerShopsFormError">Insufficient dealer balance for this transfer.</div>}
-     {!shopActive&&<div role="alert" className="dealerShopsFormError">This shop is inactive. Balance transfers are unavailable.</div>}
-     {transferError&&<div role="alert" className="dealerShopsFormError">{transferError}</div>}
-     <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={transferBusy||!validAmount||!shopActive||!enoughDealerBalance}>{transferBusy?'Transferring…':'Add Balance'}</button>
-    </form>
+  {selectedShop&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedShop(null)}>
+   <div className="productModal compactModal" role="dialog" aria-modal="true" aria-label="Account Details">
+    <button type="button" className="modalClose" onClick={()=>setSelectedShop(null)} aria-label="Close"><X size={21}/></button>
+    <div className="popupTitle"><Store size={30}/><h2>Account Details</h2></div>
+    <div className={'receiptHeading '+(String(selectedShop.status||'active').toLowerCase()==='active'?'receiptSuccess':'receiptPending')}><ShieldCheck size={28}/><div><h3>{String(selectedShop.status||'active').toLowerCase()==='active'?'Active Account':'Inactive Account'}</h3><p>Account details and recorded wallet balance</p></div></div>
+    {([['Account',selectedShop.shop_name],['Type','shop'],['Parent','Your Dealer Account'],['Email',selectedShop.email],['Phone',selectedShop.phone],['Balance','$'+Number(selectedShop.balance||0).toFixed(4)],['Status',selectedShop.status||'active']]).map(([key,value])=><div className="receiptRow" key={key}><span>{key}</span><strong>{value||'—'}</strong></div>)}
+    <div className="ownerAccountActions"><button type="button" className="popupSecondary" onClick={()=>{setManagedShop(selectedShop);setSelectedShop(null)}}>Edit Account / Reset Password</button></div>
    </div>
   </div>,document.body)}
  </div>;
