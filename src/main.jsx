@@ -1106,7 +1106,7 @@ function FinancialPage({owner=false,dealer=false}){
  const [period,setPeriod]=useState(owner?'24h':'30d');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
- const [view,setView]=useState(owner?'sales':'all');
+ const [view,setView]=useState('sales');
  const [query,setQuery]=useState('');
  const [stableQuery,setStableQuery]=useState('');
  const [ownerSummary,setOwnerSummary]=useState(null);
@@ -1193,13 +1193,13 @@ function FinancialPage({owner=false,dealer=false}){
   ['sales','Sales & Returns'],['dealer_profit','Profit - Dealers'],
   ['shop_profit','Profit - Shops'],['wallets','Wallet Transactions']
  ]:dealer?[
-  ['all','All Activity'],['sales','My Sales'],['my_profit','My Profit'],['shops','Shop Profit'],['movements','Wallet Movements'],['refunds','Refunds']
+  ['sales','Sales & Returns'],['my_profit','My Profit'],['shops','Shop Profit'],['movements','Wallet Movements']
  ]:[
-  ['all','All Activity'],['sales','My Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+  ['sales','Sales & Returns'],['movements','Wallet Movements']
  ];
  const events=owner?source:source.filter(item=>{
   const isWallet=item.kind==='wallet';
-  if(view==='sales'&&(!['sale','own_sale','purchase'].includes(item.kind)||(item.kind==='purchase'&&item.order_status&&item.order_status!=='success')))return false;
+  if(view==='sales'&&!(item.kind==='purchase'||(isWallet&&item.wallet_type==='refund')))return false;
   if(view==='shops'&&item.kind!=='shop_profit')return false;
   if(view==='my_profit'&&!(item.kind==='purchase'&&item.order_status==='success'))return false;
   if(view==='movements'&&!(isWallet&&['deposit','dealer_transfer_in','dealer_transfer_out','dealer_profit'].includes(item.wallet_type)))return false;
@@ -1245,17 +1245,17 @@ function FinancialPage({owner=false,dealer=false}){
    <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
    <input type="search" placeholder="Search order, product or shop..." value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search transactions"/>
   </div>
-  <div className="financeListHeader"><strong>{owner?'Financial Activity':'Transactions'}</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
+  <div className="financeListHeader"><strong>Financial Activity</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
   {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading transactions…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No transactions found</b><span>Try another date or category.</span></div>:<div className="financeList">{events.map(item=>{
    const wallet=item.kind==='wallet',purchase=item.kind==='purchase'||item.kind==='own_sale';
    const shop=item.kind==='shop_profit',ownerProfit=item.kind==='owner_profit'||item.kind==='owner_profit_return';
    const returned=item.kind==='sale_return',sale=purchase||item.kind==='sale'||returned;
    const label=wallet?walletTitle(item):ownerProfit?(item.kind==='owner_profit_return'?'Profit Reversed':'My Profit')+' — '+(item.account_type==='dealer'?'Dealer':'Shop')+' · Order #'+item.order_id:shop?'Shop Profit — Order #'+item.order_id:returned?'Return — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
-   const cleanOwnerSales=owner&&view==='sales'&&sale;
+   const cleanOwnerSales=view==='sales'&&(sale||(wallet&&item.wallet_type==='refund'));
    const cleanOwnerProfit=owner&&ownerProfit&&(view==='dealer_profit'||view==='shop_profit');
-   const displayLabel=!owner&&view==='my_profit'&&purchase?'My Profit — Order #'+item.order_id:cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+(returned?' (Returned)':''):label;
+   const displayLabel=!owner&&view==='my_profit'&&purchase?'My Profit — Order #'+item.order_id:cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+((returned||(wallet&&item.wallet_type==='refund'))?' (Returned)':''):label;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
-   const sub=wallet?(item.product?(item.product+(item.order_id?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
+   const sub=wallet?(item.product?(item.product+(item.order_id&&!cleanOwnerSales?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
    const amount=wallet?Number(item.amount):purchase?Number(item.amount??-Number(item.cost||0)):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
    const shownAmount=!owner&&view==='my_profit'&&purchase?Number(item.profit||0):amount;
