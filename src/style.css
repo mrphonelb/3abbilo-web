@@ -2165,3 +2165,24 @@ body>.modalShade>.productModal.accountPasswordModal{width:min(362px,calc(100vw -
  .rechargeAddMethodList .rechargeMethodListItem{gap:10px;padding:8px 10px}
  .rechargeAddMethodList .rechargeMethodListLogo{flex-basis:40px;width:40px;height:40px}
 }
+
+/* 3ABBILO recharge: compact configured method and consistent popup typography */
+.rechargeMethodsSection{padding:16px 18px!important}
+.rechargeMethodsSection .rechargeWhishCard{width:176px!important;min-height:0!important;padding:13px 10px!important;gap:6px!important;border-radius:15px!important}
+.rechargeMethodsSection .rechargeWhishLogo{width:74px!important;height:74px!important;border-radius:12px!important}
+.rechargeMethodsSection .rechargeWhishCard>b{font-size:14px!important;line-height:1.3!important;font-weight:800!important}
+.rechargeMethodsSection .rechargeWhishCard .reStatus{font-size:10px!important;padding:3px 9px!important}
+.rechargeMethodsSection .rechargeWhishCard small{font-size:11px!important}
+body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(100vw - 24px))!important;padding:20px 18px 18px!important;border-radius:19px!important;box-sizing:border-box!important}
+.rechargeModal .popupTitle{margin-bottom:12px!important}
+.rechargeModal .popupTitle>svg{width:29px!important;height:29px!important;margin:0 auto 5px!important}
+.rechargeModal .popupTitle h2{font-size:17px!important;line-height:1.3!important;font-weight:850!important;margin:0 0 5px!important}
+.rechargeModal .rechargeSettings{gap:11px!important}
+.rechargeModal .rechargeSettings>label{font-size:12px!important;font-weight:800!important;gap:6px!important;line-height:1.35!important}
+.rechargeModal .rechargeSettings input[type=tel],.rechargeModal .rechargeSettings input[type=file]{height:43px!important;padding:9px 11px!important;border-radius:11px!important;font-size:13px!important;box-sizing:border-box!important}
+.rechargeModal .rechargeSettings input[type=file]{height:auto!important;max-width:100%!important}
+.rechargeModal .rechargeSettings>label.rechargeActivation{font-size:12px!important;gap:9px!important}
+.rechargeModal .rechargeSettings>label.rechargeActivation input{width:17px!important;height:17px!important;min-width:17px!important}
+.rechargeModal .rechargeSettings .popupAction{height:44px!important;min-height:44px!important;font-size:13px!important;font-weight:850!important;margin-top:0!important}
+.rechargeModal .rechargeDeleteMethodBtn{padding:11px!important;margin-top:1px!important;font-size:12px!important;font-weight:800!important}
+@media(max-width:480px){.rechargeMethodsSection .rechargeWhishCard{width:156px!important}.rechargeMethodsSection .rechargeWhishLogo{width:66px!important;height:66px!important}}
