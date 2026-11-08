@@ -2134,3 +2134,34 @@ body>.modalShade>.productModal.accountPasswordModal{width:min(362px,calc(100vw -
 .rechargeAddMethodList .rechargeMethodListLogo{display:block;width:60px;height:60px;object-fit:contain;border-radius:12px;background:transparent;font-size:initial;letter-spacing:normal}
 .rechargeAddMethodList .rechargeMethodListItem{display:flex;align-items:center;gap:14px;justify-content:flex-start}
 .rechargeAddMethodList .rechargeMethodListText{flex:1;text-align:right;align-items:flex-end}
+
+/* Compact Add Payment Method option: Whish symbol and centered label. */
+.rechargeAddMethodList .rechargeMethodListItem{
+  display:flex;
+  flex-direction:row;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+  width:100%;
+  min-height:0;
+  padding:9px 14px;
+  text-align:center;
+}
+.rechargeAddMethodList .rechargeMethodListLogo{
+  display:block;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  object-fit:cover;
+  border-radius:9px;
+}
+.rechargeAddMethodList .rechargeMethodListText{
+  flex:0 1 auto;
+  align-items:center;
+  text-align:center;
+  font-size:16px;
+}
+@media(max-width:480px){
+ .rechargeAddMethodList .rechargeMethodListItem{gap:10px;padding:8px 10px}
+ .rechargeAddMethodList .rechargeMethodListLogo{flex-basis:40px;width:40px;height:40px}
+}
