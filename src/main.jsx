@@ -1103,11 +1103,15 @@ function ProductsPage({branch=false,accountType="shop"}){
 // Combined read-only financial history. Account ownership and field-level access
 // are enforced by the authenticated backend, never by frontend filtering alone.
 function FinancialPage({owner=false,dealer=false}){
- const [period,setPeriod]=useState(owner?'all':'30d');
+ const [period,setPeriod]=useState(owner?'24h':'30d');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
  const [view,setView]=useState('all');
  const [query,setQuery]=useState('');
+ const [stableQuery,setStableQuery]=useState('');
+ const [ownerSummary,setOwnerSummary]=useState(null);
+ const [summaryBusy,setSummaryBusy]=useState(owner);
+ const [summaryError,setSummaryError]=useState('');
  const [data,setData]=useState(null);
  const [busy,setBusy]=useState(true);
  const [error,setError]=useState('');
@@ -1115,6 +1119,29 @@ function FinancialPage({owner=false,dealer=false}){
  const [hasMore,setHasMore]=useState(false);
  const [loadingMore,setLoadingMore]=useState(false);
  const customReady=period!=='custom'||Boolean(from&&to&&from<=to);
+ // Debounce Owner search so every keystroke doesn't launch four expensive queries.
+ useEffect(()=>{
+  if(!owner)return;
+  const t=setTimeout(()=>setStableQuery(query.trim()),300);
+  return()=>clearTimeout(t);
+ },[owner,query]);
+ // Summary and events are independent: render the seven totals as soon as their
+ // query finishes, without waiting for the transaction statement (and vice versa).
+ useEffect(()=>{
+  if(!owner)return;
+  if(!customReady){setOwnerSummary(null);setSummaryBusy(false);return;}
+  const controller=new AbortController();
+  setOwnerSummary(null);setSummaryBusy(true);setSummaryError('');
+  const params=new URLSearchParams({period,part:'summary'});
+  if(period==='custom'){params.set('from',from);params.set('to',to)}
+  fetch(API+'/api/wholesale/owner/financial-report?'+params,{
+   headers:authHeaders(),cache:'no-store',signal:controller.signal
+  }).then(async r=>{const j=await r.json();if(!r.ok)throw Error(j.error||'Unable to load financial totals');return j})
+   .then(j=>{if(!controller.signal.aborted)setOwnerSummary(j.summary||null)})
+   .catch(e=>{if(!controller.signal.aborted)setSummaryError(e.message)})
+   .finally(()=>{if(!controller.signal.aborted)setSummaryBusy(false)});
+  return()=>controller.abort();
+ },[owner,period,from,to,customReady]);
  const fmt=v=>{
   const n=Number(v||0);
   return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:Math.abs(n*100-Math.round(n*100))>0.0001?4:2});
@@ -1132,20 +1159,24 @@ function FinancialPage({owner=false,dealer=false}){
  };
  useEffect(()=>{
   if(!customReady){setData(null);setBusy(false);setError('Choose a valid date range.');return;}
-  let active=true;
+  const controller=new AbortController();
   setBusy(true);setError('');setSelected(null);
   const params=new URLSearchParams({period});
   if(period==='custom'){params.set('from',from);params.set('to',to)}
-  if(owner){params.set('view',view);params.set('q',query.trim());params.set('page','0')}
+  if(owner){params.set('view',view);params.set('q',stableQuery);params.set('page','0');params.set('part','events')}
   const url=API+'/api/wholesale/'+(owner?'owner':'orders')+'/financial-report?'+params;
-  fetch(url,{headers:authHeaders(),cache:'no-store'}).then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load transactions');return json}).then(json=>{if(active){setData(json);setHasMore(owner&&Boolean(json.has_more))}}).catch(e=>{if(active){setData(null);setError(e.message)}}).finally(()=>{if(active)setBusy(false)});
-  return()=>{active=false};
- },[owner,period,from,to,customReady,owner?view:'',owner?query:'']);
+  fetch(url,{headers:authHeaders(),cache:'no-store',signal:controller.signal})
+   .then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load transactions');return json})
+   .then(json=>{if(!controller.signal.aborted){setData(json);setHasMore(owner&&Boolean(json.has_more))}})
+   .catch(e=>{if(!controller.signal.aborted){setData(null);setError(e.message)}})
+   .finally(()=>{if(!controller.signal.aborted)setBusy(false)});
+  return()=>controller.abort();
+ },[owner,period,from,to,customReady,owner?view:'',owner?stableQuery:'']);
  const loadMore=async()=>{
   if(!owner||busy||loadingMore||!hasMore||!customReady)return;
   setLoadingMore(true);
   try{
-   const params=new URLSearchParams({period,view,q:query.trim(),page:String(Number(data?.page||0)+1)});
+   const params=new URLSearchParams({period,part:'events',view,q:stableQuery,page:String(Number(data?.page||0)+1)});
    if(period==='custom'){params.set('from',from);params.set('to',to)}
    const r=await fetch(API+'/api/wholesale/owner/financial-report?'+params,{headers:authHeaders(),cache:'no-store'});
    const json=await r.json();if(!r.ok)throw Error(json.error||'Could not load more transactions');
@@ -1153,7 +1184,7 @@ function FinancialPage({owner=false,dealer=false}){
    setHasMore(Boolean(json.has_more));
   }catch(e){setError(e.message)}finally{setLoadingMore(false)}
  };
- const s=data?.summary||{};
+ const s=owner?(ownerSummary||{}):(data?.summary||{});
  const walletTypes=new Set(['purchase','deposit','refund','dealer_transfer_in','dealer_transfer_out','dealer_profit','adjustment_credit','adjustment_debit']);
  // Never show reconciliation adjustments or internal audit records, even if an
  // older backend response includes them. They remain in the accounting DB.
@@ -1206,7 +1237,8 @@ function FinancialPage({owner=false,dealer=false}){
   <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
   {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}
-  <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{fmt(val)}</strong></div>)}</div>
+  {owner&&summaryError&&<div className="catalogNotice error" role="alert">Financial totals: {summaryError}</div>}
+  <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{owner&&summaryBusy&&!ownerSummary?'…':fmt(val)}</strong></div>)}</div>
   {owner&&<p className="financeNote">Sales cost is net of returns: Jounieh/Jbeil use supplier cost; dealers/shops use their purchase cost. Your profit excludes dealer commission. Wallet balance includes all dealer and shop wallets and shows the current amount regardless of the date filter.</p>}
   <div className="financeFilters">
    <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
