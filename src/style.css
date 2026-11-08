@@ -2441,3 +2441,7 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargePage .rechargePayHistory {margin-bottom:18px;}
 .rechargePage .rechargePayHistory h3 {font-size:17px;font-weight:800;margin:0 0 13px;}
 .rechargePayFeeSmall {display:block;font-size:11px;font-weight:500;color:#74839a;margin-top:3px;text-align:right;}
+
+/* Hosted Whish Pay order detail uses the same 3ABBILO recharge popup typography. */
+.rechargeDetailsModal .rechargeTotalPaid {border-top:1px solid #e5e7eb;margin-top:7px;padding-top:13px;}
+.rechargeDetailsModal .rechargeTotalPaid strong {color:#142944;font-weight:800;}
