@@ -2035,3 +2035,14 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 
 .ownerAuditVerify{display:block;margin-top:6px;padding:6px 9px;border:1px solid #d9e1ee;border-radius:8px;background:#fff;color:#243b63;font-size:12px;font-weight:650;cursor:pointer}
 .ownerAuditVerify:disabled{opacity:.5;cursor:wait}
+
+/* Account settings — matches the existing 3ABBILO cards and popup layout. */
+.accountSettingsPanel{max-width:720px;background:#fff;border:1px solid #dbe3f0;border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:16px}
+.accountSettingsPanel h2{margin:0;color:#142746}.accountSettingsPanel p{margin:0;color:#72829e}
+.accountSettingsField{display:flex;flex-direction:column;gap:8px;font-weight:650;color:#243858;margin:10px 0}
+.accountSettingsField input{width:100%;box-sizing:border-box;border:1px solid #d9e2ef;border-radius:12px;padding:13px 15px;font:inherit;color:#243858;background:#fff}
+.accountSettingsField input:disabled{background:#f4f6fa;color:#566680;opacity:1}
+.accountSettingsSecurity{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #e5ebf3;padding-top:20px}
+.accountSettingsSecurity .primaryBtn,.accountPasswordModal .primaryBtn{background:#ff8200;color:white;border:0;border-radius:12px;padding:13px 20px;font-weight:700;cursor:pointer}
+.accountPasswordModal form{display:flex;flex-direction:column;gap:8px}.accountPasswordModal .primaryBtn:disabled{opacity:.6;cursor:wait}
+@media(max-width:600px){.accountSettingsPanel{padding:18px}.accountSettingsSecurity{align-items:stretch;flex-direction:column}}
