@@ -1106,7 +1106,7 @@ function FinancialPage({owner=false,dealer=false}){
  const [period,setPeriod]=useState(owner?'24h':'30d');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
- const [view,setView]=useState('all');
+ const [view,setView]=useState(owner?'sales':'all');
  const [query,setQuery]=useState('');
  const [stableQuery,setStableQuery]=useState('');
  const [ownerSummary,setOwnerSummary]=useState(null);
@@ -1190,8 +1190,8 @@ function FinancialPage({owner=false,dealer=false}){
  // older backend response includes them. They remain in the accounting DB.
  const source=(data?.events||[]).filter(item=>item.kind!=='audit'&&(item.kind!=='wallet'||walletTypes.has(item.wallet_type)));
  const views=owner?[
-  ['all','All Activity'],['sales','All Sales & Returns'],['dealer_profit','My Profit — Dealers'],
-  ['shop_profit','My Profit — Shops'],['wallets','All Wallet Transactions']
+  ['sales','Sales & Returns'],['dealer_profit','Profit - Dealers'],
+  ['shop_profit','Profit - Shops'],['wallets','Wallet Transactions']
  ]:dealer?[
   ['all','All Activity'],['sales','My Sales'],['shops','Shop Profit'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
  ]:[
