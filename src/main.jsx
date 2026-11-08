@@ -1239,7 +1239,6 @@ function FinancialPage({owner=false,dealer=false}){
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}
   {owner&&summaryError&&<div className="catalogNotice error" role="alert">Financial totals: {summaryError}</div>}
   <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{owner&&summaryBusy&&!ownerSummary?'…':fmt(val)}</strong></div>)}</div>
-  {owner&&<p className="financeNote">Sales cost is net of returns: Jounieh/Jbeil use supplier cost; dealers/shops use their purchase cost. Your profit excludes dealer commission. Wallet balance includes all dealer and shop wallets and shows the current amount regardless of the date filter.</p>}
   <div className="financeFilters">
    <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
    <input type="search" placeholder="Search order, product or shop..." value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search transactions"/>
