@@ -1251,7 +1251,7 @@ function FinancialPage({owner=false,dealer=false}){
    const label=wallet?walletTitle(item):ownerProfit?(item.kind==='owner_profit_return'?'Profit Reversed':'My Profit')+' — '+(item.account_type==='dealer'?'Dealer':'Shop')+' · Order #'+item.order_id:shop?'Shop Profit — Order #'+item.order_id:returned?'Return — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
    const cleanOwnerSales=owner&&view==='sales'&&sale;
    const cleanOwnerProfit=owner&&ownerProfit&&(view==='dealer_profit'||view==='shop_profit');
-   const displayLabel=cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id:label;
+   const displayLabel=cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+(returned?' (Returned)':''):label;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
    const sub=wallet?(item.product?(item.product+(item.order_id?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
