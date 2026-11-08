@@ -2066,3 +2066,8 @@ body>.modalShade>.productModal.accountPasswordModal{width:min(362px,calc(100vw -
 .accountPasswordModal .popupAction{height:44px;width:100%;margin-top:3px;border-radius:11px;font-size:13px;font-weight:850}
 .accountPasswordModal>p{font-size:12px;color:#64748b;line-height:1.5;margin:8px 0}
 @media(max-width:600px){.accountSettingsPanel{padding:18px 16px}}
+
+/* Manage Account: centered full-width tabs and in-form password guidance */
+.accountPasswordModal .accountAdminTabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;max-width:100%!important;margin:12px auto 15px!important;box-sizing:border-box!important;gap:3px!important;padding:4px!important}
+.accountPasswordModal .accountAdminTabs button{min-width:0!important;width:100%!important;white-space:normal!important;line-height:1.25!important;font-size:clamp(11px,3.2vw,13px)!important;padding:10px 5px!important;box-sizing:border-box!important}
+.accountPasswordModal .accountAdminPasswordNotice{background:#fff7ed;border:1px solid #fed7aa;border-radius:11px;color:#7c4a22;font-size:12px;font-weight:650;line-height:1.5;padding:11px 12px;margin:4px 0 14px;text-align:center}
