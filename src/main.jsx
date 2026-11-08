@@ -1193,7 +1193,7 @@ function FinancialPage({owner=false,dealer=false}){
   ['sales','Sales & Returns'],['dealer_profit','Profit - Dealers'],
   ['shop_profit','Profit - Shops'],['wallets','Wallet Transactions']
  ]:dealer?[
-  ['all','All Activity'],['sales','My Sales'],['shops','Shop Profit'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+  ['all','All Activity'],['sales','My Sales'],['my_profit','My Profit'],['shops','Shop Profit'],['movements','Wallet Movements'],['refunds','Refunds']
  ]:[
   ['all','All Activity'],['sales','My Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
  ];
@@ -1201,6 +1201,8 @@ function FinancialPage({owner=false,dealer=false}){
   const isWallet=item.kind==='wallet';
   if(view==='sales'&&(!['sale','own_sale','purchase'].includes(item.kind)||(item.kind==='purchase'&&item.order_status&&item.order_status!=='success')))return false;
   if(view==='shops'&&item.kind!=='shop_profit')return false;
+  if(view==='my_profit'&&!(item.kind==='purchase'&&item.order_status==='success'))return false;
+  if(view==='movements'&&!(isWallet&&['deposit','dealer_transfer_in','dealer_transfer_out','dealer_profit'].includes(item.wallet_type)))return false;
   if(view==='funding'&&!(isWallet&&item.wallet_type==='deposit'))return false;
   if(view==='transfers'&&!(isWallet&&item.wallet_type.startsWith('dealer_transfer_')))return false;
   if(view==='refunds'&&!(isWallet&&item.wallet_type==='refund'))return false;
@@ -1229,9 +1231,9 @@ function FinancialPage({owner=false,dealer=false}){
   ['My Profit from Shops',s.shop_owner_profit,'positive'],
   ['Total Owner Profit',s.total_owner_profit,'positive']
  ]:dealer?[
-  ['My Purchases',s.purchases],['Refunds',s.refunds],['Sales Profit',s.own_profit,'positive'],['Shop Profit',s.shops_profit,'positive'],['Wallet Balance',s.balance]
+  ['My Purchases',s.purchases],['Refunds',s.refunds],['Total Profit',s.total_profit??(Number(s.own_profit||0)+Number(s.shops_profit||0)),'positive'],['Shop Profit',s.shops_profit,'positive'],['Wallet Balance',s.balance]
  ]:[
-  ['My Purchases',s.purchases],['Refunds',s.refunds],['Sales Profit',s.own_profit,'positive'],['Wallet Balance',s.balance]
+  ['My Purchases',s.purchases],['Refunds',s.refunds],['Total Profit',s.total_profit??s.own_profit,'positive'],['Wallet Balance',s.balance]
  ];
  return <div className={'financePage financeSimple'+(owner?' financeOwner':'')}>
   <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
@@ -1251,12 +1253,13 @@ function FinancialPage({owner=false,dealer=false}){
    const label=wallet?walletTitle(item):ownerProfit?(item.kind==='owner_profit_return'?'Profit Reversed':'My Profit')+' — '+(item.account_type==='dealer'?'Dealer':'Shop')+' · Order #'+item.order_id:shop?'Shop Profit — Order #'+item.order_id:returned?'Return — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
    const cleanOwnerSales=owner&&view==='sales'&&sale;
    const cleanOwnerProfit=owner&&ownerProfit&&(view==='dealer_profit'||view==='shop_profit');
-   const displayLabel=cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+(returned?' (Returned)':''):label;
+   const displayLabel=!owner&&view==='my_profit'&&purchase?'My Profit — Order #'+item.order_id:cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+(returned?' (Returned)':''):label;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
    const sub=wallet?(item.product?(item.product+(item.order_id?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
    const amount=wallet?Number(item.amount):purchase?Number(item.amount??-Number(item.cost||0)):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
-   const amountText=owner||wallet||purchase||shop?signed(amount):fmt(amount);
+   const shownAmount=!owner&&view==='my_profit'&&purchase?Number(item.profit||0):amount;
+   const amountText=owner||wallet||purchase||shop?signed(shownAmount):fmt(shownAmount);
    const finished=item.order_status==='success';
    return <div key={item.id} className="financeEntry">
     <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
@@ -1267,7 +1270,7 @@ function FinancialPage({owner=false,dealer=false}){
       {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
       <small>{date(item.at)}</small>
      </span>
-     <span className={'financeEntryAmount'+(amount>0?' positive':'')}>{amountText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
+     <span className={'financeEntryAmount'+(shownAmount>0?' positive':'')}>{amountText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
     </button>
     {selected===item.id&&<div className="financeEntryDetails">
      {wallet?<>
