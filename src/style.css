@@ -2249,3 +2249,12 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
  font:700 15px/1.25 inherit;cursor:pointer;text-align:center;
 }
 .rechargeDetailsModal .rechargeCloseResult:hover {background:#ed7c00;}
+
+/* Recharge order details: same typography and alignment as 3ABBILO result popups. */
+.rechargeDetailsModal .rechargeDetailLine {font-size:14px;line-height:1.4;min-height:43px;}
+.rechargeDetailsModal .rechargeDetailLine > span:first-child {flex:0 0 auto;}
+.rechargeDetailsModal .rechargeDetailLine > .rechargeCenteredStatus {flex:1;min-width:0;display:flex;justify-content:flex-end;align-items:center;}
+.rechargeDetailsModal .rechargeDetailActions {display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:18px;}
+.rechargeDetailsModal .rechargeDetailActions button {font-family:inherit;font-size:13px;line-height:1.3;font-weight:800;white-space:normal;text-align:center;}
+.rechargeDetailsModal .rechargeCloseResult {font-family:inherit;font-size:14px;font-weight:800;line-height:1.35;}
+.rechargeDetailsModal .popupTitle h2 {font-family:inherit;font-size:17px;font-weight:850;}
