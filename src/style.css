@@ -2100,3 +2100,10 @@ body>.modalShade>.productModal.accountPasswordModal{width:min(362px,calc(100vw -
 .rechargeModal .rechargeSettings>label.rechargeActivation input{width:20px;min-width:20px;height:20px}
 .rechargeModal .rechargeSettings .popupAction{width:100%;min-height:48px;white-space:normal}
 @media(max-width:600px){.rechargePageHeading>.rechargeOutlineBtn,.rechargePageHeading>.rechargePrimaryBtn{flex:1 1 180px}}
+
+/* Recharge page actions: page title is already provided by the main app header. */
+.rechargePageActions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;width:100%}
+.rechargePageActions .dealerShopsAddButton{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:11px 17px;border:0;border-radius:10px;background:#ff8a00;color:#fff;font-size:13px;font-weight:800;line-height:1.2;white-space:nowrap;cursor:pointer}
+.rechargePageActions .dealerShopsAddButton:hover{background:#ed7900}
+.rechargePageActions .rechargeAddBalanceButton{margin-left:auto}
+@media(max-width:560px){.rechargePageActions{flex-wrap:wrap}.rechargePageActions .dealerShopsAddButton{flex:1 1 auto;white-space:normal}.rechargePageActions .rechargeAddBalanceButton{margin-left:0}}
