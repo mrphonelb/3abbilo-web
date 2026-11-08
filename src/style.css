@@ -2446,9 +2446,9 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeDetailsModal .rechargeTotalPaid {border-top:1px solid #e5e7eb;margin-top:7px;padding-top:13px;}
 .rechargeDetailsModal .rechargeTotalPaid strong {color:#142944;font-weight:800;}
 
-/* OMT Wallet uses the full solid yellow brand background. */
-.rechargeWhishCard.omtWalletCard { background:#fede00; color:#111; border-color:#f3d400; }
-.rechargeWhishCard.omtWalletCard:hover { background:#ffe425; }
-.rechargeWhishCard.omtWalletCard small, .rechargeWhishCard.omtWalletCard b { color:#111; }
-.rechargeMethodListItem.omtWalletCard { background:#fede00; color:#111; }
-.rechargeMethodListItem.omtWalletCard .rechargeMethodListText b { color:#111; }
+/* OMT uses the same white payment-method cards as Whish Money; only its logo is yellow. */
+.rechargeWhishCard.omtWalletCard { background:#fff; color:inherit; border-color:#dce2ec; }
+.rechargeWhishCard.omtWalletCard:hover { background:#fffaf4; }
+.rechargeMethodListItem.omtWalletCard { background:#fff; color:#152442; }
+.rechargeMethodListItem.omtWalletCard:hover { background:#fffaf4; }
+.rechargeMethodListItem.omtWalletCard .rechargeMethodListText b { color:inherit; }
