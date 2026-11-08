@@ -1103,7 +1103,7 @@ function ProductsPage({branch=false,accountType="shop"}){
 // Combined read-only financial history. Account ownership and field-level access
 // are enforced by the authenticated backend, never by frontend filtering alone.
 function FinancialPage({owner=false,dealer=false}){
- const [period,setPeriod]=useState('30d');
+ const [period,setPeriod]=useState(owner?'all':'30d');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
  const [view,setView]=useState('all');
@@ -1112,6 +1112,8 @@ function FinancialPage({owner=false,dealer=false}){
  const [busy,setBusy]=useState(true);
  const [error,setError]=useState('');
  const [selected,setSelected]=useState(null);
+ const [hasMore,setHasMore]=useState(false);
+ const [loadingMore,setLoadingMore]=useState(false);
  const customReady=period!=='custom'||Boolean(from&&to&&from<=to);
  const fmt=v=>{
   const n=Number(v||0);
@@ -1134,23 +1136,37 @@ function FinancialPage({owner=false,dealer=false}){
   setBusy(true);setError('');setSelected(null);
   const params=new URLSearchParams({period});
   if(period==='custom'){params.set('from',from);params.set('to',to)}
+  if(owner){params.set('view',view);params.set('q',query.trim());params.set('page','0')}
   const url=API+'/api/wholesale/'+(owner?'owner':'orders')+'/financial-report?'+params;
-  fetch(url,{headers:authHeaders(),cache:'no-store'}).then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load transactions');return json}).then(json=>{if(active)setData(json)}).catch(e=>{if(active){setData(null);setError(e.message)}}).finally(()=>{if(active)setBusy(false)});
+  fetch(url,{headers:authHeaders(),cache:'no-store'}).then(async r=>{const json=await r.json();if(!r.ok)throw Error(json.error||'Unable to load transactions');return json}).then(json=>{if(active){setData(json);setHasMore(owner&&Boolean(json.has_more))}}).catch(e=>{if(active){setData(null);setError(e.message)}}).finally(()=>{if(active)setBusy(false)});
   return()=>{active=false};
- },[owner,period,from,to,customReady]);
+ },[owner,period,from,to,customReady,owner?view:'',owner?query:'']);
+ const loadMore=async()=>{
+  if(!owner||busy||loadingMore||!hasMore||!customReady)return;
+  setLoadingMore(true);
+  try{
+   const params=new URLSearchParams({period,view,q:query.trim(),page:String(Number(data?.page||0)+1)});
+   if(period==='custom'){params.set('from',from);params.set('to',to)}
+   const r=await fetch(API+'/api/wholesale/owner/financial-report?'+params,{headers:authHeaders(),cache:'no-store'});
+   const json=await r.json();if(!r.ok)throw Error(json.error||'Could not load more transactions');
+   setData(previous=>({...previous,events:[...(previous?.events||[]),...(json.events||[])],page:json.page}));
+   setHasMore(Boolean(json.has_more));
+  }catch(e){setError(e.message)}finally{setLoadingMore(false)}
+ };
  const s=data?.summary||{};
- const walletTypes=new Set(['deposit','refund','dealer_transfer_in','dealer_transfer_out']);
+ const walletTypes=new Set(['purchase','deposit','refund','dealer_transfer_in','dealer_transfer_out','dealer_profit','adjustment_credit','adjustment_debit']);
  // Never show reconciliation adjustments or internal audit records, even if an
  // older backend response includes them. They remain in the accounting DB.
  const source=(data?.events||[]).filter(item=>item.kind!=='audit'&&(item.kind!=='wallet'||walletTypes.has(item.wallet_type)));
  const views=owner?[
-  ['all','All Activity'],['sales','Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
+  ['all','All Activity'],['sales','All Sales & Returns'],['dealer_profit','My Profit — Dealers'],
+  ['shop_profit','My Profit — Shops'],['wallets','All Wallet Transactions']
  ]:dealer?[
   ['all','All Activity'],['sales','My Sales'],['shops','Shop Profit'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
  ]:[
   ['all','All Activity'],['sales','My Sales'],['funding','Recharges'],['transfers','Transfers'],['refunds','Refunds']
  ];
- const events=source.filter(item=>{
+ const events=owner?source:source.filter(item=>{
   const isWallet=item.kind==='wallet';
   if(view==='sales'&&(!['sale','own_sale','purchase'].includes(item.kind)||(item.kind==='purchase'&&item.order_status&&item.order_status!=='success')))return false;
   if(view==='shops'&&item.kind!=='shop_profit')return false;
@@ -1162,7 +1178,11 @@ function FinancialPage({owner=false,dealer=false}){
  });
  const walletTitle=item=>{
   switch(item.wallet_type){
-   case 'deposit':return 'Wallet Recharge';
+   case 'deposit':return item.is_dealer_commission?'Dealer Commission Received':'Wallet Recharge';
+   case 'purchase':return item.order_id?'Wallet Purchase — Order #'+item.order_id:'Wallet Purchase';
+   case 'dealer_profit':return 'Dealer Commission';
+   case 'adjustment_credit':return 'Wallet Correction';
+   case 'adjustment_debit':return 'Wallet Correction';
    case 'refund':return item.order_id?'Refund — Order #'+item.order_id:'Refund';
    case 'dealer_transfer_out':return 'Transfer Sent';
    case 'dealer_transfer_in':return 'Transfer Received';
@@ -1170,7 +1190,13 @@ function FinancialPage({owner=false,dealer=false}){
   }
  };
  const metrics=owner?[
-  ['Sales',s.all_sales],['Supplier Cost',s.supplier_cost],['Wallet Recharges',s.account_funding],['Wallet Balances',s.outstanding]
+  ['Total Sales Cost',s.total_sales_cost],
+  ['Jounieh / Jbeil Cost',s.branch_sales_cost],
+  ['Dealer / Shop Cost',s.dealer_shop_sales_cost],
+  ['All Dealer / Shop Wallets',s.available_wallet_all??s.outstanding],
+  ['My Profit from Dealers',s.dealer_owner_profit,'positive'],
+  ['My Profit from Shops',s.shop_owner_profit,'positive'],
+  ['Total Owner Profit',s.total_owner_profit,'positive']
  ]:dealer?[
   ['My Purchases',s.purchases],['Refunds',s.refunds],['Sales Profit',s.own_profit,'positive'],['Shop Profit',s.shops_profit,'positive'],['Wallet Balance',s.balance]
  ]:[
@@ -1181,26 +1207,29 @@ function FinancialPage({owner=false,dealer=false}){
   {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}
   <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{fmt(val)}</strong></div>)}</div>
+  {owner&&<p className="financeNote">Sales cost is net of returns: Jounieh/Jbeil use supplier cost; dealers/shops use their purchase cost. Your profit excludes dealer commission. Wallet balance includes all dealer and shop wallets and shows the current amount regardless of the date filter.</p>}
   <div className="financeFilters">
    <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
    <input type="search" placeholder="Search order, product or shop..." value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search transactions"/>
   </div>
-  <div className="financeListHeader"><strong>Transactions</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
+  <div className="financeListHeader"><strong>{owner?'Financial Activity':'Transactions'}</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
   {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading transactions…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No transactions found</b><span>Try another date or category.</span></div>:<div className="financeList">{events.map(item=>{
    const wallet=item.kind==='wallet',purchase=item.kind==='purchase'||item.kind==='own_sale';
-   const shop=item.kind==='shop_profit',sale=purchase||item.kind==='sale';
-   const label=wallet?walletTitle(item):shop?'Shop Profit — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
+   const shop=item.kind==='shop_profit',ownerProfit=item.kind==='owner_profit'||item.kind==='owner_profit_return';
+   const returned=item.kind==='sale_return',sale=purchase||item.kind==='sale'||returned;
+   const label=wallet?walletTitle(item):ownerProfit?(item.kind==='owner_profit_return'?'Profit Reversed':'My Profit')+' — '+(item.account_type==='dealer'?'Dealer':'Shop')+' · Order #'+item.order_id:shop?'Shop Profit — Order #'+item.order_id:returned?'Return — Order #'+item.order_id:purchase?'Purchase — Order #'+item.order_id:'Sale — Order #'+item.order_id;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
-   const sub=wallet?(item.wallet_type==='refund'&&item.product?(item.product+' · Order #'+item.order_id):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
+   const sub=wallet?(item.product?(item.product+(item.order_id?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
    const amount=wallet?Number(item.amount):purchase?Number(item.amount??-Number(item.cost||0)):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
-   const amountText=wallet||purchase||shop?signed(amount):fmt(amount);
+   const amountText=owner||wallet||purchase||shop?signed(amount):fmt(amount);
    const finished=item.order_status==='success';
    return <div key={item.id} className="financeEntry">
     <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
      <span className="financeEntryIcon">{wallet?<Wallet size={20}/>:shop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
      <span className="financeEntryInfo"><strong>{label}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
-      {sale&&<small className="financeEntryPreview">Cost {fmt(item.cost??Math.abs(Number(item.amount||0)))}{item.selling_price!=null&&<> · Selling {fmt(item.selling_price)}</>}{(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{purchase&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
+      {sale&&<small className="financeEntryPreview">{returned?'Returned Cost':'Cost'} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.selling_price!=null&&<> · Selected Selling {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{!returned&&purchase&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
+      {ownerProfit&&<small className="financeEntryPreview">Supplier {fmt(item.supplier_cost)} · {item.parent_type==='dealer'?'Price to dealer':'Account cost'} {fmt(item.parent_type==='dealer'?item.platform_price:item.cost)} · My profit {signed(item.amount)}</small>}
       {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
       <small>{date(item.at)}</small>
      </span>
@@ -1214,6 +1243,13 @@ function FinancialPage({owner=false,dealer=false}){
        <div><span>Amount</span><b>{signed(amount)}</b></div>
        <div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div>
        <div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>
+      </>:ownerProfit?<>
+       <div><span>Account</span><b>{itemName||'Shop'}</b></div>
+       <div><span>Package</span><b>{item.product||'Sale'}</b></div>
+       <div><span>Supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>
+       <div><span>{item.parent_type==='dealer'?'Price received by 3ABBILO':'Account cost'}</span><b>{fmt(item.parent_type==='dealer'?item.platform_price:item.cost)}</b></div>
+       {item.parent_type==='dealer'&&<div><span>Dealer margin (not my profit)</span><b>{fmt(item.dealer_profit)}</b></div>}
+       <div><span>{item.kind==='owner_profit_return'?'Reversed owner profit':'Owner profit'}</span><b className={Number(item.amount)>=0?'financePositive':''}>{signed(item.amount)}</b></div>
       </>:shop?<>
        <div><span>Shop</span><b>{publicName(item.shop_name)||'Shop'}</b></div>
        <div><span>Package</span><b>{item.product||'Sale'}</b></div>
@@ -1221,16 +1257,21 @@ function FinancialPage({owner=false,dealer=false}){
        <div><span>Price to shop</span><b>{fmt(item.shop_cost)}</b></div>
        <div><span>Profit</span><b className="financePositive">{fmt(item.profit)}</b></div>
       </>:<>
+       {owner&&<div><span>Account</span><b>{itemName||'Shop'}</b></div>}
+       {owner&&item.parent_name&&<div><span>Parent account</span><b>{publicName(item.parent_name)}</b></div>}
        <div><span>Package</span><b>{item.product||item.title||'Sale'}</b></div>
-       <div><span>Purchase cost</span><b>{fmt(item.cost??Math.abs(Number(item.amount||0)))}</b></div>
+       <div><span>{returned?'Returned cost':'Purchase cost'}</span><b>{fmt(item.cost??Math.abs(Number(item.amount||0)))}</b></div>
        {item.order_status&&<div><span>Order status</span><b>{item.order_status==='refunded'?'Failed':item.order_status}</b></div>}
        {item.selling_price!=null&&<div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div>}
-       {(finished||item.kind==='sale')&&<div><span>Recorded profit</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>}
+       {!owner&&(finished||item.kind==='sale')&&<div><span>Recorded profit</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>}
+       {owner&&item.supplier_cost!=null&&<div><span>Supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>}
       </>}
     </div>}
    </div>;
   })}</div>}
-  {data?.limited&&<p className="financeNote">Showing the latest transactions. Choose a shorter date range to view earlier records.</p>}
+  {owner&&hasMore&&<div className="financeLoadMore"><button type="button" disabled={loadingMore} onClick={loadMore}>{loadingMore?'Loading…':'Load More Transactions'}</button></div>}
+  {owner&&Number(s.missing_supplier_cost)>0&&<p className="financeNote">{s.missing_supplier_cost} completed orders lack a verified supplier/account cost. Their unknown amounts are excluded from affected sales-cost or profit totals until reviewed.</p>}
+  {!owner&&data?.limited&&<p className="financeNote">Showing the latest transactions. Choose a shorter date range to view earlier records.</p>}
  </div>;
 }
 

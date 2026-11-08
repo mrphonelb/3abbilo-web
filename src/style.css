@@ -2007,3 +2007,11 @@ body>.branchPickerFloating .floatingPickerSubtitle{display:block;font-size:10px;
 .financeSimple .financeEntryPreview{font-weight:600;color:#4d6080!important}
 .financeSimple .financeEntryTop{padding:16px}
 @media(max-width:600px){.financeSimple .financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}.financeSimple .financeMetric{padding:12px}.financeSimple .financeMetric strong{font-size:17px}}
+/* Owner history pagination; no financial calculations occur in the UI. */
+.financeLoadMore{display:flex;justify-content:center;padding:18px 4px}
+.financeLoadMore button{padding:11px 22px;border-radius:12px;border:1px solid #d9e2f2;background:#fff;color:#1b3252;font-weight:750;cursor:pointer}
+.financeLoadMore button:hover{background:#f3f7fe}
+.financeLoadMore button:disabled{opacity:.5;cursor:wait}
+.financeOwner .financeSummary{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1080px){.financeOwner .financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.financeOwner .financeSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}
