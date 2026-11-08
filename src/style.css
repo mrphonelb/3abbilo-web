@@ -2274,3 +2274,14 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 }
 .rechargeReceiptViewer .rechargeCloseResult:hover {background:#ed7c00;}
 .rechargeReceiptViewer .rechargeCloseResult:focus-visible {outline:3px solid #ffb35a;outline-offset:2px;}
+
+/* Manual credit receivables */
+.rechargePageActions .rechargeUnpaidButton{background:#fff;color:#152443;border:1.5px solid #ff8500;display:inline-flex;align-items:center;gap:8px}
+.rechargePageActions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rechargePageActions .rechargeUnpaidButton{margin-inline:auto}
+.rechargeUnpaidModal{max-width:600px;width:min(94vw,600px)}
+.rechargeUnpaidTotal{display:flex;align-items:center;justify-content:space-between;padding:15px;border-radius:12px;background:#fff5e9;margin-bottom:15px;font-weight:700}
+.rechargeUnpaidRow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #e0e5ef;flex-wrap:wrap}
+.rechargeUnpaidRow>div{flex:1;min-width:150px;display:flex;flex-direction:column;gap:4px}
+.rechargeUnpaidRow small{color:#73829d}
+.rechargeUnpaidRow .rechargeOutlineBtn{padding:9px 12px;font-size:13px}
