@@ -607,7 +607,7 @@ function ServiceModal({p,close,branch=false}){
  const phoneStatus=(telcoCredit||isBill&&['alfa','touch'].includes(telcoProvider))?alfaNumberStatus(values[phoneField?.key||'phone']):'incomplete';
  const isCard=kind==='standard',isDsl=kind==='dsl_card';
  const hasOptions=isGift||['standard','dsl_card','ushare','gift','validity','internet','sodetel_plan'].includes(kind);
- const options=isSodetel?moreOptions:(detail?.options||[]);
+ const options=(isSodetel?moreOptions:(detail?.options||[])).map(o=>isCard&&telcoProvider==='touch'&&/\bTOUCH\s+START\b/i.test(String(o.displayName||o.name||''))?{...o,sortValue:1e12}:o);
  const touchInternet=kind==='internet'&&telcoProvider==='touch';
  const touchInternetPackages=touchInternet?options.map(o=>({...o,name:String(o.name||'').replace(/\s*\((M\d+)\)\s*$/i,'').trim()})):options;
  const selectedTouchPackage=touchInternet?options.find(o=>String(o.offerId??o.id??'')===String(offer)):null;
@@ -746,7 +746,7 @@ function ServiceModal({p,close,branch=false}){
 function ProductModal({p,close,branch=false}){
  if(p.type==='mrp_telco'||p.section==='gift_cards'||p.key==='carfax')return <ServiceModal p={p} close={close} branch={branch}/>;
  const isQuantity=p.type==='quantity';
- const groups=p.groups&&typeof p.groups==='object'?Object.entries(p.groups):[];
+ const groups=p.groups&&typeof p.groups==='object'?Object.entries(p.groups).sort((a,b)=>/pubg/i.test(String(p.title||''))?(Number(!/^pubg\s*uc$/i.test(String(a[1]?.title||a[0]).trim()))-Number(!/^pubg\s*uc$/i.test(String(b[1]?.title||b[0]).trim()))):0):[];
  const[firstGroup,setFirstGroup]=useState(groups[0]?.[0]||'');
  const group=groups.find(([k])=>k===firstGroup)?.[1];
  const[offer,setOffer]=useState(''),[quantity,setQuantity]=useState(''),[rechargeAmount,setRechargeAmount]=useState(''),[amountMode,setAmountMode]=useState(false),[values,setValues]=useState({}),[quote,setQuote]=useState(null),[selling,setSelling]=useState(''),[validated,setValidated]=useState(null),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[offerPrices,setOfferPrices]=useState({});
