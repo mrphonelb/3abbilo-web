@@ -2803,3 +2803,30 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .compactModal .serviceUnavailableNotice{display:flex;align-items:center;gap:11px;text-align:left;margin:14px 0 12px;padding:13px 14px;border:1px solid #fed7aa;border-radius:13px;background:#fff7ed;color:#9a3412;font-size:12px;font-weight:650;line-height:1.5;box-shadow:0 2px 9px rgba(154,52,18,.035)}
 .compactModal .serviceUnavailableNotice svg{flex:0 0 18px;color:#ea580c}
 .compactModal .popupAction:disabled{cursor:not-allowed}
+
+/* 3ABBILO popup alerts: compact, consistent typography and spacing. */
+.productModal .catalogNotice.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 12px 0 0;
+  padding: 12px 13px;
+  border: 1px solid #fecdd3;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #b4233c;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.productModal .catalogNotice.error svg {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: #d92d45;
+}
