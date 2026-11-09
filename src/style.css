@@ -2798,3 +2798,8 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .rechargeTransferModal .rechargeBarcodeBlock { display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; margin-top:5px; }
 .rechargeTransferModal .rechargeBarcodeLabel { color:#687b9c; font-size:12px; font-weight:700; text-align:center; }
 .rechargeTransferModal .rechargeBarcode { width:min(150px,65%)!important; max-height:160px!important; height:auto; object-fit:contain; padding:5px; }
+
+/* Friendly service-unavailable state in game/package popups. */
+.compactModal .serviceUnavailableNotice{display:flex;align-items:center;gap:11px;text-align:left;margin:14px 0 12px;padding:13px 14px;border:1px solid #fed7aa;border-radius:13px;background:#fff7ed;color:#9a3412;font-size:12px;font-weight:650;line-height:1.5;box-shadow:0 2px 9px rgba(154,52,18,.035)}
+.compactModal .serviceUnavailableNotice svg{flex:0 0 18px;color:#ea580c}
+.compactModal .popupAction:disabled{cursor:not-allowed}
