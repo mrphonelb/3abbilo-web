@@ -2479,3 +2479,24 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .ownerAccountActions button:active:not(:disabled){transform:scale(.99)}
 .ownerAccountActions button:focus-visible{outline:3px solid #183a75;outline-offset:3px}
 .ownerAccountActions button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+
+/* Account Details: use the standard compact 3ABBILO action typography. */
+.ownerAccountModal .ownerAccountActions .popupSecondary,
+.ownerAccountModal .ownerAccountActions .ownerDeleteAccount,
+.ownerAccountModal .unifiedReceipt > .popupAction {
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+  height:auto;
+  padding:11px 14px;
+  border-radius:11px;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.3;
+  letter-spacing:normal;
+  text-transform:none;
+  text-align:center;
+}
+.ownerAccountModal .ownerAccountActions {gap:10px;margin:18px 0 14px;}
+.ownerAccountModal .unifiedReceipt > .popupAction {margin-top:4px;}
