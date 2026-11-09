@@ -2745,3 +2745,47 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
  .rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard>b{font-size:clamp(10px,2.7vw,13px);overflow-wrap:anywhere;}
  .rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard>small{font-size:clamp(9px,2.3vw,11px);overflow-wrap:anywhere;}
 }
+
+
+/* Recharge My Account transfer dialogs: match the compact 3ABBILO product popup.
+   Scoped to Whish/OMT/Binance; no effect on owner/account-management dialogs. */
+body>.modalShade>.productModal.compactModal.rechargeTransferModal{
+  width:min(362px,calc(100vw - 24px))!important;
+  max-width:calc(100vw - 24px)!important;
+  max-height:calc(100dvh - 24px)!important;
+  padding:18px 15px 16px!important;
+  border-radius:18px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  box-sizing:border-box!important;
+  font-family:inherit!important;
+  font-size:13px!important;
+  color:#14213d!important;
+}
+.rechargeTransferModal .modalClose{width:30px;height:30px;right:11px;top:11px;background:transparent;color:#111827;}
+.rechargeTransferModal .modalClose svg{width:21px;height:21px;}
+.rechargeTransferModal .popupTitle{margin:0 20px 12px!important;text-align:center;}
+.rechargeTransferModal .rechargePayTitleLogo{width:46px!important;height:46px!important;margin:0 auto 5px!important;border-radius:10px!important;}
+.rechargeTransferModal .popupTitle h2{font-size:17px!important;line-height:1.3!important;font-weight:850!important;margin:0!important;}
+.rechargeTransferModal .rechargeRecipient{padding:11px 10px!important;gap:5px!important;margin:0 0 12px!important;border-radius:11px!important;}
+.rechargeTransferModal .rechargeRecipient>span{font-size:12px!important;line-height:1.35!important;text-align:center;}
+.rechargeTransferModal .rechargeRecipient strong{font-size:18px!important;line-height:1.25!important;}
+.rechargeTransferModal .rechargeWhishRecipientNote{font-size:11px!important;padding:5px 9px!important;margin:3px 0 0!important;max-width:100%;overflow-wrap:anywhere;}
+.rechargeTransferModal .rechargeForm{gap:10px!important;}
+.rechargeTransferModal .rechargeForm>label{font-size:12px!important;font-weight:800!important;gap:6px!important;text-align:center;line-height:1.35!important;}
+.rechargeTransferModal .rechargeAmountInput{height:39px!important;}
+.rechargeTransferModal .rechargeAmountInput b{display:flex;align-items:center;height:39px;padding:0 11px;font-size:12px!important;box-sizing:border-box;}
+.rechargeTransferModal .rechargeAmountInput input{height:39px!important;padding:6px 10px!important;font-size:14px!important;box-sizing:border-box;}
+.rechargeTransferModal .rechargePresets{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;margin:2px 0 4px!important;}
+.rechargeTransferModal .rechargePresets button{min-width:0;min-height:34px!important;padding:5px 1px!important;font-size:11px!important;line-height:1.2!important;font-weight:800!important;border-radius:9px!important;}
+.rechargeTransferModal .rechargeForm .rechargeReceiptFilePicker{min-height:42px!important;padding:5px 7px!important;gap:7px!important;border-radius:10px!important;}
+.rechargeTransferModal .rechargeForm .rechargeReceiptFileButton{min-height:29px!important;padding:5px 7px!important;font-size:11px!important;gap:4px!important;white-space:nowrap;}
+.rechargeTransferModal .rechargeForm .rechargeReceiptFileButton svg{width:14px;height:14px;}
+.rechargeTransferModal .rechargeForm .rechargeReceiptFileName{font-size:10px!important;}
+.rechargeTransferModal .rechargeForm>.popupAction{min-height:42px!important;height:auto!important;margin:2px 0 0!important;font-size:13px!important;font-weight:850!important;border-radius:10px!important;}
+.rechargeTransferModal .rechargeCaution{font-size:11px!important;text-align:center;line-height:1.35!important;}
+@media(max-width:390px){
+  body>.modalShade>.productModal.compactModal.rechargeTransferModal{padding:15px 12px 13px!important;}
+  .rechargeTransferModal .rechargePresets{gap:4px!important;}
+  .rechargeTransferModal .rechargePresets button{font-size:10px!important;}
+}
