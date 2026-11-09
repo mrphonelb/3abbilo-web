@@ -1461,6 +1461,7 @@ function OrderTicket({orderId}){const[description,setDescription]=useState(''),[
 function OrdersPage({dealer,me,shopOrders=false,highlightOrderId=null}){const[selectedResult,setSelectedResult]=useState(null),[relatedTickets,setRelatedTickets]=useState([]);const[orders,setOrders]=useState([]),[loading,setLoading]=useState(true),[err,setErr]=useState(''),[search,setSearch]=useState(''),[filter,setFilter]=useState('all');useEffect(()=>{let alive=true,timer;async function load(first=false){try{if(first)setLoading(true);const r=await fetch(API+'/api/wholesale/orders',{headers:authHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load orders');if(!alive)return;const myId=Number(me?.id||me?.account_id);let rows=d.orders||[];if(dealer)rows=shopOrders?rows.filter(o=>Number(o.account_id)!==myId):rows.filter(o=>Number(o.account_id)===myId);setOrders(rows);setErr('')}catch(e){if(alive)setErr(e.message)}finally{if(alive)setLoading(false)}}load(true);timer=setInterval(()=>load(false),3000);return()=>{alive=false;clearInterval(timer)}},[dealer,shopOrders,me?.id,me?.account_id]);useEffect(()=>{if(!dealer||!shopOrders)return;fetch(API+'/api/wholesale/support/tickets',{headers:authHeaders()}).then(r=>r.ok?r.json():{tickets:[]}).then(d=>setRelatedTickets(d.tickets||[])).catch(()=>{})},[dealer,shopOrders]);function money(v){return '$'+Number(v||0).toFixed(4)}function when(v){if(!v)return '—';try{return new Date(v).toLocaleString()}catch{return v}}function status(v){const x=String(v||'pending').toLowerCase();return x==='success'?'Success':x==='failed'||x==='refunded'?'Failed':'Pending'}const q=search.trim().toLowerCase();const shown=orders.filter(o=>{const st=status(o.status).toLowerCase();if(filter!=='all'&&st!==filter)return false;if(!q)return true;return [o.package_name,o.product_title,o.customer_reference,shopOrders?o.purchaser_name:''].some(v=>String(v||'').toLowerCase().includes(q))});async function copy(v){try{await navigator.clipboard.writeText(v)}catch{}}return <div className="sectionPad">{!shopOrders&&highlightOrderId&&<div className="orderLandingNotice" role="status"><ReceiptText size={19}/><div><strong>Order #{highlightOrderId} submitted</strong><span>Check its status below. Tap any order to see the delivery details. Pending orders update automatically.</span></div></div>}<div className="orderTools"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={shopOrders?'Search shop, product or customer…':'Search product or customer…'}/><select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All Status</option><option value="pending">Pending</option><option value="success">Success</option><option value="failed">Failed</option></select></div>{err&&<div className="catalogNotice error">{err}</div>}{loading?<div className="ordersLoading"><RefreshCw className="spin"/> Loading orders…</div>:shown.length===0?<div className="ordersEmpty"><ReceiptText/><b>No matching orders</b><span>Try another search or status.</span></div> :<div className="ordersRecentList">{shown.map(o=><OrderListRow key={o.id} o={o} shopOrders={shopOrders} highlight={Number(o.id)===Number(highlightOrderId)} showPrice={true} onOpen={()=>setSelectedResult(o.id)}/>) }</div>}{selectedResult&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedResult(null)}><div className="productModal compactModal orderResultModal"><button type="button" className="modalClose" onClick={()=>setSelectedResult(null)} aria-label="Close"><X size={21}/></button><div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div><PurchaseResult orderId={selectedResult} initial={orders.find(o=>Number(o.id)===Number(selectedResult))||null} hideShopSellingPrice={Boolean(shopOrders&&dealer)} branch={["jounieh","jbeil"].includes(String(me?.account_type||""))} onClose={()=>setSelectedResult(null)} onTicket={['jounieh','jbeil'].includes(String(me?.account_type||'').toLowerCase())?null:shopOrders?(relatedTickets.find(t=>Number(t.order_id)===Number(selectedResult))?()=>{const t=relatedTickets.find(t=>Number(t.order_id)===Number(selectedResult));setSelectedResult(null);navigateToTicket(writeNavTicket, null,t.id,'Shop Support Tickets')}:null):()=>{setSelectedResult(null);navigateToTicket(writeNavTicket,selectedResult,null)}} ticketLabel={shopOrders?'View Ticket':'Open Ticket'}/></div></div>,document.body)}</div>}
 function PlaceholderPage({title}){return <div className="sectionPad"><div className="pageTitle"><small>3ABBILO</small><h1>{title}</h1><p>This section is ready to connect to the existing 3ABBILO API.</p></div></div>}
 function TopProducts({setPage}){
+ const sliderRef=useRef(null);
  const[items,setItems]=useState([]),[catalog,setCatalog]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(false),[selected,setSelected]=useState(null);
  useEffect(()=>{
   let active=true;
@@ -1482,10 +1483,29 @@ function TopProducts({setPage}){
   return()=>{active=false;window.removeEventListener('3abbilo:order-placed',refresh)};
  },[]);
  const entries=items.map(item=>({item,product:catalog.find(p=>p.key===item.product_key)})).filter(x=>x.product);
- return <section className="dashSection topProductsSection"><div><h2>TOP PRODUCTS</h2></div>
+ const moveProducts=(direction=1,reset=false)=>{
+  const el=sliderRef.current;if(!el)return;
+  const first=el.querySelector('.topProductCard');if(!first)return;
+  const gap=parseFloat(getComputedStyle(el).columnGap)||0;
+  const step=first.getBoundingClientRect().width+gap;
+  const end=Math.max(0,el.scrollWidth-el.clientWidth);
+  if(end<2)return;
+  const target=reset?0:(direction>0&&el.scrollLeft>=end-step*.45?0:direction<0&&el.scrollLeft<=step*.45?end:Math.min(end,Math.max(0,el.scrollLeft+direction*step)));
+  el.scrollTo({left:target,behavior:'smooth'});
+ };
+ useEffect(()=>{
+  if(entries.length<2)return;
+  const timer=setInterval(()=>{
+   if(document.visibilityState==='hidden'||selected||!sliderRef.current)return;
+   moveProducts(1);
+  },3000);
+  return()=>clearInterval(timer);
+ },[entries.length,selected]);
+
+ return <section className="dashSection topProductsSection"><div className="topProductsHeading"><h2>TOP PRODUCTS</h2><div className="topProductsArrows"><button type="button" aria-label="Previous top products" onClick={()=>moveProducts(-1)}><ChevronLeft size={19}/></button><button type="button" aria-label="Next top products" onClick={()=>moveProducts(1)}><ChevronRight size={19}/></button></div></div>
   {loading?<div className="topProductsEmpty"><RefreshCw size={17} className="spin"/> Loading top products…</div>
    :error?<div className="topProductsEmpty">Top products are temporarily unavailable.</div>
-   :entries.length?<div className="topProductsGrid">{entries.map(({item,product})=><button type="button" className="topProductCard" key={item.product_key} onClick={()=>{
+   :entries.length?<div className="topProductsGrid" ref={sliderRef}>{entries.map(({item,product})=><button type="button" className="topProductCard" key={item.product_key} onClick={()=>{
      if(item.product_key==='esim_buy'||item.product_key==='esim_topup')writeNav({page:'Products',category:'esim',esim:item.product_key==='esim_buy'?'buy':'topup'});
      else setSelected(product);
     }}><img src={productImage(product)} alt="" loading="lazy" onError={e=>{e.currentTarget.style.visibility='hidden'}}/><span>{product.title||product.name||item.product_title}</span></button>)}</div>

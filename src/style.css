@@ -2672,3 +2672,13 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
     flex-basis:calc((100% - 16px)/3);
   }
 }
+
+/* Top Products: desktop navigation for the single-row 3-second carousel. */
+.dashSection.topProductsSection .topProductsHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.dashSection.topProductsSection .topProductsHeading h2{margin:0;}
+.dashSection.topProductsSection .topProductsArrows{display:flex;align-items:center;gap:8px;}
+.dashSection.topProductsSection .topProductsArrows button{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid #ff8a00;border-radius:50%;background:#fff;color:#ff8a00;cursor:pointer;transition:background .15s,color .15s;}
+.dashSection.topProductsSection .topProductsArrows button:hover{background:#ff8a00;color:white;}
+.dashSection.topProductsSection .topProductsArrows button:focus-visible{outline:2px solid #ff8a00;outline-offset:2px;}
+@media(max-width:700px){.dashSection.topProductsSection .topProductsArrows{display:none;}}
+@media(prefers-reduced-motion:reduce){.dashSection.topProductsSection .topProductsGrid{scroll-behavior:auto;}}
