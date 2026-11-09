@@ -1483,24 +1483,29 @@ function TopProducts({setPage}){
   return()=>{active=false;window.removeEventListener('3abbilo:order-placed',refresh)};
  },[]);
  const entries=items.map(item=>({item,product:catalog.find(p=>p.key===item.product_key)})).filter(x=>x.product);
- const moveProducts=(direction=1,reset=false)=>{
-  const el=sliderRef.current;if(!el)return;
-  const first=el.querySelector('.topProductCard');if(!first)return;
-  const gap=parseFloat(getComputedStyle(el).columnGap)||0;
-  const step=first.getBoundingClientRect().width+gap;
+ const moveProducts=(direction=1)=>{
+  const el=sliderRef.current;
+  if(!el)return;
+  const card=el.querySelector('.topProductCard');
+  if(!card)return;
+  const gap=Number.parseFloat(window.getComputedStyle(el).gap)||0;
+  const step=card.getBoundingClientRect().width+gap;
   const end=Math.max(0,el.scrollWidth-el.clientWidth);
-  if(end<2)return;
-  const target=reset?0:(direction>0&&el.scrollLeft>=end-step*.45?0:direction<0&&el.scrollLeft<=step*.45?end:Math.min(end,Math.max(0,el.scrollLeft+direction*step)));
-  el.scrollTo({left:target,behavior:'smooth'});
+  if(end<=1)return;
+  const atEnd=el.scrollLeft>=end-2;
+  const atStart=el.scrollLeft<=2;
+  // Wrap to the first/last card rather than stopping at the scroll boundary.
+  const target=direction>0?(atEnd?0:Math.min(end,el.scrollLeft+step)):(atStart?end:Math.max(0,el.scrollLeft-step));
+  el.scrollTo({left:target,behavior:(direction>0&&atEnd)||(direction<0&&atStart)?'instant':'smooth'});
  };
  useEffect(()=>{
-  if(entries.length<2)return;
-  const timer=setInterval(()=>{
-   if(document.visibilityState==='hidden'||selected||!sliderRef.current)return;
+  if(entries.length<2||loading||error)return;
+  const timer=window.setInterval(()=>{
+   if(document.visibilityState==='hidden'||selected)return;
    moveProducts(1);
   },3000);
-  return()=>clearInterval(timer);
- },[entries.length,selected]);
+  return()=>window.clearInterval(timer);
+ },[entries.length,loading,error,selected]);
 
  return <section className="dashSection topProductsSection"><div className="topProductsHeading"><h2>TOP PRODUCTS</h2><div className="topProductsArrows"><button type="button" aria-label="Previous top products" onClick={()=>moveProducts(-1)}><ChevronLeft size={19}/></button><button type="button" aria-label="Next top products" onClick={()=>moveProducts(1)}><ChevronRight size={19}/></button></div></div>
   {loading?<div className="topProductsEmpty"><RefreshCw size={17} className="spin"/> Loading top products…</div>
