@@ -2467,3 +2467,15 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeAddMethodList .rechargeMethodListLogo{display:block!important;width:56px!important;height:56px!important;max-width:56px!important;object-fit:cover!important;border-radius:12px!important;flex:none!important;}
 .rechargeAddMethodList .rechargeMethodListText{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;text-align:left!important;min-width:0!important;width:100%!important;flex:none!important;}
 @media(max-width:480px){.rechargeAddMethodList{gap:10px!important}.rechargeAddMethodList .rechargeMethodListItem{grid-template-columns:48px minmax(0,1fr)!important;column-gap:14px!important;min-height:78px!important;padding:10px 14px!important}.rechargeAddMethodList .rechargeMethodListLogo{width:48px!important;height:48px!important;max-width:48px!important}}
+
+/* Owner Account Details: prominent, accessible action buttons */
+.ownerAccountActions{display:grid;gap:14px;margin:22px 0 16px}
+.ownerAccountActions .popupSecondary,
+.ownerAccountActions .ownerDeleteAccount{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;box-sizing:border-box;margin:0;padding:12px 16px;border-radius:13px;font:inherit;font-weight:800;text-align:center;cursor:pointer;transition:background-color .15s ease,transform .15s ease,box-shadow .15s ease}
+.ownerAccountActions .popupSecondary{background:#ff8a00;border:2px solid #ff8a00;color:#fff}
+.ownerAccountActions .popupSecondary:hover:not(:disabled){background:#e97b00;border-color:#e97b00;box-shadow:0 3px 10px rgba(255,138,0,.22)}
+.ownerAccountActions .ownerDeleteAccount{background:#c52b25;border:2px solid #c52b25;color:#fff}
+.ownerAccountActions .ownerDeleteAccount:hover:not(:disabled){background:#a9201b;border-color:#a9201b;box-shadow:0 3px 10px rgba(197,43,37,.18)}
+.ownerAccountActions button:active:not(:disabled){transform:scale(.99)}
+.ownerAccountActions button:focus-visible{outline:3px solid #183a75;outline-offset:3px}
+.ownerAccountActions button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
