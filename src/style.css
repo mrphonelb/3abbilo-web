@@ -2792,3 +2792,9 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 
 /* Transfer popup notes: plain text inside the existing recipient panel. */
 .rechargeTransferModal .rechargeWhishRecipientNote{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;margin:5px 0 0!important;text-align:center!important;color:inherit!important;}
+
+/* Center manual transfer amounts and keep Whish QR compact on all screens. */
+.rechargeTransferModal .rechargeAmountInput input { text-align:center!important; padding-left:10px!important; padding-right:10px!important; }
+.rechargeTransferModal .rechargeBarcodeBlock { display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; margin-top:5px; }
+.rechargeTransferModal .rechargeBarcodeLabel { color:#687b9c; font-size:12px; font-weight:700; text-align:center; }
+.rechargeTransferModal .rechargeBarcode { width:min(150px,65%)!important; max-height:160px!important; height:auto; object-fit:contain; padding:5px; }
