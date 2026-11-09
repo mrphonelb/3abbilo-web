@@ -2726,3 +2726,22 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
     grid-column: 1 / -1;
   }
 }
+
+/* Recharge My Account: same compact method cards and popup scale as recharge management. */
+.rechargePage .rechargeChooseMethodsSection{padding:16px 18px;}
+.rechargePage .rechargeChooseMethodsSection>h3{font-size:18px;line-height:1.3;margin:0 0 14px;font-weight:800;}
+.rechargePage .rechargeChooseMethodsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,176px));gap:12px;align-items:stretch;}
+.rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard{box-sizing:border-box;width:100%;min-width:0;min-height:0;padding:13px 9px;gap:7px;border-radius:15px;align-self:stretch;}
+.rechargePage .rechargeChooseMethodsGrid .rechargeWhishLogo{width:74px;height:74px;max-width:100%;padding:0;object-fit:cover;border-radius:12px;}
+.rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard>b{font-size:14px;font-weight:800;line-height:1.25;text-align:center;}
+.rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard>small{font-size:11px;font-weight:400;line-height:1.3;text-align:center;color:#697b99;}
+.rechargeModal .rechargePayTitleLogo{width:48px;height:48px;object-fit:contain;border-radius:12px;margin:0 auto 5px;display:block;}
+@media(max-width:767px){
+ .rechargePage .rechargeChooseMethodsSection{padding:13px 11px;}
+ .rechargePage .rechargeChooseMethodsSection>h3{font-size:16px;margin-bottom:12px;}
+ .rechargePage .rechargeChooseMethodsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+ .rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard{padding:11px 3px;gap:6px;border-radius:12px;}
+ .rechargePage .rechargeChooseMethodsGrid .rechargeWhishLogo{width:clamp(40px,13vw,60px);height:clamp(40px,13vw,60px);border-radius:10px;}
+ .rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard>b{font-size:clamp(10px,2.7vw,13px);overflow-wrap:anywhere;}
+ .rechargePage .rechargeChooseMethodsGrid .rechargeWhishCard>small{font-size:clamp(9px,2.3vw,11px);overflow-wrap:anywhere;}
+}
