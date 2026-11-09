@@ -2539,3 +2539,39 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
   .productModal.ownerAccountModal {padding:22px 16px 18px;}
   .ownerAccountModal .receiptRow strong {max-width:65%;}
 }
+
+/* Recharge Account filters: identical sizing and typography to Owner All Orders. */
+.ownerShell .rechargePage .rechargeOrdersFilters,
+.rechargePage .rechargeOrdersFilters {
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  width:100%;
+  gap:10px;
+  margin:0 0 14px;
+}
+.ownerShell .rechargePage .rechargeOrdersFilters input,
+.ownerShell .rechargePage .rechargeOrdersFilters select,
+.rechargePage .rechargeOrdersFilters input,
+.rechargePage .rechargeOrdersFilters select {
+  box-sizing:border-box;
+  height:40px;
+  min-height:40px;
+  border:1px solid #dfe5ee;
+  border-radius:10px;
+  padding:10px 12px;
+  background:#fff;
+  color:#0f2d5c;
+  font-family:Inter,Arial,sans-serif;
+  font-size:13px;
+  font-weight:400;
+  line-height:normal;
+}
+.rechargePage .rechargeOrdersFilters input {flex:1 1 auto;width:100%;min-width:0;}
+.rechargePage .rechargeOrdersFilters select {flex:0 0 auto;min-width:105px;max-width:none;cursor:pointer;}
+.rechargePage .rechargeOrdersFilters input::placeholder {font-family:Inter,Arial,sans-serif;font-size:13px;font-weight:400;}
+@media(max-width:700px){
+  .rechargePage .rechargeOrdersFilters {flex-wrap:nowrap;gap:8px;}
+  .rechargePage .rechargeOrdersFilters input {flex:1 1 auto;min-width:0;flex-basis:auto;}
+  .rechargePage .rechargeOrdersFilters select {flex:0 0 auto;min-width:103px;max-width:38%;}
+}
