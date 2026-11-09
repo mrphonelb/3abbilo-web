@@ -1412,7 +1412,7 @@ function OrderListRow({o,shopOrders=false,onOpen,highlight=false,showPrice=true,
   <span className="ordersRecentImage"><ProductArtwork p={{key:o.product_key,title:o.product_title||o.package_name}} compact/></span>
   <span className="ordersRecentName"><strong>{ownerView&&o.package_name&&o.product_title&&String(o.package_name).trim().toLowerCase()!==String(o.product_title).trim().toLowerCase()?o.product_title+" — "+o.package_name:o.package_name||o.product_title||o.product_key}</strong><small>#{o.id}</small></span>
   <span className="ordersRecentCustomer">{shopOrders?<span className="shopOrderIdentity"><strong>{o.purchaser_name||'Shop'}</strong><small>{o.customer_reference||'—'}</small></span>:(o.customer_reference||'—')}</span>
-  {showPrice&&<strong className="ordersRecentPrice">${Number(o.account_cost||0).toFixed(4)}</strong>}
+  {showPrice&&<strong className="ordersRecentPrice">{(shopOrders ? o.account_cost : o.selling_price) == null ? '—' : '$'+Number(shopOrders ? o.account_cost : o.selling_price).toFixed(2)}</strong>}
   <span className="ordersRecentState"><span className={'orderStatus '+label.toLowerCase()}>{label}</span></span>
   <time className="ordersRecentTime">{formatted}</time><ChevronRight className="ordersRecentChevron" size={19}/>
  </button>;
