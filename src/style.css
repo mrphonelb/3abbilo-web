@@ -2634,3 +2634,41 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
   .dashSection.topProductsSection .topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
   .dashSection.topProductsSection .topProductsGrid .topProductCard span{font-size:10px;min-height:30px;padding:5px 2px;}
 }
+
+/* Top Products: one horizontal swipeable row on every viewport. */
+.dashSection.topProductsSection .topProductsGrid{
+  display:flex;
+  flex-wrap:nowrap;
+  width:100%;
+  max-width:100%;
+  gap:10px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+  align-items:stretch;
+  padding:2px 0 7px;
+  box-sizing:border-box;
+}
+.dashSection.topProductsSection .topProductsGrid::-webkit-scrollbar{display:none;}
+.dashSection.topProductsSection .topProductsGrid .topProductCard{
+  flex:0 0 clamp(105px,calc((100% - 70px)/8),155px);
+  width:auto;
+  min-width:0;
+  height:auto;
+  align-self:stretch;
+  scroll-snap-align:start;
+}
+@media(max-width:900px){
+  .dashSection.topProductsSection .topProductsGrid .topProductCard{
+    flex-basis:calc((100% - 40px)/5);
+  }
+}
+@media(max-width:600px){
+  .dashSection.topProductsSection .topProductsGrid{gap:8px;}
+  .dashSection.topProductsSection .topProductsGrid .topProductCard{
+    flex-basis:calc((100% - 16px)/3);
+  }
+}
