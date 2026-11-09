@@ -2460,3 +2460,10 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
 .rechargeModal .rechargeForm .rechargeReceiptFileName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6f7e96;font-size:12px;font-weight:600;}
 .rechargeModal .rechargeForm .rechargeReceiptFilePicker:focus-within{outline:2px solid #ff8900;outline-offset:2px;}
 .rechargeModal .rechargeForm .rechargeReceiptFilePicker:hover .rechargeReceiptFileButton{background:#fff6ed;}
+
+/* Add Payment Method: consistent logo and label columns, with breathing room. */
+.rechargeAddMethodList{gap:12px!important;}
+.rechargeAddMethodList .rechargeMethodListItem{display:grid!important;grid-template-columns:56px minmax(0,1fr)!important;align-items:center!important;justify-content:initial!important;column-gap:18px!important;min-height:88px!important;padding:12px 20px!important;text-align:left!important;}
+.rechargeAddMethodList .rechargeMethodListLogo{display:block!important;width:56px!important;height:56px!important;max-width:56px!important;object-fit:cover!important;border-radius:12px!important;flex:none!important;}
+.rechargeAddMethodList .rechargeMethodListText{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;text-align:left!important;min-width:0!important;width:100%!important;flex:none!important;}
+@media(max-width:480px){.rechargeAddMethodList{gap:10px!important}.rechargeAddMethodList .rechargeMethodListItem{grid-template-columns:48px minmax(0,1fr)!important;column-gap:14px!important;min-height:78px!important;padding:10px 14px!important}.rechargeAddMethodList .rechargeMethodListLogo{width:48px!important;height:48px!important;max-width:48px!important}}
