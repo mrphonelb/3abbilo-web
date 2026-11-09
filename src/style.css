@@ -2612,3 +2612,25 @@ body>.modalShade>.rechargeModal.productModal.compactModal{width:min(380px,calc(1
   .dashSection.topProductsSection .topProductsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
   .dashSection.topProductsSection .topProductsGrid .topProductCard span{font-size:12px;min-height:36px;}
 }
+
+/* Dashboard Top Products: compact cards, up to 12 items, 3 across on mobile. */
+.dashSection.topProductsSection .topProductsGrid{
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:9px;
+}
+.dashSection.topProductsSection .topProductsGrid .topProductCard{
+  border-radius:10px;
+}
+.dashSection.topProductsSection .topProductsGrid .topProductCard span{
+  font-size:10px;line-height:1.2;min-height:30px;padding:5px 3px;
+}
+@media(max-width:1400px){
+  .dashSection.topProductsSection .topProductsGrid{grid-template-columns:repeat(8,minmax(0,1fr));}
+}
+@media(max-width:900px){
+  .dashSection.topProductsSection .topProductsGrid{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;}
+}
+@media(max-width:600px){
+  .dashSection.topProductsSection .topProductsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .dashSection.topProductsSection .topProductsGrid .topProductCard span{font-size:10px;min-height:30px;padding:5px 2px;}
+}
