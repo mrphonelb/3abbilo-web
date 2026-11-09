@@ -2789,3 +2789,6 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   .rechargeTransferModal .rechargePresets{gap:4px!important;}
   .rechargeTransferModal .rechargePresets button{font-size:10px!important;}
 }
+
+/* Transfer popup notes: plain text inside the existing recipient panel. */
+.rechargeTransferModal .rechargeWhishRecipientNote{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;margin:5px 0 0!important;text-align:center!important;color:inherit!important;}
