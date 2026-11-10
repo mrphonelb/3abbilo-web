@@ -214,6 +214,16 @@ function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=f
  </div>;
 }
 
+// Alfa and Touch recharge cards: suggest roughly 10% over the account's
+// actual purchase cost, rounded upward to a cashier-friendly whole amount.
+// Larger cards use $5 steps (e.g. $44 -> $50); $23 -> $26, not $30.
+function rechargeCardCashPrice(cost){
+ const n=Number(cost);
+ if(!Number.isFinite(n)||n<=0)return '0.00';
+ const withProfit=n*1.10;
+ const step=withProfit>=40?5:1;
+ return (Math.ceil((withProfit-1e-9)/step)*step).toFixed(2);
+}
 // Game top-up suggestions: add ~10% to the account's purchase cost, then
 // round upward to a convenient cashier price. This does not change account cost.
 function gameCashPrice(cost){
@@ -225,8 +235,8 @@ function gameCashPrice(cost){
  const suggested=Math.ceil((withProfit-1e-9)/step)*step;
  return Math.max(suggested,n).toFixed(2);
 }
-function GameSellingPrice({value,onChange,minimum,retail,showProfit=false,pending=false,locked=false}){
- const base=Number(gameCashPrice(Number(minimum||0)));
+function GameSellingPrice({value,onChange,minimum,retail,showProfit=false,pending=false,locked=false,card=false}){
+ const base=Number(card?rechargeCardCashPrice(minimum):gameCashPrice(Number(minimum||0)));
  const floor=Number(minimum||0);
  return <div className="sellCompact branchSellingPrice gameSellingPrice">
   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} readOnly={locked} onChange={e=>{if(!locked)onChange(e.target.value)}}/>{showProfit&&<span>Profit <strong>{pending?'—':'$'+(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
@@ -630,7 +640,7 @@ function ServiceModal({p,close,branch=false}){
   if(isCarfax)q.set('report_type',values.report_type||'1');
   if(isBill)q.set('bill_ticket',verified.bill_ticket);
   if(isUshare)q.set('add_activation_credit',values.add_activation_credit===true?'true':'false');
-  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setQuotePending(false);setError('');setSelling(current=>(isSodetel&&sellingEditedRef.current)?current:(isDsl||isSodetel)?Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2):isCredit?creditCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):isGift&&!branch&&!d.quote.fixed_selling_price?giftCashPrice(Number(d.quote.account_cost||0)):!isBill&&!d.quote.fixed_selling_price?branchCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
+  const timer=setTimeout(()=>{fetch(path+'/quote?'+q.toString(),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Price unavailable');if(active){setQuote(d.quote);setQuotePending(false);setError('');setSelling(current=>(isSodetel&&sellingEditedRef.current)?current:(isDsl||isSodetel)?Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2):isCredit?creditCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):isCard&&['alfa','touch'].includes(telcoProvider)?rechargeCardCashPrice(Number(d.quote.account_cost||0)):isGift&&!branch&&!d.quote.fixed_selling_price?giftCashPrice(Number(d.quote.account_cost||0)):!isBill&&!d.quote.fixed_selling_price?branchCashPrice(branch?Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0)):Number(d.quote.account_cost||0)):Number(Math.max(Number(d.quote.account_cost||0),Number(d.quote.recommended_selling_price??d.quote.account_cost??0))).toFixed(2))}})
    .catch(e=>{if(active){setQuotePending(false);setError(e.message)}});},isCredit?170:0);
   return()=>{active=false;clearTimeout(timer)};
  },[p.key,offer,values.amount,values.identifier,values.service,values.report_type,values.add_activation_credit,verified?.bill_ticket,detail]);
@@ -737,7 +747,7 @@ function ServiceModal({p,close,branch=false}){
       {billLbp>0&&<div className="billPaymentRow billPaymentLbp"><span>Bill in LBP</span><strong>LBP {billLbp.toLocaleString('en-US',{maximumFractionDigits:0})}</strong></div>}
       <div className="billPaymentTotal"><span>Amount to Be Paid</span><strong>${billUsd.toFixed(2)}</strong></div>
      </div>}
-     {quote&&!telcoBill&&(isGift?(branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost}/>:<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit/>):(isDsl||isSodetel)?<BranchSellingPrice value={selling} onChange={v=>{if(isSodetel)sellingEditedRef.current=true;setSelling(v);setPhase(1)}} minimum={cost} retail={Math.max(cost,Number(quote.recommended_selling_price??cost))} showProfit/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed} credit={isCredit}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill} credit={isCredit}/>)}
+     {quote&&!telcoBill&&(isGift?(branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost}/>:<GiftSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit/>):isCard&&['alfa','touch'].includes(telcoProvider)?<GameSellingPrice card value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} showProfit/>:(isDsl||isSodetel)?<BranchSellingPrice value={selling} onChange={v=>{if(isSodetel)sellingEditedRef.current=true;setSelling(v);setPhase(1)}} minimum={cost} retail={Math.max(cost,Number(quote.recommended_selling_price??cost))} showProfit/>:branch?<BranchSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={quote.recommended_selling_price??cost} locked={priceFixed} credit={isCredit}/>:<WholesaleSellingPrice value={selling} onChange={v=>{setSelling(v);setPhase(1)}} minimum={cost} retail={cost} showProfit={!isBill} credit={isCredit}/>)}
      {detail.purchase_available&&<button className="popupAction" disabled={!ready||busy} onClick={purchase}>{busy?'Processing…':telcoBill?'Pay Bill':isGift||isCarfax||(isCard&&values.method==='code')||isDsl?'Buy Now':'Recharge Now'}</button>}
      {(!detail.purchase_available)&&<div className="catalogNotice">Package lookup is available. Secure purchasing for this service and account is not active yet; no balance will be deducted.</div>}
     </>}
