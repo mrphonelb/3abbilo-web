@@ -33,7 +33,7 @@ export function RechargeNavBadge({owner=false,view="all"}){
  const onRefresh=()=>void run();run();const timer=setInterval(run,12000);window.addEventListener('3abbilo:recharge-updated',onRefresh);return()=>{live=false;clearInterval(timer);window.removeEventListener('3abbilo:recharge-updated',onRefresh)}},[owner,view]);
  return count>0?<span className="ticketNotifyBadge rechargeNavBadge" title={`${count} new recharge notifications`}>{count>99?'99+':count}</span>:null;
 }
-export default function RechargeAccount({owner=false,accountType='shop',dealerBalance=null,onWalletUpdate=()=>{},view='all'}){
+export default function RechargeAccount({owner=false,accountType='shop',dealerBalance=null,onWalletUpdate=()=>{},view='all',focusRequestId=null,onFocusHandled=()=>{}}){
  const prefix=owner?'/api/wholesale/owner/recharge':'/api/wholesale/recharge/manual';
  const scoped=(path)=>path+(owner?'':(path.includes('?')?'&':'?')+'view='+view);
  const managing=owner||(accountType==='dealer'&&view==='shops');
@@ -50,6 +50,8 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
  const[showUnpaid,setShowUnpaid]=useState(false),[unpaidDetails,setUnpaidDetails]=useState(null),[unpaidLoading,setUnpaidLoading]=useState(false);
  const[selectedRequest,setSelectedRequest]=useState(null);
  const[selectedHosted,setSelectedHosted]=useState(null);
+ const handledFocus=useRef(null);
+ useEffect(()=>{if(!owner||!focusRequestId||!details)return;const rec=(details.requests||[]).find(r=>String(r.id)===String(focusRequestId));if(rec&&handledFocus.current!==String(focusRequestId)){handledFocus.current=String(focusRequestId);setSelectedRequest(rec);setRechargeSearch('');setRechargeStatusFilter('all');onFocusHandled()}},[owner,focusRequestId,details]);
  const[rechargeSearch,setRechargeSearch]=useState(''),[rechargeStatusFilter,setRechargeStatusFilter]=useState('all');
  const[barUrl,setBarUrl]=useState(''),[openedBar,setOpenedBar]=useState(false),[removingBarcode,setRemovingBarcode]=useState(false);
  const loaded=useRef(false),requestKey=useRef(makeKey()),directKey=useRef(makeKey());const[receiptView,setReceiptView]=useState(null);
