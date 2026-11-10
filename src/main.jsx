@@ -218,8 +218,8 @@ function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=f
 function gameCashPrice(price){
  const amount=Number(price);
  if(!Number.isFinite(amount)||amount<=0)return '0.00';
- const step=amount<5?.5:amount<20?1:amount<40?5:10;
- return (Math.ceil((amount-1e-9)/step)*step).toFixed(2);
+ // Game top-ups: use the next higher half-dollar even at an exact $0.50.
+ return ((Math.floor(amount*2+1e-9)+1)/2).toFixed(2);
 }
 function GameSellingPrice({value,onChange,minimum,retail,showProfit=false,pending=false,locked=false}){
  const base=Number(gameCashPrice(Math.max(Number(minimum||0),Number(retail||0))));
@@ -794,13 +794,13 @@ function ProductModal({p,close,branch=false}){
   const cached=offerPrices[String(v)];
   if(cached&&Number.isFinite(Number(cached.account_cost))){
    const baseline=branch?Number(cached.recommended_selling_price??cached.account_cost):Number(cached.account_cost);
-   setSelling(branch?baseline.toFixed(2):gameCashPrice(Math.max(Number(cached.account_cost),baseline)));
+   setSelling(gameCashPrice(Math.max(Number(cached.account_cost),baseline)));
   }
   try{
    // Bulk prices are DISPLAY LABELS only. Never authorize checkout from a cached list.
    const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/quote?offer_id='+encodeURIComponent(v),{headers:authHeaders()});
    const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load price');if(requestId!==offerRequest.current)return;
-   const q=d.quote;setQuote(q);setOfferPending(false);if(!sellingEditedRef.current)setSelling(branch?Number(q.recommended_selling_price??q.account_cost).toFixed(2):gameCashPrice(Math.max(Number(q.account_cost||0),Number(q.recommended_selling_price??q.account_cost??0))));
+   const q=d.quote;setQuote(q);setOfferPending(false);if(!sellingEditedRef.current)setSelling(gameCashPrice(Math.max(Number(q.account_cost||0),Number(q.recommended_selling_price??q.account_cost??0))));
   }catch(e){if(requestId===offerRequest.current){setOfferPending(false);setQuote(null);setMsg(e.message)}}
  }
  async function fetchQuantityQuote(v,{keepSelling=false}={}){
