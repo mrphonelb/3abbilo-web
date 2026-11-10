@@ -214,13 +214,13 @@ function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=f
  </div>;
 }
 
-// Alfa and Touch recharge cards: suggest roughly 10% over the account's
+// Alfa and Touch recharge cards: suggest roughly 15% over the account's
 // actual purchase cost, rounded upward to a cashier-friendly whole amount.
 // Larger cards use $5 steps (e.g. $44 -> $50); $23 -> $26, not $30.
 function rechargeCardCashPrice(cost){
  const n=Number(cost);
  if(!Number.isFinite(n)||n<=0)return '0.00';
- const withProfit=n*1.10;
+ const withProfit=n*1.15;
  const step=withProfit>=40?5:1;
  return (Math.ceil((withProfit-1e-9)/step)*step).toFixed(2);
 }
