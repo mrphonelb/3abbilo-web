@@ -215,14 +215,22 @@ function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=f
 }
 
 // Game top-up cashier suggestions only. Account cost is unchanged.
-function gameCashPrice(price){
- const amount=Number(price);
- if(!Number.isFinite(amount)||amount<=0)return '0.00';
- // Game top-ups: use the next higher half-dollar even at an exact $0.50.
- return ((Math.floor(amount*2+1e-9)+1)/2).toFixed(2);
+function gameCashPrice(cost){
+ const n=Number(cost);
+ if(!Number.isFinite(n)||n<=0)return '0.00';
+ // Suggested cash collection only; the account purchase cost never changes.
+ // Small top-ups: $4.23 -> $5, $6.50 -> $8, $9 -> $10.
+ // Midrange: $15 -> $17; larger top-ups: $23 -> $25, $44 -> $50.
+ let suggested;
+ if(n<=5)suggested=Math.ceil(n-1e-9);
+ else if(n<10)suggested=Math.ceil((n+0.5)/2)*2;
+ else if(n<20)suggested=Math.ceil(n+2-1e-9);
+ else if(n<40)suggested=Math.ceil((n-1e-9)/5)*5;
+ else suggested=Math.ceil((n-1e-9)/10)*10;
+ return Math.max(suggested,n).toFixed(2);
 }
 function GameSellingPrice({value,onChange,minimum,retail,showProfit=false,pending=false,locked=false}){
- const base=Number(gameCashPrice(Math.max(Number(minimum||0),Number(retail||0))));
+ const base=Number(gameCashPrice(Number(minimum||0)));
  const floor=Number(minimum||0);
  return <div className="sellCompact branchSellingPrice gameSellingPrice">
   <div className="sellLine branchSellingLine"><b>Selling Price</b><input aria-label="Selling Price" type="number" min={floor} step="0.01" value={value} readOnly={locked} onChange={e=>{if(!locked)onChange(e.target.value)}}/>{showProfit&&<span>Profit <strong>{pending?'—':'$'+(Number(value||0)-floor).toFixed(4)}</strong></span>}</div>
@@ -794,13 +802,13 @@ function ProductModal({p,close,branch=false}){
   const cached=offerPrices[String(v)];
   if(cached&&Number.isFinite(Number(cached.account_cost))){
    const baseline=branch?Number(cached.recommended_selling_price??cached.account_cost):Number(cached.account_cost);
-   setSelling(gameCashPrice(Math.max(Number(cached.account_cost),baseline)));
+   setSelling(gameCashPrice(Number(cached.account_cost)));
   }
   try{
    // Bulk prices are DISPLAY LABELS only. Never authorize checkout from a cached list.
    const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(p.key)+'/quote?offer_id='+encodeURIComponent(v),{headers:authHeaders()});
    const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load price');if(requestId!==offerRequest.current)return;
-   const q=d.quote;setQuote(q);setOfferPending(false);if(!sellingEditedRef.current)setSelling(gameCashPrice(Math.max(Number(q.account_cost||0),Number(q.recommended_selling_price??q.account_cost??0))));
+   const q=d.quote;setQuote(q);setOfferPending(false);if(!sellingEditedRef.current)setSelling(gameCashPrice(Number(q.account_cost||0)));
   }catch(e){if(requestId===offerRequest.current){setOfferPending(false);setQuote(null);setMsg(e.message)}}
  }
  async function fetchQuantityQuote(v,{keepSelling=false}={}){
@@ -881,7 +889,7 @@ function ProductModal({p,close,branch=false}){
    <div className="chatQuantityPresets" aria-label="Suggested chat quantities">{(limitsReady?chatQuantityPresets(p.key,minQty,maxQty,p.title):[]).map(n=><button type="button" key={n} className={Number(quantity)===n?'selected':''} onClick={()=>loadQuantityQuote(String(n))} title={n.toLocaleString('en-US')}>{n>=1000000?Number((n/1000000).toFixed(2))+'M':n>=1000?Number((n/1000).toFixed(2))+'K':n}</button>)}</div>
   </div>}
  </>}
- {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} pending={shownCost===null}/>:<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} showProfit pending={shownCost===null}/>):<GameSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={offerPending?Number(offerPrices[String(offer)]?.account_cost??quote.account_cost):quote.account_cost} retail={offerPending?Number(offerPrices[String(offer)]?.recommended_selling_price??offerPrices[String(offer)]?.account_cost??quote.account_cost):(quote.recommended_selling_price??quote.account_cost)} showProfit={!branch} pending={offerPending}/>)}{(msg||noPackages)&&<div role="alert" className={showUnavailable?"catalogNotice serviceUnavailableNotice":"catalogNotice error"}><AlertCircle size={16} aria-hidden="true"/><span>{customerMessage}</span></div>}<button className="popupAction" onClick={purchase} disabled={busy||showUnavailable||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Buy Now')}</button></></div></div>
+ {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} pending={shownCost===null}/>:<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} showProfit pending={shownCost===null}/>):<GameSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={offerPending?Number(offerPrices[String(offer)]?.account_cost??quote.account_cost):quote.account_cost} retail={offerPending?Number(offerPrices[String(offer)]?.recommended_selling_price??offerPrices[String(offer)]?.account_cost??quote.account_cost):(quote.recommended_selling_price??quote.account_cost)} showProfit pending={offerPending}/>)}{(msg||noPackages)&&<div role="alert" className={showUnavailable?"catalogNotice serviceUnavailableNotice":"catalogNotice error"}><AlertCircle size={16} aria-hidden="true"/><span>{customerMessage}</span></div>}<button className="popupAction" onClick={purchase} disabled={busy||showUnavailable||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Buy Now')}</button></></div></div>
 }
 function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[]);
   // Visible Chat Apps warm their own account prices; no slow full-category batch request.
