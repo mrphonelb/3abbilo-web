@@ -214,19 +214,15 @@ function BranchSellingPrice({value,onChange,minimum,retail,locked=false,credit=f
  </div>;
 }
 
-// Game top-up cashier suggestions only. Account cost is unchanged.
+// Game top-up suggestions: add ~10% to the account's purchase cost, then
+// round upward to a convenient cashier price. This does not change account cost.
 function gameCashPrice(cost){
  const n=Number(cost);
  if(!Number.isFinite(n)||n<=0)return '0.00';
- // Suggested cash collection only; the account purchase cost never changes.
- // Small top-ups: $4.23 -> $5, $6.50 -> $8, $9 -> $10.
- // Midrange: $15 -> $17; larger top-ups: $23 -> $25, $44 -> $50.
- let suggested;
- if(n<=5)suggested=Math.ceil(n-1e-9);
- else if(n<10)suggested=Math.ceil((n+0.5)/2)*2;
- else if(n<20)suggested=Math.ceil(n+2-1e-9);
- else if(n<40)suggested=Math.ceil((n-1e-9)/5)*5;
- else suggested=Math.ceil((n-1e-9)/10)*10;
+ const withProfit=n*1.10;
+ // Small packages: whole dollars; medium: $5 steps; large: $10 steps.
+ const step=withProfit<=20?1:withProfit<=40?5:10;
+ const suggested=Math.ceil((withProfit-1e-9)/step)*step;
  return Math.max(suggested,n).toFixed(2);
 }
 function GameSellingPrice({value,onChange,minimum,retail,showProfit=false,pending=false,locked=false}){
