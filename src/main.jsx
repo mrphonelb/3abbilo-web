@@ -17,9 +17,9 @@ const serviceDetailValues=new Map();
 function readServiceDetail(key){
  const cacheKey=authHeaders().Authorization+'|'+key;
  const memory=serviceDetailValues.get(cacheKey);
- if(memory&&memory.until>Date.now())return memory.product;
+ if(memory&&memory.product)return memory.product;
  try{const storageKey=catalogSnapshotKey('detail:'+key);const stored=storageKey&&JSON.parse(sessionStorage.getItem(storageKey)||'null');
-  if(stored&&stored.until>Date.now()&&stored.product){serviceDetailValues.set(cacheKey,stored);return stored.product}
+  if(stored&&stored.product){serviceDetailValues.set(cacheKey,stored);return stored.product}
  }catch{}
  return null;
 }
@@ -636,7 +636,7 @@ function ServiceModal({p,close,branch=false}){
   setBillOtp('');setPhase(1);setError('');serviceRequestKey.current=null;
  };
  useEffect(()=>{let active=true;setError('');
-  serviceDetails(p.key).then(product=>{if(active)setDetail(product)}).catch(e=>{if(active)setError(e.message)}).finally(()=>{if(active)setLoading(false)});
+  serviceDetails(p.key).then(product=>{if(active){setDetail(product);setError('')}}).catch(e=>{if(active&&!initialDetail)setError(e.message)}).finally(()=>{if(active)setLoading(false)});
   return()=>{active=false};
  },[p.key]);
  const fields=detail?.fields||[];
