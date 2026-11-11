@@ -13,13 +13,29 @@ function productImage(p){return p?.key?API+'/product-photos/'+encodeURIComponent
 const quantityQuoteCache=new Map();
 const serviceDetailCache=new Map();
 const serviceDetailValues=new Map();
+// Account-scoped short-lived service details survive full browser refreshes.
+function readServiceDetail(key){
+ const cacheKey=authHeaders().Authorization+'|'+key;
+ const memory=serviceDetailValues.get(cacheKey);
+ if(memory&&memory.until>Date.now())return memory.product;
+ try{const storageKey=catalogSnapshotKey('detail:'+key);const stored=storageKey&&JSON.parse(sessionStorage.getItem(storageKey)||'null');
+  if(stored&&stored.until>Date.now()&&stored.product){serviceDetailValues.set(cacheKey,stored);return stored.product}
+ }catch{}
+ return null;
+}
+function storeServiceDetail(key,product){
+ const item={product,until:Date.now()+90000};
+ serviceDetailValues.set(authHeaders().Authorization+'|'+key,item);
+ try{const storageKey=catalogSnapshotKey('detail:'+key);if(storageKey)sessionStorage.setItem(storageKey,JSON.stringify(item))}catch{}
+}
+
 function serviceDetails(key){
  const account=authHeaders().Authorization;
  const cacheKey=account+'|'+key;
  return cachedFetch(serviceDetailCache,cacheKey,90000,async()=>{
   const r=await fetch(API+'/api/wholesale/products/'+encodeURIComponent(key)+'/details',{headers:authHeaders()});
   const d=await r.json();if(!r.ok)throw Error(d.error||'Could not load service');
-  serviceDetailValues.set(cacheKey,{product:d.product,until:Date.now()+90000});
+  storeServiceDetail(key,d.product);
   return d.product;
  });
 }
@@ -105,10 +121,11 @@ function ProductTile({p,onOpen,priority=false}){
   else if(p.section==='chat'){const group=Object.keys(p.groups||{})[0];if(group)chatOfferPrices(p.key,group).catch(()=>{})}
  };
  useEffect(()=>{
-  if(p.section!=='chat'||!tileRef.current||typeof IntersectionObserver==='undefined')return;
+  if(!tileRef.current||typeof IntersectionObserver==='undefined')return;
   const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){
-   if(p.type==='quantity')preloadChatQuantity(p.key).catch(()=>{});
-   else{const group=Object.keys(p.groups||{})[0];if(group)chatOfferPrices(p.key,group).catch(()=>{})}
+   if(['gift_cards','alfa','touch','dsl','other_services'].includes(p.section)||p.key==='carfax')serviceDetails(p.key).catch(()=>{});
+   if(p.section==='chat'){if(p.type==='quantity')preloadChatQuantity(p.key).catch(()=>{});
+   else{const group=Object.keys(p.groups||{})[0];if(group)chatOfferPrices(p.key,group).catch(()=>{})}}
    observer.disconnect();
   }},{rootMargin:'120px'});
   observer.observe(tileRef.current);
@@ -597,9 +614,7 @@ function billNotice(result){
  return message||'No unpaid bill is available for this number.';
 }
 function ServiceModal({p,close,branch=false}){
- const detailKey=authHeaders().Authorization+'|'+p.key;
- const cachedDetail=serviceDetailValues.get(detailKey);
- const initialDetail=cachedDetail&&cachedDetail.until>Date.now()?cachedDetail.product:null;
+ const initialDetail=readServiceDetail(p.key);
  const [detail,setDetail]=useState(initialDetail),[loading,setLoading]=useState(!initialDetail),[error,setError]=useState('');
  const [values,setValues]=useState({method:'direct'}),[offer,setOffer]=useState(''),[quote,setQuote]=useState(null),[quotePending,setQuotePending]=useState(false);
  const [selling,setSelling]=useState(''),[phase,setPhase]=useState(1),[busy,setBusy]=useState(false);
@@ -1040,7 +1055,7 @@ const esimOverviewItems=[
  {key:'esim_topup',title:'TOPUP ESIM',section:'esim'}
 ];
 function ProductsOverview({categories,branch,accountType}){
- const[search,setSearch]=useState(''),[products,setProducts]=useState(()=>readCatalogSnapshot('')||[]),[loading,setLoading]=useState(()=>!readCatalogSnapshot('')),[error,setError]=useState(''),[selected,setSelected]=useState(null);
+ const[search,setSearch]=useState(''),[products,setProducts]=useState(()=>readCatalogSnapshot('')||[]),[loading,setLoading]=useState(()=>!readCatalogSnapshot('')),[error,setError]=useState(''),[selected,setSelected]=useState(null),[esimSelected,setEsimSelected]=useState('');
  useEffect(()=>{
   let alive=true;
   const snapshot=readCatalogSnapshot('');
@@ -1078,7 +1093,7 @@ function ProductsOverview({categories,branch,accountType}){
  const searchMatches=needle?searchableProducts.filter(p=>findText(p).includes(needle)):[];
  const openProduct=p=>{
   if(p.key==='esim_buy'||p.key==='esim_topup'){
-   writeNav({page:'Products',category:'esim',esim:p.key==='esim_buy'?'buy':'topup'});
+   setEsimSelected(p.key==='esim_buy'?'buy':'topup');
   }else setSelected(p);
  };
  return <div className="productsOverview">
@@ -1107,6 +1122,7 @@ function ProductsOverview({categories,branch,accountType}){
      </div>
     </section>)}
   {selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}
+  {esimSelected&&createPortal(<EsimCatalog key={esimSelected} branch={branch} accountType={accountType} topup={esimSelected==='topup'} close={()=>setEsimSelected('')}/>,document.body)}
  </div>;
 }
 function ProductsPage({branch=false,accountType="shop"}){
