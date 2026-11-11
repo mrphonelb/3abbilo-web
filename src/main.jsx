@@ -64,6 +64,24 @@ function cachedFetch(cache,key,ttl,run){
  cache.set(key,{promise,until:Date.now()+ttl});
  return promise;
 }
+// Session-scoped catalog snapshot: survives reloads, never stores credentials or quotes.
+const CATALOG_SNAPSHOT_TTL=10*60*1000;
+function catalogSnapshotKey(category=''){
+ const token=String(localStorage.getItem('3abbilo_token')||'');
+ if(!token)return null;
+ let hash=2166136261;
+ for(let i=0;i<token.length;i++)hash=Math.imul(hash^token.charCodeAt(i),16777619);
+ return '3abbilo:catalog:v2:'+((hash>>>0).toString(36))+':'+category;
+}
+function readCatalogSnapshot(category=''){
+ try{const key=catalogSnapshotKey(category);if(!key)return null;
+  const snapshot=JSON.parse(sessionStorage.getItem(key)||'null');
+  return snapshot&&Date.now()-snapshot.at<CATALOG_SNAPSHOT_TTL&&Array.isArray(snapshot.products)?snapshot.products:null;
+ }catch{return null}
+}
+function writeCatalogSnapshot(category,products){
+ try{const key=catalogSnapshotKey(category);if(key)sessionStorage.setItem(key,JSON.stringify({at:Date.now(),products}));}catch{}
+}
 function quantityQuote(key,suffix=''){
  const cacheKey=authHeaders().Authorization+'|'+key+'|'+suffix;
  return cachedFetch(quantityQuoteCache,cacheKey,12000,async()=>{
@@ -897,14 +915,14 @@ function ProductModal({p,close,branch=false}){
  </>}
  {needsValidation&&<button className="popupSecondary" onClick={validate} disabled={busy||!allFields}>{busy?'Checking…':'Check Player ID'}</button>}{validated&&<div className="validationOk"><ShieldCheck size={17}/><span>{validated.player_name||'Player verified'}{validated.region?' — '+validated.region:''}</span></div>}{(isQuantity?Boolean(preview||quote):Boolean(quote))&&(isQuantity?(branch?<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} pending={shownCost===null}/>:<ChatSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={shownCost??Number(quote?.account_cost||0)} showProfit pending={shownCost===null}/>):<GameSellingPrice value={selling} onChange={v=>{sellingEditedRef.current=true;setSelling(v)}} minimum={offerPending?Number(offerPrices[String(offer)]?.account_cost??quote.account_cost):quote.account_cost} retail={offerPending?Number(offerPrices[String(offer)]?.recommended_selling_price??offerPrices[String(offer)]?.account_cost??quote.account_cost):(quote.recommended_selling_price??quote.account_cost)} showProfit pending={offerPending}/>)}{(msg||noPackages)&&<div role="alert" className={showUnavailable?"catalogNotice serviceUnavailableNotice":"catalogNotice error"}><AlertCircle size={16} aria-hidden="true"/><span>{customerMessage}</span></div>}<button className="popupAction" onClick={purchase} disabled={busy||showUnavailable||!canBuy||Number(selling)<Number(quote?.account_cost||0)}>{busy?'Processing…':(['games','chat'].includes(p.section)?'Recharge Now':'Buy Now')}</button></></div></div>
 }
-function StandardCatalog({category,branch=false}){const[items,setItems]=useState([]),[search,setSearch]=useState(''),[busy,setBusy]=useState(true),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');setItems(d.products||[]);
+function StandardCatalog({category,branch=false}){const[items,setItems]=useState(()=>readCatalogSnapshot(category)||[]),[search,setSearch]=useState(''),[busy,setBusy]=useState(()=>!readCatalogSnapshot(category)),[err,setErr]=useState(''),[selected,setSelected]=useState(null);useEffect(()=>{let alive=true;const snapshot=readCatalogSnapshot(category);if(snapshot){setItems(snapshot);setBusy(false)}else setBusy(true);setErr('');fetch(API+'/api/wholesale/products?category='+encodeURIComponent(category)+(search?'&search='+encodeURIComponent(search):''),{headers:authHeaders()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load products');if(!alive)return;setItems(d.products||[]);if(!search)writeCatalogSnapshot(category,d.products||[]);
   // Visible Chat Apps warm their own account prices; no slow full-category batch request.
   if(['gift_cards','alfa','touch','dsl','other_services'].includes(category)){
    const tiles=(d.products||[]).filter(p=>Boolean(p.key));
    // Warm a few at a time so the initial page and API aren't overwhelmed.
    const warm=async()=>{for(let i=0;i<tiles.length;i+=4){await Promise.all(tiles.slice(i,i+4).map(p=>serviceDetails(p.key).catch(()=>null)))}};
    warm();
-  }}).catch(e=>setErr(e.message)).finally(()=>setBusy(false))},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map((p,i)=><ProductTile key={p.key||p.title} p={p} priority={i<6} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
+  }}).catch(e=>{if(alive)setErr(e.message)}).finally(()=>{if(alive)setBusy(false)});return()=>{alive=false}},[category,search]);return <><div className="catalogSearch"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products..."/></div>{err&&<div className="catalogNotice error">{err}</div>}{busy&&!items.length?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>:<div className="catalogGrid">{items.map((p,i)=><ProductTile key={p.key||p.title} p={p} priority={i<6} onOpen={setSelected}/>)}</div>}{selected&&createPortal(<ProductModal key={selected.key||selected.title} p={selected} branch={branch} close={()=>setSelected(null)}/>,document.body)}</>}
 function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
  const[countries,setCountries]=useState([]),[country,setCountry]=useState(''),[countryOpen,setCountryOpen]=useState(false),[countrySearch,setCountrySearch]=useState(''),[iccid,setIccid]=useState(''),[packages,setPackages]=useState([]),[selected,setSelected]=useState(null),[planOpen,setPlanOpen]=useState(false),[selling,setSelling]=useState(''),[period,setPeriod]=useState('1'),[enabled,setEnabled]=useState(false),[busy,setBusy]=useState(false),[err,setErr]=useState('');
  const requestKey=useRef(null),planPicker=useRef(null),loadSerial=useRef(0);
@@ -1022,15 +1040,17 @@ const esimOverviewItems=[
  {key:'esim_topup',title:'TOPUP ESIM',section:'esim'}
 ];
 function ProductsOverview({categories,branch,accountType}){
- const[search,setSearch]=useState(''),[products,setProducts]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[selected,setSelected]=useState(null);
+ const[search,setSearch]=useState(''),[products,setProducts]=useState(()=>readCatalogSnapshot('')||[]),[loading,setLoading]=useState(()=>!readCatalogSnapshot('')),[error,setError]=useState(''),[selected,setSelected]=useState(null);
  useEffect(()=>{
   let alive=true;
+  const snapshot=readCatalogSnapshot('');
+  if(snapshot){setProducts(snapshot);setLoading(false)}
   cachedFetch(overviewCatalogCache,authHeaders().Authorization,60000,async()=>{
    const response=await fetch(API+'/api/wholesale/products',{headers:authHeaders()});
    const data=await response.json();
    if(!response.ok||!data.ok)throw Error(data.error||'Unable to load products');
    return data.products||[];
-  }).then(items=>{if(alive){setProducts(items);setError('')}})
+  }).then(items=>{if(alive){setProducts(items);writeCatalogSnapshot('',items);setError('')}})
     .catch(e=>{if(alive)setError(e.message||'Unable to load products')})
     .finally(()=>{if(alive)setLoading(false)});
   return()=>{alive=false};
@@ -1069,7 +1089,7 @@ function ProductsOverview({categories,branch,accountType}){
    {search&&<button type="button" aria-label="Clear search" onClick={()=>setSearch('')}><X size={18}/></button>}
   </label>
   {error&&<div className="catalogNotice error">{error}</div>}
-  {loading?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>
+  {loading&&!products.length?<div className="catalogNotice"><RefreshCw className="spin"/> Loading products…</div>
    :needle?(searchMatches.length===0
      ?<div className="catalogNotice">No products found. Try another search.</div>
      :<div className="productsSearchResults" aria-label="Matching products">
