@@ -2833,3 +2833,15 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 
 /* Mobile product tiles: three columns across all product catalog grids. */
 @media(max-width:700px){.catalogGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;justify-content:stretch}.catalogProduct{width:100%!important;min-width:0;padding:5px}.catalogProduct img,.catalogFallback{width:100%!important;height:auto!important;aspect-ratio:1/1;object-fit:cover}.catalogProduct b{font-size:10px;line-height:1.2;overflow-wrap:anywhere;margin:5px 1px 2px}}
+
+/* eSIM receipt actions */
+.esimQrCentered{text-align:center}
+.esimQrCentered a{margin:8px auto 0;justify-content:center}
+.esimActivationBox .esimValue{font-size:16px;font-weight:750;overflow-wrap:anywhere;word-break:break-word;line-height:1.45;margin:10px 0;text-align:center}
+.esimDetailRow{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.esimDetailRow span{flex:1 1 130px}
+.esimDetailRow strong{flex:2 1 180px;min-width:0;overflow-wrap:anywhere;word-break:break-word;text-align:right}
+.esimDetailRow button.receiptIconButton,.esimActivationBox button.receiptIconButton,.esimBottomActions button.receiptIconButton{display:inline-flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;min-width:40px;padding:0;border:1px solid #d8e1ef;border-radius:10px;background:#fff;color:#0f2d5c;cursor:pointer}
+.esimBottomActions{display:flex;gap:14px;justify-content:center;margin:18px 0}
+.esimBottomActions button.receiptIconButton:last-child{color:#25D366}
+@media(max-width:540px){.esimDetailRow strong{flex-basis:calc(100% - 56px);text-align:left}.esimDetailRow span{flex-basis:100%}}
