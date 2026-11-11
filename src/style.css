@@ -2845,3 +2845,13 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .esimBottomActions{display:flex;gap:14px;justify-content:center;margin:18px 0}
 .esimBottomActions button.receiptIconButton:last-child{color:#25D366}
 @media(max-width:540px){.esimDetailRow strong{flex-basis:calc(100% - 56px);text-align:left}.esimDetailRow span{flex-basis:100%}}
+
+/* eSIM result layout refinements */
+.esimIccidBox>small,.esimManualHeading{display:block;text-align:center}
+.esimIccidCode{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
+.esimIccidCode strong{text-align:right;min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.esimIccidCode button.receiptIconButton{grid-column:1;grid-row:1}
+.esimDetailRow{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:10px}
+.esimDetailRow span,.esimDetailRow strong{flex:none;width:100%;min-width:0;text-align:center}
+.esimDetailRow button.receiptIconButton{margin:0 auto}
+@media(max-width:540px){.esimDetailRow span,.esimDetailRow strong{flex-basis:auto;text-align:center}}
