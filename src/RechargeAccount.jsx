@@ -33,7 +33,7 @@ export function RechargeNavBadge({owner=false,view="all"}){
  const onRefresh=()=>void run();run();const timer=setInterval(run,12000);window.addEventListener('3abbilo:recharge-updated',onRefresh);return()=>{live=false;clearInterval(timer);window.removeEventListener('3abbilo:recharge-updated',onRefresh)}},[owner,view]);
  return count>0?<span className="ticketNotifyBadge rechargeNavBadge" title={`${count} new recharge notifications`}>{count>99?'99+':count}</span>:null;
 }
-export default function RechargeAccount({owner=false,accountType='shop',dealerBalance=null,onWalletUpdate=()=>{},view='all',focusRequestId=null,onFocusHandled=()=>{}}){
+export default function RechargeAccount({owner=false,accountType='shop',dealerBalance=null,onWalletUpdate=()=>{},view='all',focusRequestId=null,onFocusHandled=()=>{},modalOnly=false,onModalClose=()=>{}}){
  const prefix=owner?'/api/wholesale/owner/recharge':'/api/wholesale/recharge/manual';
  const scoped=(path)=>path+(owner?'':(path.includes('?')?'&':'?')+'view='+view);
  const managing=owner||(accountType==='dealer'&&view==='shops');
@@ -51,7 +51,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
  const[selectedRequest,setSelectedRequest]=useState(null);
  const[selectedHosted,setSelectedHosted]=useState(null);
  const handledFocus=useRef(null);
- useEffect(()=>{if(!owner||!focusRequestId||!details)return;const rec=(details.requests||[]).find(r=>String(r.id)===String(focusRequestId));if(rec&&handledFocus.current!==String(focusRequestId)){handledFocus.current=String(focusRequestId);setSelectedRequest(rec);setRechargeSearch('');setRechargeStatusFilter('all');onFocusHandled()}},[owner,focusRequestId,details]);
+ useEffect(()=>{if(!owner||!focusRequestId||!details)return;const rec=(details.requests||[]).find(r=>String(r.id)===String(focusRequestId));if(rec&&handledFocus.current!==String(focusRequestId)){handledFocus.current=String(focusRequestId);setSelectedRequest(rec);setRechargeSearch('');setRechargeStatusFilter('all');if(!modalOnly)onFocusHandled()}},[owner,focusRequestId,details]);
  const[rechargeSearch,setRechargeSearch]=useState(''),[rechargeStatusFilter,setRechargeStatusFilter]=useState('all');
  const[barUrl,setBarUrl]=useState(''),[openedBar,setOpenedBar]=useState(false),[removingBarcode,setRemovingBarcode]=useState(false);
  const loaded=useRef(false),requestKey=useRef(makeKey()),directKey=useRef(makeKey());const[receiptView,setReceiptView]=useState(null);
@@ -104,7 +104,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
   }
  }
  async function openRequest(rec){setSelectedRequest(rec);setReceiptView(null);if((details?.notifications||[]).some(n=>!n.seen_at&&String(n.request_id)===String(rec.id))){try{await api(scoped(prefix+'/notifications/seen'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:rec.id})});await load();notifyUpdated()}catch(e){setError(e.message)}}}
- function closeRequest(){setSelectedRequest(null);setReceiptView(null)}
+ function closeRequest(){setSelectedRequest(null);setReceiptView(null);if(modalOnly)onModalClose()}
  async function submitReceipt(e){e.preventDefault();if(busy)return;if(!receipt)return setError('Upload the transaction receipt before submitting');
  setBusy(true);setError('');setNotice('');try{const f=new FormData();f.set('amount',amount);f.set('payment_method',binanceRechargeOpen?'binance':omtRechargeOpen?'omt_wallet':'whish_to_whish');f.set('request_key',requestKey.current);f.set('receipt',receipt);const submitted=await api(prefix+'/requests',{method:'POST',body:f});requestKey.current=makeKey();setAmount('');setReceipt(null);for(const id of ['whishReceiptUpload','omtReceiptUpload','binanceReceiptUpload']){const fileInput=document.getElementById(id);if(fileInput)fileInput.value='';}setNotice('Your recharge request was submitted. Status: Pending.');setRechargeOpen(false);setOmtRechargeOpen(false);setBinanceRechargeOpen(false);await reload()}catch(e){setError(e.message)}finally{setBusy(false)}}
  async function addWhish(){if(addingMethod)return;setAddingMethod(true);setError('');try{await api(prefix+'/payment-methods/whish',{method:'POST'});setAddMethodOpen(false);setNotice('Whish Money added. Click its card to configure and activate it.');await reload()}catch(e){setError(e.message)}finally{setAddingMethod(false)}}
@@ -159,7 +159,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
  const canRequest=!owner&&view!=='shops'&&!!details?.destination?.is_active&&!!details?.destination?.whish_number;
  const canBinance=!owner&&view!=='shops'&&!!details?.binance_destination?.is_active&&!!details?.binance_destination?.wallet_id;
  const canOmt=!owner&&view!=='shops'&&!!details?.omt_destination?.is_active&&!!details?.omt_destination?.wallet_number;
- return <div className={owner?"rechargePage":"sectionPad rechargePage"}>
+ return <div className={owner?"rechargePage":"sectionPad rechargePage"} style={modalOnly?{display:"none"}:undefined}>
   {isManager&&<div className="rechargePageActions"><button className="dealerShopsAddButton rechargeAddMethodButton" type="button" onClick={()=>setAddMethodOpen(true)}><Plus size={18}/> Add Payment Method</button><button className="dealerShopsAddButton rechargeUnpaidButton" type="button" onClick={openUnpaid}><Wallet size={18}/> Unpaid Balances</button><button className="dealerShopsAddButton rechargeAddBalanceButton" type="button" onClick={()=>{setShowBalance(true);setError('')}}><Plus size={18}/> Add Wallet Balance</button></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}{notice&&<div className="dealerShopsNotice success" role="status">{notice}</div>}
   {loading&&!details?<div className="ordersLoading"><RefreshCw className="spin"/> Loading recharge details…</div>:<>
