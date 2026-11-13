@@ -3151,3 +3151,28 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   border-bottom:1px solid #dfe6f1;
 }
 .whishDirectModal .whishDirectGuideButton{margin-top:16px!important;}
+
+/* Whish Direct: compact transfer code and instruction notice. */
+.whishDirectModal .whishDirectNoteValue>strong{
+  font-size:22px!important;
+  letter-spacing:2px!important;
+}
+.whishDirectModal .whishDirectNoteValue>.whishDirectCopy{
+  width:31px!important;
+  height:31px!important;
+  flex:0 0 31px!important;
+}
+.whishDirectModal .whishDirectInstructionPanel{
+  font-size:11px!important;
+  line-height:1.4!important;
+  gap:10px!important;
+  padding:9px 12px!important;
+}
+.whishDirectModal .whishDirectInstructionPanel svg{
+  width:19px!important;
+  height:19px!important;
+}
+@media(max-width:560px){
+  .whishDirectModal .whishDirectNoteValue>strong{font-size:20px!important;letter-spacing:1.5px!important;}
+  .whishDirectModal .whishDirectInstructionPanel{font-size:11px!important;}
+}
