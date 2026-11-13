@@ -3207,3 +3207,11 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .whishDirectModal .whishDirectNoteRow {padding-top:10px!important;}
 .whishDirectModal .whishDirectNoteValue {margin:0 auto!important;}
 .whishDirectModal .rechargeCloseResult {position:relative;z-index:2;cursor:pointer;pointer-events:auto;}
+
+/* Whish Direct amount prompt: use the same pale-blue instruction panel as the receiver. */
+.whishDirectModal .whishDirectIntro {
+  display:block!important; background:#f3f6fb!important; border:1px solid #d8e3f6!important;
+  border-radius:14px!important; padding:14px 16px!important; margin:0 0 20px!important;
+  color:#667c9e!important; font-size:14px!important; font-weight:600!important;
+  line-height:1.5!important; text-align:center!important;
+}
