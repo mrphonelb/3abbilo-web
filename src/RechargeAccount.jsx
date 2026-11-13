@@ -215,13 +215,12 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
             <div className="whishDirectCenterRow rechargeDetailLine"><span>Status</span><ReStatus status={whishOrder.status}/></div>
           </div>
           {whishOrder.status==='pending'&&whishOrder.whish_direct_code&&<>
-            <div className="whishDirectNoteRow"><span>Whish to Whish note (6 digits)</span><strong>{whishOrder.whish_direct_code}</strong><button className="whishDirectCopy" type="button" title="Copy six-digit code" aria-label="Copy six-digit code" onClick={()=>navigator.clipboard?.writeText(String(whishOrder.whish_direct_code))}><Copy size={19}/></button></div>
+            <div className="whishDirectNoteRow"><span>Whish to Whish note (6 digits)</span><div className="whishDirectNoteValue"><strong>{whishOrder.whish_direct_code}</strong><button className="whishDirectCopy" type="button" title="Copy six-digit code" aria-label="Copy six-digit code" onClick={()=>navigator.clipboard?.writeText(String(whishOrder.whish_direct_code))}><Copy size={19}/></button></div></div>
             <div className="whishDirectInstructionPanel"><Info size={22}/><span>Enter this 6-digit code in the <b>Note</b> field in the Whish to Whish transfer. Pay the exact amount before the 10-minute deadline.</span></div>
             <button type="button" className="whishDirectGuideButton whishDirectGuideImageOnly" onClick={()=>setWhishGuideOpen(true)} aria-label="Enlarge Whish transfer instructions (example image)">
               <img src={whishNoteGuide} alt="Example Whish to Whish transfer showing where to enter the receiving number, amount and six-digit Note code"/>
               <span className="whishDirectGuideExpand" title="View full image"><Maximize2 size={18}/></span>
             </button>
-            <small className="whishDirectExampleCaption">Example image — use the amount and six-digit code shown above for your order.</small>
             <div className="whishDirectTimer"><WhishDirectCountdown expiresAt={whishOrder.whish_direct_expires_at}/></div>
           </>}
           {whishOrder.status==='failed'&&<p className="rechargeCaution whishDirectOutcome">This recharge failed or expired. Do not transfer using its old code. Create a new order.</p>}

@@ -3121,3 +3121,12 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 }
 .whishDirectModal .whishDirectCenteredDetails .whishDirectCenterRow.rechargeDetailLine>strong.rechargeMoney{color:#ff8500!important;}
 .whishDirectModal .whishDirectCenteredDetails .whishDirectCenterRow.rechargeDetailLine .reStatus{font-size:inherit;}
+
+/* Whish Direct: centered note heading, code and copy control; info panel on separate line. */
+.whishDirectModal .whishDirectNoteRow{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:8px!important;text-align:center!important;padding:12px 0 15px!important;margin:0 0 14px!important;border-bottom:1px solid #dfe6f1!important;}
+.whishDirectModal .whishDirectNoteRow>span{display:block!important;width:100%!important;text-align:center!important;font-size:13px!important;}
+.whishDirectModal .whishDirectNoteValue{display:flex;align-items:center;justify-content:center;gap:10px;max-width:100%;}
+.whishDirectModal .whishDirectNoteValue>strong{font-size:28px!important;letter-spacing:3px!important;line-height:1.2;color:#122341;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.whishDirectModal .whishDirectNoteValue>.whishDirectCopy{flex:0 0 35px;width:35px;height:35px;}
+.whishDirectModal .whishDirectInstructionPanel{margin-top:0!important;}
+@media(max-width:560px){.whishDirectModal .whishDirectNoteValue>strong{font-size:23px!important;letter-spacing:2px!important;}.whishDirectModal .whishDirectNoteValue{gap:8px;}}
