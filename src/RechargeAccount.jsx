@@ -212,7 +212,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
           <div className="whishDirectCenteredDetails">
             <div className="whishDirectCenterRow rechargeDetailLine"><span>Order</span><strong>#{whishOrder.id}</strong></div>
             <div className="whishDirectCenterRow rechargeDetailLine"><span>Amount to transfer</span><strong className="rechargeMoney">{money(whishOrder.amount)} USD</strong></div>
-            <div className="whishDirectCenterRow rechargeDetailLine"><span>Status</span><ReStatus status={whishOrder.status}/></div>
+            <div className="whishDirectCenterRow rechargeDetailLine"><span>Status</span><span className="rechargeCenteredStatus"><ReStatus status={whishOrder.status}/></span></div>
           </div>
           {whishOrder.status==='pending'&&whishOrder.whish_direct_code&&<>
             <div className="whishDirectNoteRow"><span>Whish to Whish note (6 digits)</span><div className="whishDirectNoteValue"><strong>{whishOrder.whish_direct_code}</strong><button className="whishDirectCopy" type="button" title="Copy six-digit code" aria-label="Copy six-digit code" onClick={()=>navigator.clipboard?.writeText(String(whishOrder.whish_direct_code))}><Copy size={19}/></button></div></div>
