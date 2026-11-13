@@ -1529,7 +1529,7 @@ function BranchActivitySummary(){
  useEffect(()=>{if(period==='custom'&&(!from||!to||from>to)){setLoading(false);setData(null);setError(from&&to&&from>to?'From date must be before To date':'');return;}let active=true;setLoading(true);setError('');fetch(API+'/api/wholesale/orders/activity-summary?period='+encodeURIComponent(period)+(period==='custom'?'&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to):''),{headers:authHeaders(),cache:'no-store'}).then(async r=>{const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Unable to load activity');if(active)setData(d)}).catch(e=>{if(active)setError(e.message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[period,from,to]);
  const money=v=>'$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
  const categories=data?.categories||[];
- return <div className="sectionPad branchActivity"><div className="activityHeading"><div><h2>Activity Summary</h2><p>Successful sales by category and product</p></div></div>
+ return <div className="sectionPad branchActivity">
  <div className="financePeriod" role="group" aria-label="Date filter">{[['today','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([id,label])=><button key={id} type="button" className={period===id?'selected':''} onClick={()=>setPeriod(id)}>{label}</button>)}</div>
  {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} min={from||undefined} onChange={e=>setTo(e.target.value)}/></label></div>}
  {error&&<div className="catalogNotice error">{error}</div>}
