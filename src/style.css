@@ -2999,3 +2999,36 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
  .whishDirectOrderRedesign .whishDirectReceiver>span{font-size:12px!important;}
  .whishDirectNoteRow>strong{font-size:23px!important;}
 }
+
+/* Whish Direct order: align with standard Recharge Order dialog, single integrated instruction image. */
+.whishDirectModal:has(.whishDirectOrderRedesign){width:min(620px,calc(100vw - 24px))!important;max-width:620px!important;padding:22px 25px 24px!important;}
+.whishDirectModal:has(.whishDirectOrderRedesign) .popupTitle{margin-bottom:14px!important;}
+.whishDirectOrderRedesign .whishDirectReceiver{margin:0 0 16px!important;padding:12px 55px 12px 15px!important;}
+.whishDirectOrderRedesign .whishDirectReceiver>span{font-size:14px!important;line-height:1.4!important;}
+.whishDirectReceiverValue .whishDirectCopy{top:50%!important;transform:translateY(-10%)!important;right:9px!important;}
+.whishDirectCenteredDetails{display:grid!important;gap:0!important;margin:0 0 10px!important;width:100%;}
+.whishDirectCenterRow{display:flex!important;align-items:center!important;justify-content:space-between!important;text-align:left!important;min-height:45px!important;padding:8px 0!important;border-bottom:1px solid #dfe6f1;gap:12px!important;font-size:14px!important;}
+.whishDirectCenterRow>span{color:#73839f;font-weight:500;}
+.whishDirectCenterRow>strong{font-size:15px!important;text-align:right;font-weight:800;}
+.whishDirectNoteRow{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;justify-content:initial!important;align-items:center!important;gap:9px!important;margin:0 0 12px!important;padding:9px 0!important;border-bottom:1px solid #dfe6f1;font-size:13px!important;}
+.whishDirectNoteRow>span{font-size:13px!important;min-width:0;}
+.whishDirectNoteRow>strong{font-size:24px!important;letter-spacing:2px!important;white-space:nowrap;}
+.whishDirectNoteRow .whishDirectCopy{width:33px;height:33px;flex-basis:33px;}
+.whishDirectInstructionPanel{margin:0 0 12px!important;padding:10px 12px!important;font-size:12px!important;}
+.whishDirectModal .whishDirectGuideImageOnly{display:block!important;position:relative!important;width:100%!important;padding:0!important;border:1px solid #d9e2ef!important;border-radius:12px!important;overflow:hidden!important;background:#f7f9fc!important;}
+.whishDirectModal .whishDirectGuideImageOnly>img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;object-position:center!important;border-radius:0!important;}
+.whishDirectGuideImageOnly>.whishDirectGuideExpand{position:absolute!important;right:7px!important;top:7px!important;margin:0!important;background:#fff!important;border:1px solid #d9e2ef;border-radius:9px;padding:5px;line-height:0;color:#152745!important;}
+.whishDirectExampleCaption{display:block;text-align:center;color:#73839f;font-size:10px;line-height:1.4;margin:5px 0 0;}
+.whishDirectTimer{margin:10px 0 12px!important;}
+.whishDirectGuideModal{width:min(880px,calc(100vw - 24px));}
+.whishDirectGuideModal>img{width:100%;max-height:65vh;object-fit:contain;}
+@media(max-width:560px){
+ .whishDirectModal:has(.whishDirectOrderRedesign){padding:16px 13px 18px!important;}
+ .whishDirectCenterRow{min-height:40px!important;font-size:12px!important;}
+ .whishDirectCenterRow>strong{font-size:13px!important;}
+ .whishDirectNoteRow{grid-template-columns:minmax(0,1fr) auto auto!important;gap:6px!important;}
+ .whishDirectNoteRow>span{font-size:11px!important;}
+ .whishDirectNoteRow>strong{font-size:19px!important;letter-spacing:1px!important;}
+ .whishDirectNoteRow .whishDirectCopy{width:30px;height:30px;flex-basis:30px;}
+ .whishDirectOrderRedesign .whishDirectReceiver>span{font-size:12px!important;}
+}
