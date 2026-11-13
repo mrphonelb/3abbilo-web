@@ -3032,3 +3032,39 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
  .whishDirectNoteRow .whishDirectCopy{width:30px;height:30px;flex-basis:30px;}
  .whishDirectOrderRedesign .whishDirectReceiver>span{font-size:12px!important;}
 }
+
+/* Whish Direct receiving details: centered label, number and copy button stacked. */
+.whishDirectOrderRedesign .whishDirectReceiver {
+  padding: 14px 12px !important;
+  text-align: center !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiver > span {
+  display: block !important;
+  width: 100% !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  text-align: center !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiverValue {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 0 !important;
+  margin-top: 5px !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiverValue > strong {
+  display: block !important;
+  font-size: 25px !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiverValue .whishDirectCopy {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  flex: 0 0 auto !important;
+}
