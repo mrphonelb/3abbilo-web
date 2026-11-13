@@ -3068,3 +3068,39 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   margin: 0 auto !important;
   flex: 0 0 auto !important;
 }
+
+/* Whish Direct receiver: same compact typography as Whish Money transfer popup. */
+.whishDirectOrderRedesign .whishDirectReceiver {
+  padding: 11px 10px !important;
+  text-align: center !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiver > span {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  font-weight: 400 !important;
+  text-align: center !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiverValue {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 5px !important;
+  min-height: 0 !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiverValue > strong {
+  font-size: 18px !important;
+  line-height: 1.25 !important;
+  letter-spacing: normal !important;
+}
+.whishDirectOrderRedesign .whishDirectReceiverValue .whishDirectCopy {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+  border-radius: 9px !important;
+}
