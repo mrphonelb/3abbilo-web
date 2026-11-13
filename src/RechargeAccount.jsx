@@ -116,7 +116,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
     try{await api(scoped(prefix+'/hosted-notifications/'+encodeURIComponent(session.external_id)+'/seen'),{method:'POST'});await load();notifyUpdated()}catch(e){setError(e.message)}
   }
  }
- async function openRequest(rec){setSelectedRequest(rec);setReceiptView(null);if((details?.notifications||[]).some(n=>!n.seen_at&&String(n.request_id)===String(rec.id))){try{await api(scoped(prefix+'/notifications/seen'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:rec.id})});await load();notifyUpdated()}catch(e){setError(e.message)}}}
+ async function openRequest(rec){if(rec.payment_method==='whish_direct'&&rec.status==='pending'&&rec.whish_direct_code){setSelectedRequest(null);setReceiptView(null);setWhishGuideOpen(false);setWhishOrder(rec);setDirectOpen(true);}else{setSelectedRequest(rec);setReceiptView(null);}if((details?.notifications||[]).some(n=>!n.seen_at&&String(n.request_id)===String(rec.id))){try{await api(scoped(prefix+'/notifications/seen'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:rec.id})});await load();notifyUpdated()}catch(e){setError(e.message)}}}
  function closeRequest(){setSelectedRequest(null);setReceiptView(null);if(modalOnly)onModalClose()}
  async function submitReceipt(e){e.preventDefault();if(busy)return;
  const direct=directOpen;
