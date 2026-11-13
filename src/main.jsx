@@ -1643,7 +1643,7 @@ class OwnerErrorBoundary extends React.Component{
  static getDerivedStateFromError(error){return {error}}
  render(){return this.state.error?<div className="ownerCrash"><h2>Unable to display this section</h2><p>The admin session is still active. You can return to the dashboard safely.</p><button onClick={()=>{ownerNavigate('Dashboard',true);this.setState({error:null})}}>Back to Dashboard</button></div>:this.props.children}
 }
-function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[ownerManageRecord,setOwnerManageRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketRechargeId,setTicketRechargeId]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
+function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[ownerManageRecord,setOwnerManageRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketRechargeId,setTicketRechargeId]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[manualOrderMode,setManualOrderMode]=useState(''),[manualOrderConfirm,setManualOrderConfirm]=useState(''),[manualOrderBusy,setManualOrderBusy]=useState(false),[manualOrderMessage,setManualOrderMessage]=useState(''),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
  async function get(path,options){const r=await fetch(API+'/api/wholesale/owner/'+path,{headers:headers(),...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
  async function load(pg=page,q=search,st=status){setLoading(true);setError('');try{const path=pg==='Dashboard'?'dashboard':pg==='All Orders'?'orders?q='+encodeURIComponent(q)+'&status='+encodeURIComponent(st):pg==='Support Tickets'?'tickets':pg==='Accounts'?'accounts':pg==='Wallets'?'wallets':'reports';setData(await get(path))}catch(e){setError(e.message)}finally{setLoading(false)}}
@@ -1676,6 +1676,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   const id=Number(selectedOwnerOrder?.id);
   if(!Number.isSafeInteger(id)||id<=0){setOwnerReceipt(null);setOwnerReceiptLoading(false);setOwnerReceiptError('');setOwnerCopyMessage('');return;}
   let active=true;
+  setManualOrderMode('');setManualOrderConfirm('');setManualOrderMessage('');
   setOwnerReceipt(null);setOwnerReceiptLoading(true);setOwnerReceiptError('');setOwnerCopyMessage('');
   get('orders/'+id+'/receipt',{cache:'no-store'}).then(result=>{
    if(active)setOwnerReceipt(result.order||null);
@@ -1688,6 +1689,20 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   catch{setOwnerCopyMessage('Copy unavailable. Select the code to copy manually.')}
  }
  function navigateOwner(next){if(next===page){setOpen(false);return}setTicket(null);setSelectedOwnerOrder(null);setSelectedOwnerRecord(null);setSearch('');setStatus('');setOpen(false);ownerNavigate(next)}
+ async function ownerResolveOrder(){
+  if(!selectedOwnerOrder?.id||!manualOrderMode||manualOrderBusy)return;
+  const id=Number(selectedOwnerOrder.id);
+  setManualOrderBusy(true);setManualOrderMessage('');
+  try{
+   const result=await get('orders/'+id+'/manual-resolution',{method:'POST',body:JSON.stringify({mode:manualOrderMode,confirmation:manualOrderConfirm})});
+   setManualOrderMessage(result.message||'Order updated');
+   setSelectedOwnerOrder(previous=>previous&&Number(previous.id)===id?{...previous,status:result.status}:previous);
+   setOwnerReceipt(previous=>previous&&Number(previous.id)===id?{...previous,status:result.status}:previous);
+   setManualOrderMode('');setManualOrderConfirm('');
+   const list=await get('orders');setData(list);
+  }catch(e){setManualOrderMessage(e.message||'Unable to resolve order')}
+  finally{setManualOrderBusy(false)}
+ }
  async function recoverPaidAlfaCard(){
   if(Number(selectedOwnerOrder?.id)!==25||selectedOwnerOrder?.status!=='pending'||recoveryBusy)return;
   const ref=window.prompt('Enter the confirmed payment reference for Order #25:');
@@ -1852,6 +1867,25 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
       {failed&&<div className="receiptNote receiptNoteError">This order was not completed successfully.</div>}
      </>;
     })()}
+    {String((ownerReceipt&&Number(ownerReceipt.id)===Number(selectedOwnerOrder.id)?ownerReceipt:selectedOwnerOrder).status)==='pending'&&<section className="receiptDelivery" style={{marginTop:20,padding:16}}>
+     <strong>Owner manual order resolution</strong>
+     <p style={{fontSize:13,margin:'8px 0'}}>Use only after verifying the supplier result. The original wallet reservation is already charged when the order is placed. These actions never submit another purchase.</p>
+     <select aria-label="Manual order resolution" value={manualOrderMode} onChange={e=>{setManualOrderMode(e.target.value);setManualOrderConfirm('');setManualOrderMessage('')}} style={{width:'100%',padding:12,margin:'8px 0'}}>
+      <option value="">Select one of four actions</option>
+      <option value="success_accounting">Success — create invoice and dealer commission</option>
+      <option value="success_status_only">Success — change status only</option>
+      <option value="failed_accounting">Failed — refund reserved wallet (if applicable)</option>
+      <option value="failed_status_only">Failed — change status only</option>
+     </select>
+     {manualOrderMode&&<>
+      <p style={{fontSize:13,margin:'6px 0'}}>{manualOrderMode==='success_accounting'?'Runs the normal success finalizer: invoice under purchasing account, plus shop-to-dealer commission where applicable. Status can remain Processing while invoice sync completes.':manualOrderMode==='failed_accounting'?'Runs the normal failure finalizer: refunds an already reserved shop/dealer wallet amount. No invoice return is created for orders that have never been invoiced. Existing invoices require accounting reconciliation.': 'Only changes the visible order status. No invoices, returns, wallet entries or commissions are created. This can leave accounting out of sync.'}</p>
+      <label style={{display:'block',fontSize:13,marginTop:10}}>Type CONFIRM {selectedOwnerOrder.id} to proceed</label>
+      <input aria-label="Confirm manual order resolution" value={manualOrderConfirm} onChange={e=>setManualOrderConfirm(e.target.value)} placeholder={'CONFIRM '+selectedOwnerOrder.id} style={{width:'100%',padding:12,margin:'8px 0'}}/>
+      <button type="button" className="popupAction" disabled={manualOrderBusy||manualOrderConfirm!==`CONFIRM ${selectedOwnerOrder.id}`} onClick={ownerResolveOrder}>{manualOrderBusy?'Resolving…':'Apply manual resolution'}</button>
+     </>}
+     {manualOrderMessage&&<p role="status">{manualOrderMessage}</p>}
+    </section>}
+    {manualOrderMessage&&String((ownerReceipt&&Number(ownerReceipt.id)===Number(selectedOwnerOrder.id)?ownerReceipt:selectedOwnerOrder).status)!=='pending'&&<p role="status">{manualOrderMessage}</p>}
     {Number(selectedOwnerOrder.id)===25&&selectedOwnerOrder.status==='pending'&&<div className="ownerOnezoneRecovery"><p><b>Payment confirmed.</b> Use this action only after checking that no receipt exists for this exact order. It will not buy again or deduct a second wallet payment.</p><button type="button" disabled={recoveryBusy} onClick={recoverPaidAlfaCard}>{recoveryBusy?'Checking receipt…':'Recover Order #25 receipt'}</button></div>}
     {Number(selectedOwnerOrder.id)===25&&recoveryMessage&&<p className="ownerRecoveryMessage">{recoveryMessage}</p>}
     <button type="button" className="popupAction" onClick={()=>setSelectedOwnerOrder(null)}>Close result</button>
