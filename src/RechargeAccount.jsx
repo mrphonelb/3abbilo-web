@@ -232,7 +232,7 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
           <p className="whishDirectIntro">Choose the amount and create a recharge order.</p>
           <label>Amount (USD)<div className="rechargeAmountInput"><b>USD</b><input type="number" min="0.01" step="0.01" required value={amount} onChange={e=>setAmount(e.target.value)}/></div></label>
           <div className="rechargePresets">{presets.map(n=><button type="button" key={n} onClick={()=>setAmount(String(n))}>${n}</button>)}</div>
-          <button className="popupAction" disabled={busy||!canRequest}>{busy?'Creating…':'Create Recharge Order'}</button>
+          <button className="popupAction" disabled={busy||!canDirect}>{busy?'Creating…':'Create Recharge Order'}</button>
         </form>}
       </div>
     </div>,document.body)}
