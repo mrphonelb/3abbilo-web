@@ -1,6 +1,6 @@
 import React,{useEffect,useState,useRef} from 'react';
 import {createPortal} from 'react-dom';
-import {Wallet, X, Plus, Minus, ShieldCheck, UploadCloud, ReceiptText, MessageCircle, RefreshCw, CheckCircle2, AlertTriangle, Bell, CreditCard, Store} from 'lucide-react';
+import {Wallet, X, Plus, Minus, ShieldCheck, UploadCloud, ReceiptText, MessageCircle, RefreshCw, CheckCircle2, AlertTriangle, Bell, CreditCard, Store, Copy, Maximize2, Info} from 'lucide-react';
 import './style.css';
 import whishMoneyLogo from './assets/whish-money.png';
 import omtLogo from './assets/omt-wallet.png';
@@ -207,16 +207,22 @@ export default function RechargeAccount({owner=false,accountType='shop',dealerBa
       <div className="productModal compactModal rechargeModal rechargeTransferModal whishDirectModal" role="dialog" aria-modal="true" aria-label="Whish Direct Recharge">
         <button className="modalClose" type="button" onClick={()=>{setDirectOpen(false);setWhishGuideOpen(false)}}><X/></button>
         <div className="popupTitle"><img className="rechargePayTitleLogo" src={whishMoneyLogo} alt="Whish"/><h2>Whish Direct</h2></div>
-        {whishOrder ? <div className="rechargeForm whishDirectOrder">
-          <div className="rechargeRecipient"><span>Transfer Whish to Whish to this number</span><strong>{details?.whish_direct_destination?.whish_number||'—'}</strong></div>
-          <div className="rechargeDetailLine"><span>Order</span><strong>#{whishOrder.id}</strong></div>
-          <div className="rechargeDetailLine"><span>Amount to transfer</span><strong className="rechargeMoney">{money(whishOrder.amount)} USD</strong></div>
-          <div className="rechargeDetailLine"><span>Status</span><ReStatus status={whishOrder.status}/></div>
+        {whishOrder ? <div className="rechargeForm whishDirectOrder whishDirectOrderRedesign">
+          <div className="rechargeRecipient whishDirectReceiver"><span>Transfer money Whish to Whish to this number</span><div className="whishDirectReceiverValue"><strong>{details?.whish_direct_destination?.whish_number||'—'}</strong><button className="whishDirectCopy" type="button" title="Copy receiving number" aria-label="Copy receiving number" onClick={()=>navigator.clipboard?.writeText(String(details?.whish_direct_destination?.whish_number||''))}><Copy size={19}/></button></div></div>
+          <div className="whishDirectCenteredDetails">
+            <div className="whishDirectCenterRow"><span>Order</span><strong>#{whishOrder.id}</strong></div>
+            <div className="whishDirectCenterRow"><span>Amount to transfer</span><strong className="rechargeMoney">{money(whishOrder.amount)} USD</strong></div>
+            <div className="whishDirectCenterRow"><span>Status</span><ReStatus status={whishOrder.status}/></div>
+          </div>
           {whishOrder.status==='pending'&&whishOrder.whish_direct_code&&<>
-            <div className="rechargeDetailLine whishDirectCodeLine"><span>Whish transfer note (6 digits)</span><strong>{whishOrder.whish_direct_code}</strong></div>
-            <p className="rechargeCaution whishDirectInstruction">Enter this 6-digit code in the <b>Note</b> field of Whish to Whish. Transfer the exact amount within 10 minutes.</p>
-            <button type="button" className="whishDirectGuideButton" onClick={()=>setWhishGuideOpen(true)}><img src={whishNoteGuide} alt="Whish to Whish Note field example"/><span>Where to enter the code?</span><span className="whishDirectGuideExpand">View image</span></button>
-            <WhishDirectCountdown expiresAt={whishOrder.whish_direct_expires_at}/>
+            <div className="whishDirectNoteRow"><span>Whish to Whish note (6 digits)</span><strong>{whishOrder.whish_direct_code}</strong><button className="whishDirectCopy" type="button" title="Copy six-digit code" aria-label="Copy six-digit code" onClick={()=>navigator.clipboard?.writeText(String(whishOrder.whish_direct_code))}><Copy size={19}/></button></div>
+            <div className="whishDirectInstructionPanel"><Info size={22}/><span>Enter this 6-digit code in the <b>Note</b> field in the Whish to Whish transfer. Pay the exact amount before the 10-minute deadline.</span></div>
+            <button type="button" className="whishDirectGuideButton whishDirectGuideExpanded" onClick={()=>setWhishGuideOpen(true)} aria-label="Open larger Whish transfer instructions">
+              <img src={whishNoteGuide} alt="Whish to Whish screen highlighting the Note field"/>
+              <span className="whishDirectGuideSteps"><b>Where to enter the code?</b><span><i>1</i> Open Whish and choose Whish to Whish.</span><span><i>2</i> Enter the number <strong>{details?.whish_direct_destination?.whish_number||'—'}</strong>.</span><span><i>3</i> Enter the amount <strong>{money(whishOrder.amount)}</strong>.</span><span><i>4</i> Enter the code <strong>{whishOrder.whish_direct_code}</strong> in the Note field.</span></span>
+              <span className="whishDirectGuideExpand" title="View full image"><Maximize2 size={18}/></span>
+            </button>
+            <div className="whishDirectTimer"><WhishDirectCountdown expiresAt={whishOrder.whish_direct_expires_at}/></div>
           </>}
           {whishOrder.status==='failed'&&<p className="rechargeCaution whishDirectOutcome">This recharge failed or expired. Do not transfer using its old code. Create a new order.</p>}
           {whishOrder.status==='success'&&<p className="rechargeCaution whishDirectOutcome whishDirectSuccess"><CheckCircle2 size={18}/> Payment credited successfully. The transfer code is no longer valid.</p>}

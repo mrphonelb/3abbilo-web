@@ -2904,3 +2904,34 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .whishDirectGuideModal>img{display:block;width:auto;max-width:100%;max-height:58vh;object-fit:contain;margin:0 auto 14px;border:1px solid #e5eaf1;border-radius:10px;}
 .whishDirectGuideModal .rechargeCloseResult{background:#ff8900;color:white;border:0;border-radius:10px;min-height:40px;width:100%;font-weight:800;font-size:14px;}
 @media(max-width:540px){.whishDirectModal .rechargeDetailLine>span{font-size:12px}.whishDirectModal .rechargeDetailLine>strong{font-size:13px}.whishDirectModal .whishDirectCodeLine strong{font-size:21px!important;letter-spacing:2px}}
+
+/* Whish Direct illustrated confirmation: match the visual reference without altering other popups. */
+.whishDirectModal:has(.whishDirectOrderRedesign){width:min(700px,calc(100vw - 30px))!important;max-width:700px!important;max-height:94dvh;overflow-y:auto;padding:24px 28px!important;border-radius:24px!important;}
+.whishDirectOrderRedesign{gap:0!important;}
+.whishDirectOrderRedesign .whishDirectReceiver{margin:8px 0 15px!important;padding:13px 15px!important;border-radius:16px!important;text-align:center!important;background:#f3f6fb!important;border:1px solid #dce5f3!important;}
+.whishDirectOrderRedesign .whishDirectReceiver>span{display:block;color:#657995;font-size:14px;}
+.whishDirectReceiverValue{display:flex;justify-content:center;align-items:center;position:relative;gap:15px;}
+.whishDirectReceiverValue>strong{font-size:25px!important;color:#142441!important;letter-spacing:.01em;}
+.whishDirectCopy{display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;padding:0;background:#f9fbff;border:1px solid #d7e1ee;border-radius:12px;color:#152745;cursor:pointer;}
+.whishDirectCopy:hover{background:#eaf1fc;}
+.whishDirectReceiverValue .whishDirectCopy{position:absolute;right:4px;}
+.whishDirectCenteredDetails{display:grid;gap:7px;margin:0 auto 13px;text-align:center;}
+.whishDirectCenterRow{display:flex;align-items:center;justify-content:center;gap:9px;min-height:28px;font-size:14px;color:#647794;}
+.whishDirectCenterRow strong{font-size:16px;color:#132343;font-weight:800;}
+.whishDirectCenterRow strong.rechargeMoney{color:#ff8500;}
+.whishDirectNoteRow{display:flex;justify-content:center;align-items:center;gap:13px;flex-wrap:wrap;margin:4px 0 15px;color:#526887;font-size:14px;}
+.whishDirectNoteRow>strong{font-size:30px;letter-spacing:4px;color:#122341;font-weight:850;font-variant-numeric:tabular-nums;}
+.whishDirectInstructionPanel{display:flex;align-items:center;gap:15px;background:#f0f5fd;border-radius:15px;padding:13px 16px;margin:0 0 14px;text-align:left;color:#203c64;font-size:13px;line-height:1.55;}
+.whishDirectInstructionPanel svg{flex-shrink:0;color:#0873b7;}
+.whishDirectModal .whishDirectGuideExpanded{display:grid!important;grid-template-columns:170px minmax(0,1fr) 24px;gap:14px!important;align-items:start!important;padding:12px!important;position:relative;}
+.whishDirectGuideExpanded>img{width:170px!important;height:178px!important;object-fit:cover!important;object-position:top center!important;border-radius:9px!important;}
+.whishDirectGuideSteps{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:12px;line-height:1.35;color:#172747;}
+.whishDirectGuideSteps>b{font-size:16px;font-weight:850;margin:2px 0 3px;}
+.whishDirectGuideSteps>span{display:flex;align-items:baseline;gap:8px;}
+.whishDirectGuideSteps i{display:inline-flex;align-items:center;justify-content:center;flex:0 0 21px;width:21px;height:21px;background:#ff8900;color:#fff;border-radius:50%;font-size:12px;font-style:normal;font-weight:800;}
+.whishDirectGuideExpanded>.whishDirectGuideExpand{margin:0!important;color:#142441!important;}
+.whishDirectTimer{margin:14px 0 15px;}
+.whishDirectTimer .rechargeDetailLine{justify-content:center!important;gap:8px!important;}
+.whishDirectTimer .rechargeDetailLine>span{font-size:16px!important;}
+.whishDirectTimer .rechargeDirectCountdown{font-size:23px!important;}
+@media(max-width:560px){.whishDirectModal:has(.whishDirectOrderRedesign){padding:18px 14px!important;border-radius:19px!important;}.whishDirectModal .whishDirectGuideExpanded{grid-template-columns:90px minmax(0,1fr) 18px;gap:9px!important;padding:9px!important;}.whishDirectGuideExpanded>img{width:90px!important;height:160px!important;}.whishDirectGuideSteps{font-size:10px;gap:6px;}.whishDirectGuideSteps>b{font-size:12px;}.whishDirectGuideSteps i{flex-basis:18px;width:18px;height:18px;font-size:10px;}.whishDirectNoteRow{gap:8px;font-size:12px;}.whishDirectNoteRow>strong{font-size:23px;letter-spacing:2px;}.whishDirectInstructionPanel{font-size:12px;padding:11px;}.whishDirectReceiverValue>strong{font-size:22px!important;}}
