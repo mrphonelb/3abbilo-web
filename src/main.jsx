@@ -803,7 +803,7 @@ function ServiceModal({p,close,branch=false}){
 
 }
 function ProductModal({p,close,branch=false}){
- if(p.type==='mrp_telco'||p.section==='gift_cards'||p.key==='carfax')return <ServiceModal p={p} close={close} branch={branch}/>;
+ if(p.type==='mrp_telco'||(p.section==='gift_cards'&&p.supplier!=='extra4card')||p.key==='carfax')return <ServiceModal p={p} close={close} branch={branch}/>;
  const isQuantity=p.type==='quantity';
  const groups=p.groups&&typeof p.groups==='object'?Object.entries(p.groups).sort((a,b)=>/pubg/i.test(String(p.title||''))?(Number(!/^pubg\s*uc$/i.test(String(a[1]?.title||a[0]).trim()))-Number(!/^pubg\s*uc$/i.test(String(b[1]?.title||b[0]).trim()))):0):[];
  const[firstGroup,setFirstGroup]=useState(groups[0]?.[0]||'');
