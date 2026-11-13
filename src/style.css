@@ -2880,3 +2880,27 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 
 /* Whish Direct pending-order countdown */
 .rechargeDirectCountdown { font-variant-numeric: tabular-nums; font-size: 1.3em; letter-spacing: .04em; color: #ff8800; }
+
+/* Whish Direct only: consistent 3ABBILO popup styling */
+.whishDirectModal{font-family:inherit!important;}
+.whishDirectModal .whishDirectIntro{margin:0 0 12px;text-align:center;color:#697c9c;font-size:13px;font-weight:650;line-height:1.5;}
+.whishDirectModal .rechargeDetailLine{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;}
+.whishDirectModal .rechargeDetailLine>span{font-size:13px;line-height:1.45;color:#71819c;}
+.whishDirectModal .rechargeDetailLine>strong{font-size:14px;line-height:1.4;color:#132343;text-align:right;}
+.whishDirectModal .rechargeDetailLine .rechargeMoney{color:#ff8500;}
+.whishDirectModal .whishDirectCodeLine strong{font-size:25px!important;letter-spacing:3px;font-weight:850;}
+.whishDirectModal .rechargeCaution.whishDirectInstruction{font-size:12px!important;line-height:1.55!important;color:#657995;text-align:center;margin:8px 0 10px;}
+.whishDirectModal .rechargeDirectCountdown{color:#ff8500!important;font-size:20px!important;font-variant-numeric:tabular-nums;}
+.whishDirectModal .rechargeCloseResult{background:#ff8900!important;border:0!important;color:white!important;border-radius:11px!important;font-size:14px!important;font-weight:800!important;min-height:42px!important;}
+.whishDirectModal .whishDirectGuideButton{display:flex;align-items:center;gap:11px;border:1px solid #d9e2ef;border-radius:11px;background:#f7f9fc;padding:8px 10px;width:100%;cursor:pointer;text-align:left;color:#172747;font:inherit;font-size:12px;font-weight:750;}
+.whishDirectGuideButton img{width:42px;height:55px;object-fit:cover;object-position:center 28%;border-radius:5px;}
+.whishDirectGuideButton .whishDirectGuideExpand{margin-left:auto;color:#ff8500;font-size:11px;white-space:nowrap;}
+.whishDirectModal .whishDirectOutcome{font-size:12px!important;line-height:1.5!important;text-align:center;}
+.whishDirectModal .whishDirectSuccess{display:flex;align-items:center;justify-content:center;gap:7px;color:#16734c!important;}
+.whishDirectGuideShade{z-index:100000!important;}
+.whishDirectGuideModal{position:relative;width:min(430px,calc(100vw - 28px));max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px 20px;text-align:center;box-shadow:0 20px 70px #0003;color:#152441;font-family:inherit;}
+.whishDirectGuideModal h2{font-size:19px;margin:8px 28px 10px;font-weight:850;}
+.whishDirectGuideModal p{font-size:12px;line-height:1.6;color:#657995;margin:0 0 12px;}
+.whishDirectGuideModal>img{display:block;width:auto;max-width:100%;max-height:58vh;object-fit:contain;margin:0 auto 14px;border:1px solid #e5eaf1;border-radius:10px;}
+.whishDirectGuideModal .rechargeCloseResult{background:#ff8900;color:white;border:0;border-radius:10px;min-height:40px;width:100%;font-weight:800;font-size:14px;}
+@media(max-width:540px){.whishDirectModal .rechargeDetailLine>span{font-size:12px}.whishDirectModal .rechargeDetailLine>strong{font-size:13px}.whishDirectModal .whishDirectCodeLine strong{font-size:21px!important;letter-spacing:2px}}
