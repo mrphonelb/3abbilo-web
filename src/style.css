@@ -3130,3 +3130,24 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .whishDirectModal .whishDirectNoteValue>.whishDirectCopy{flex:0 0 35px;width:35px;height:35px;}
 .whishDirectModal .whishDirectInstructionPanel{margin-top:0!important;}
 @media(max-width:560px){.whishDirectModal .whishDirectNoteValue>strong{font-size:23px!important;letter-spacing:2px!important;}.whishDirectModal .whishDirectNoteValue{gap:8px;}}
+
+/* Whish Direct: keep the note close to the order rows; separate only after the info message. */
+.whishDirectModal .whishDirectCenteredDetails{margin-bottom:0!important;}
+.whishDirectModal .whishDirectNoteRow{
+  padding:3px 0 10px!important;
+  margin:0!important;
+  border-bottom:0!important;
+  gap:5px!important;
+}
+.whishDirectModal .whishDirectInstructionPanel{
+  margin:0 0 12px!important;
+  padding:11px 13px 14px!important;
+  position:relative;
+}
+.whishDirectModal .whishDirectInstructionPanel::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:-13px;
+  border-bottom:1px solid #dfe6f1;
+}
+.whishDirectModal .whishDirectGuideButton{margin-top:16px!important;}
