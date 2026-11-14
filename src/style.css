@@ -3357,3 +3357,16 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityDailyNote{font-size:11px;color:#72809a;line-height:1.5;margin:10px 0 0}
 @media(max-width:600px){.branchActivity .activityDailyPlot{height:155px}.branchActivity .activityChartNav button{font-size:11px;padding:7px 9px}}
 @media(prefers-reduced-motion:reduce){.branchActivity .activityChartTrack{transition:none}}
+
+/* Two equal-height swipe cards, with pagination outside the cards. */
+.branchActivity .activityChartTrack{align-items:stretch}
+.branchActivity .activityChartSlide{display:flex}
+.branchActivity .activityChartSlide .activitySpending{display:flex;flex-direction:column;min-height:310px;margin-bottom:0}
+.branchActivity .activityDailyPlot{height:170px;flex:0 0 170px;margin-top:8px}
+.branchActivity .activityDailyAxis{display:flex;justify-content:space-between;gap:4px;margin:9px 0 0;white-space:nowrap;font-size:11px}
+.branchActivity .activityDailyAxis span{flex:0 1 auto}
+.branchActivity .activityChartDots{display:flex;justify-content:center;align-items:center;gap:12px;padding:13px 0 22px}
+.branchActivity .activityChartDots button{border:0;background:#cbd5e1;border-radius:99px;width:9px;height:9px;padding:0;cursor:pointer;transition:width .2s,background .2s}
+.branchActivity .activityChartDots button.active{width:24px;background:#ff8900}
+.branchActivity .activityChartDots button:focus-visible{outline:2px solid #ff8900;outline-offset:4px}
+@media(max-width:600px){.branchActivity .activityChartSlide .activitySpending{min-height:255px}.branchActivity .activityDailyPlot{height:135px;flex-basis:135px}.branchActivity .activityDailyAxis{font-size:10px}}
