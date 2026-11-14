@@ -3451,3 +3451,26 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerActivityTop h2{font-size:clamp(17px,2.5vw,25px);margin:0}
 .ownerActivityTop button{border:0;background:transparent;cursor:pointer;color:#172845}
 @media(max-width:600px){.ownerActivityShade{padding:4px}.ownerActivityDialog{max-height:calc(100dvh - 8px);padding:6px;border-radius:12px}.ownerActivityDialog .sectionPad{padding:8px}}
+
+/* Shared dismissible mobile navigation overlay */
+.mobileSidebarBackdrop{display:none}
+@media(max-width:850px){
+ .mobileSidebarBackdrop{display:block;position:fixed;inset:0;z-index:19;border:0;background:rgba(8,19,39,.48);cursor:pointer}
+ .appShell .side{z-index:21}
+}
+/* Owner account activity summary: fluid widths at every viewport */
+.ownerShell .ownerActivityStandalone{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+.ownerShell .ownerActivityStandalone .orderTools{width:100%;max-width:100%;min-width:0;display:flex;flex-wrap:wrap}
+.ownerShell .ownerActivityStandalone .orderTools select{max-width:100%;min-width:0;width:min(380px,100%);box-sizing:border-box}
+.ownerShell .ownerActivityStandalone>.branchActivity{padding:0;width:100%;max-width:100%;min-width:0}
+.ownerShell .ownerActivityStandalone .ordersEmpty{width:100%;min-width:0;box-sizing:border-box;text-align:center;padding:32px 16px}
+.ownerShell .ownerActivityStandalone .ordersEmpty b{max-width:100%;overflow-wrap:anywhere}
+.ownerShell .ownerContent,.ownerShell .appMain{min-width:0;max-width:100%;box-sizing:border-box}
+.ownerShell .ownerActivityStandalone .activityChartViewport,.ownerShell .ownerActivityStandalone .activityCategoryList{width:100%;max-width:100%;min-width:0}
+@media(max-width:600px){
+ .ownerShell .ownerContent{padding:12px!important}
+ .ownerShell .ownerActivityStandalone .orderTools select{width:100%;max-width:100%}
+ .ownerShell .ownerActivityStandalone .ordersEmpty{padding:26px 12px}
+ .ownerShell .ownerActivityStandalone .ordersEmpty b{font-size:16px;line-height:1.45}
+ .ownerShell .ownerActivityStandalone .branchActivity{padding:0}
+}
