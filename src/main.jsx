@@ -1528,7 +1528,30 @@ function BranchActivitySummary(){
  const[period,setPeriod]=useState('today'),[from,setFrom]=useState(''),[to,setTo]=useState(''),[data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[expanded,setExpanded]=useState({}),[spendingOpen,setSpendingOpen]=useState(false),[chartIndex,setChartIndex]=useState(0),[selectedDay,setSelectedDay]=useState(null);
  useEffect(()=>{if(period==='custom'&&(!from||!to||from>to)){setLoading(false);setData(null);setError(from&&to&&from>to?'From date must be before To date':'');return;}let active=true;setLoading(true);setError('');fetch(API+'/api/wholesale/orders/activity-summary?period='+encodeURIComponent(period)+(period==='custom'?'&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to):''),{headers:authHeaders(),cache:'no-store'}).then(async r=>{const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Unable to load activity');if(active)setData(d)}).catch(e=>{if(active)setError(e.message)}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[period,from,to]);
  const money=v=>'$'+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
- const categories=data?.categories||[];
+ const categories=(data?.categories||[]).map(c=>{
+  // Support older API deployments: group legacy flat product rows into expandable services.
+  if(Array.isArray(c.services))return c;
+  const services=new Map();
+  for(const p of c.products||[]){
+   const title=String(p.product_title||'').trim(),pack=String(p.package_name||'').trim(),key=String(p.product_key||'').toLowerCase(),text=(key+' '+title+' '+pack).toLowerCase();
+   let id=key,name=title,leaf=pack,qty=Number(p.quantity||0),unit='orders';
+   if(['alfa','touch'].includes(c.id)){
+    if(/credit/.test(text)){id=c.id+'_credits';name=c.id.toUpperCase()+' Credits';leaf='';unit='value'}
+    else if(/bill/.test(text)){id=c.id+'_bill';name=c.id.toUpperCase()+' Bill Payment';leaf=''}
+    else if(/gift|u.share|u-share/.test(text)){id=c.id+'_gift';name=c.id.toUpperCase()+' Gift';leaf=pack||title}
+    else if(/recharge.card|validity/.test(text)){id=c.id+'_recharge';name='Recharge Cards';leaf=pack||title}
+    else if(/internet|bundle|data|booster/.test(text)){id=c.id+'_internet';name='Internet Bundles';leaf=pack||title}
+   }else if(c.id==='dsl'){
+    const vendor=['ogero','wise','mobi','terranet','sodetel'].find(v=>text.includes(v))||key.split('_')[0];id='dsl_'+vendor;name=vendor.toUpperCase();leaf=vendor==='ogero'?'':(pack||title);
+   }else if(c.id==='carfax'){id='carfax';name='CARFAX';leaf=/image/.test(text)?'Images':'CARFAX Report'}
+   else if(['games','chat','esim','gift_cards'].includes(c.id)){id=key;name=title;leaf=pack||title;if(['games','chat'].includes(c.id)&&!pack){leaf='';unit='value'}}
+   if(!services.has(id))services.set(id,{id,name,quantity:0,total_cost:0,packages:[]});
+   const service=services.get(id),cost=Number(p.total_cost||0);
+   service.total_cost+=cost;service.quantity+=qty;
+   if(leaf){const found=service.packages.find(x=>x.name===leaf);if(found){found.quantity+=qty;found.total_cost+=cost}else service.packages.push({name:leaf,quantity:qty,total_cost:cost,unit})}
+  }
+  return {...c,services:[...services.values()]};
+ });
  const categoryDefinitions=[['alfa','ALFA'],['touch','TOUCH'],['chat','CHAT APPS TOP-UP'],['game','GAME TOP-UP'],['esim','eSIM'],['gift','GIFT CARDS'],['ogero','OGERO & DSL']];
  const legendCategories=categoryDefinitions.map(([id,name])=>categories.find(c=>String(c.name||'').toLowerCase()===name.toLowerCase())||{id,name,total_cost:0});
  const dailySource=Array.isArray(data?.daily_sales)?data.daily_sales:[];
