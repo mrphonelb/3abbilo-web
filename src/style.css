@@ -3324,3 +3324,18 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 @media(max-width:360px){
   .branchActivity .activitySpendingLegend{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Activity Summary: click the spending chart to expand one category per row. */
+.branchActivity .activitySpendingChartToggle{display:block;width:100%;border:0;padding:0;margin:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.branchActivity .activitySpendingChartToggle:focus-visible{outline:2px solid #ff8900;outline-offset:5px;border-radius:8px}
+.branchActivity .activitySpendingHint{display:flex;justify-content:center;align-items:center;gap:6px;padding:10px 0 0;color:#72809a;font-size:12px;font-weight:600}
+.branchActivity .activitySpendingHint svg{transition:transform .2s ease}
+.branchActivity .activitySpendingLegend{display:block;width:100%;margin-top:12px;border-top:1px solid #e8edf4}
+.branchActivity .activitySpendingLegendItem{display:flex;align-items:center;width:100%;max-width:none;min-width:0;gap:12px;padding:12px 2px;border-bottom:1px solid #e8edf4;font-size:14px}
+.branchActivity .activitySpendingLegendItem:last-child{border-bottom:0}
+.branchActivity .activitySpendingDot{width:7px;height:7px;min-width:7px;border-radius:50%;flex:none}
+.branchActivity .activitySpendingName{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.4;overflow-wrap:break-word}
+.branchActivity .activitySpendingLegendValues{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none;font-variant-numeric:tabular-nums}
+.branchActivity .activitySpendingLegendValues b{font-size:14px;color:#152440;font-weight:750;margin:0}
+.branchActivity .activitySpendingLegendValues small{font-size:12px;color:#72809a}
+@media(max-width:700px){.branchActivity .activitySpendingLegend{display:block}.branchActivity .activitySpendingLegendItem{gap:9px;padding:11px 0}.branchActivity .activitySpendingName,.branchActivity .activitySpendingLegendValues b{font-size:12px}.branchActivity .activitySpendingLegendValues small{font-size:11px}}
