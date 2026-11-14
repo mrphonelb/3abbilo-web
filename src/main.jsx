@@ -1604,6 +1604,7 @@ function BranchActivitySummary(){
  </div>})}
  </div>}
  </div>)}</div>}
+ </>}
  </div>
 }
 
