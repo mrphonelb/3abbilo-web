@@ -3379,3 +3379,22 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activitySpendingPercent{flex:none;margin:0;color:#72809a;font-size:14px;font-weight:700;white-space:nowrap}
 @media(max-width:600px){.branchActivity .activitySpendingLegend{column-gap:12px;row-gap:9px}.branchActivity .activitySpendingLegendItem{gap:5px}.branchActivity .activitySpendingName,.branchActivity .activitySpendingPercent{font-size:12px}}
 @media(max-width:390px){.branchActivity .activitySpendingLegend{grid-template-columns:1fr}}
+
+/* Activity summary: equal-size swipe cards and readable interactive daily chart */
+.branchActivity .activityChartTrack{align-items:stretch}
+.branchActivity .activityChartSlide .activitySpending{height:350px;min-height:350px;max-height:350px;overflow:hidden;box-sizing:border-box}
+.branchActivity .activitySpendingLegend{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 18px;align-content:start}
+.branchActivity .activitySpendingLegendItem{display:flex;align-items:center;justify-content:flex-start;gap:7px;padding:3px 0;min-width:0;flex-wrap:nowrap}
+.branchActivity .activitySpendingName{flex:0 1 auto;min-width:0;font-size:13px;line-height:1.35}
+.branchActivity .activitySpendingPercent{font-size:13px;white-space:nowrap}
+.branchActivity .activityDailyPlot{height:220px;flex:0 0 220px;display:flex;gap:9px;margin-top:10px;min-width:0}
+.branchActivity .activityDailyYAxis{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;width:60px;flex:0 0 60px;padding:14px 0 24px;box-sizing:border-box;color:#72809a;font-size:11px;font-variant-numeric:tabular-nums}
+.branchActivity .activityDailyGraph{position:relative;flex:1;min-width:0;height:100%}
+.branchActivity .activityDailyGraph svg{width:100%;height:100%;display:block;overflow:hidden}
+.branchActivity .activityDailyHitArea{position:absolute;inset:0;pointer-events:none}
+.branchActivity .activityDailyHit{position:absolute;transform:translate(-50%,-50%);width:22px;height:28px;border:0;border-radius:50%;background:transparent;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+.branchActivity .activityDailyHit:focus-visible{outline:2px solid #ff8900;background:#ff890033}
+.branchActivity .activityDailySelection{position:absolute;top:0;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #e3eaf3;border-radius:9px;background:white;box-shadow:0 3px 12px #1524401c;color:#152440;font-size:12px;white-space:nowrap;z-index:2}
+.branchActivity .activityDailySelection button{border:0;background:none;color:#72809a;font-size:17px;cursor:pointer}
+.branchActivity .activityDailyAxis{padding-left:69px;margin-top:4px}
+@media(max-width:600px){.branchActivity .activityChartSlide .activitySpending{height:310px;min-height:310px;max-height:310px}.branchActivity .activitySpendingLegend{gap:10px 7px}.branchActivity .activitySpendingName,.branchActivity .activitySpendingPercent{font-size:11px}.branchActivity .activitySpendingLegendItem{gap:4px}.branchActivity .activityDailyPlot{height:185px;flex-basis:185px}.branchActivity .activityDailyYAxis{width:42px;flex-basis:42px;font-size:9px}.branchActivity .activityDailyAxis{padding-left:51px}}
