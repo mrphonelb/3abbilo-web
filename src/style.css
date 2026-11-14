@@ -3339,3 +3339,21 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activitySpendingLegendValues b{font-size:14px;color:#152440;font-weight:750;margin:0}
 .branchActivity .activitySpendingLegendValues small{font-size:12px;color:#72809a}
 @media(max-width:700px){.branchActivity .activitySpendingLegend{display:block}.branchActivity .activitySpendingLegendItem{gap:9px;padding:11px 0}.branchActivity .activitySpendingName,.branchActivity .activitySpendingLegendValues b{font-size:12px}.branchActivity .activitySpendingLegendValues small{font-size:11px}}
+/* Activity summary chart carousel */
+.branchActivity .activityChartNav{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.branchActivity .activityChartNav button{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border:1px solid #dce4ee;border-radius:9px;background:#fff;color:#63738e;font-size:12px;font-weight:700;cursor:pointer}
+.branchActivity .activityChartNav button.selected{border-color:#ff8900;color:#d66a00;background:#fff6eb}
+.branchActivity .activityChartViewport{overflow:hidden;touch-action:pan-y;min-width:0}
+.branchActivity .activityChartTrack{display:flex;width:200%;align-items:flex-start;transition:transform .3s ease}
+.branchActivity .activityChartSlide{width:50%;min-width:0;padding:0 1px;box-sizing:border-box}
+.branchActivity .activityChartSlide .activitySpending{width:100%;box-sizing:border-box}
+.branchActivity .activitySpendingHint{padding:9px 0 0}
+.branchActivity .activityDailyPlot{width:100%;height:210px;min-width:0}
+.branchActivity .activityDailyPlot svg{width:100%;height:100%;display:block;overflow:visible}
+.branchActivity .activityDailyAxis{display:flex;justify-content:space-between;color:#7c8ba2;font-size:12px;margin:5px 0 12px}
+.branchActivity .activityDailyList{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:7px;max-height:140px;overflow:auto}
+.branchActivity .activityDailyList>div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #e8edf4;padding:5px 0;font-size:12px;color:#72809a}
+.branchActivity .activityDailyList strong{color:#152440;font-variant-numeric:tabular-nums}
+.branchActivity .activityDailyNote{font-size:11px;color:#72809a;line-height:1.5;margin:10px 0 0}
+@media(max-width:600px){.branchActivity .activityDailyPlot{height:155px}.branchActivity .activityChartNav button{font-size:11px;padding:7px 9px}}
+@media(prefers-reduced-motion:reduce){.branchActivity .activityChartTrack{transition:none}}
