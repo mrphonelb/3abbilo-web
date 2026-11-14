@@ -3427,3 +3427,10 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 @media(max-width:380px){.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) 38px 72px 15px;column-gap:4px}.branchActivity .activityNestedRow{font-size:11px}}
 
 .branchActivity .activityDeliveredUnits{display:block;font-size:11px;font-weight:500;color:#74839a;margin-top:4px}
+
+/* Activity report: separate transferred quantity from successful transactions */
+.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) minmax(55px,105px) minmax(38px,65px) minmax(70px,110px) 18px}
+.branchActivity .activityNestedUnits{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.branchActivity .activityNestedHead>span:nth-child(4){text-align:right}
+@media(max-width:700px){.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) minmax(45px,70px) 34px minmax(58px,80px) 15px;column-gap:4px}.branchActivity .activityNestedUnits{font-size:11px}}
+@media(max-width:380px){.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) 46px 29px 65px 13px;column-gap:3px}}
