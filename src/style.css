@@ -3475,12 +3475,7 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
  .ownerShell .ownerActivityStandalone .branchActivity{padding:0}
 }
 
-/* Branches: show both non-monetary charts rather than hiding one in a carousel. */
-.branchActivity.activityBranchCharts .activityChartViewport{overflow:visible;touch-action:auto}
-.branchActivity.activityBranchCharts .activityChartTrack{width:100%;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;transform:none!important}
-.branchActivity.activityBranchCharts .activityChartSlide{width:100%;min-width:0}
-.branchActivity.activityBranchCharts .activityChartSlide .activitySpending{height:auto;min-height:0;max-height:none;overflow:visible}
-.branchActivity.activityBranchCharts .activityDailyChart{padding-bottom:12px}
+/* Branches use the same swipeable chart carousel as other accounts. */
 /* Owner Activity Summary uses the same full available page width as other owner pages. */
 .ownerShell .ownerContent.ownerActivityPage{width:100%;max-width:none;min-width:0;padding:20px 0!important;overflow:visible}
 .ownerShell .ownerActivityPage .ownerActivityStandalone{width:100%;max-width:none;margin:0}
