@@ -3278,3 +3278,49 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activitySpendingLegendItem b{font-size:13px;font-weight:650;color:#72809a;white-space:nowrap}
 @media(max-width:700px){.branchActivity .activitySpending{padding:14px}.branchActivity .activitySpendingLegend{gap:9px 14px}.branchActivity .activitySpendingLegendItem,.branchActivity .activitySpendingName,.branchActivity .activitySpendingLegendItem b{font-size:12px}.branchActivity .activitySpendingBar{height:16px;border-radius:6px}.branchActivity .activitySpendingHeader{font-size:13px;margin-bottom:12px}.branchActivity .activitySpendingHeader strong{font-size:21px}}
 @media(max-width:380px){.branchActivity .activitySpendingLegend{gap:8px 10px}.branchActivity .activitySpendingName,.branchActivity .activitySpendingLegendItem b{font-size:11px}.branchActivity .activitySpendingDot{width:7px;height:7px;min-width:7px}}
+
+/* Activity Summary: tiny markers and evenly distributed, responsive legend. */
+.branchActivity .activitySpendingLegend{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));
+  column-gap:14px;
+  row-gap:10px;
+  width:100%;
+  margin-top:14px;
+  align-items:center;
+}
+.branchActivity .activitySpendingLegendItem{
+  display:flex;
+  width:100%;
+  min-width:0;
+  max-width:none;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  line-height:1.3;
+}
+.branchActivity .activitySpendingDot{
+  width:6px;
+  height:6px;
+  min-width:6px;
+  border-radius:50%;
+  flex:none;
+}
+.branchActivity .activitySpendingName{
+  min-width:0;
+  font-size:12px;
+  line-height:1.3;
+  overflow-wrap:anywhere;
+}
+.branchActivity .activitySpendingLegendItem b{
+  font-size:12px;
+  flex:none;
+  margin-left:auto;
+}
+@media(max-width:700px){
+  .branchActivity .activitySpendingLegend{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:10px}
+  .branchActivity .activitySpendingLegendItem{gap:5px}
+}
+@media(max-width:360px){
+  .branchActivity .activitySpendingLegend{grid-template-columns:minmax(0,1fr)}
+}
