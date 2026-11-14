@@ -1399,11 +1399,35 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
    const r=await fetch(API+'/api/wholesale/dealer/shops',{headers:authHeaders(),cache:'no-store'});
    const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load shops');
    setShops(d.shops||[]);
+   setSelectedShop(current=>current?(d.shops||[]).find(shop=>String(shop.id)===String(current.id))||current:null);
    return true;
   }catch(e){setMessageType('error');setMessage(e.message||'Unable to load shops');return false}
   finally{if(showLoading)setLoading(false)}
  }
  useEffect(()=>{void loadShops(true)},[]);
+ // Refresh shop balances in place, without navigating or interrupting search/details.
+ useEffect(()=>{
+  let active=true,running=false;
+  async function refreshBalances(){
+   if(!active||running||document.visibilityState==='hidden')return;
+   running=true;
+   try{
+    const r=await fetch(API+'/api/wholesale/dealer/shops',{headers:authHeaders(),cache:'no-store'});
+    if(!r.ok)return;
+    const d=await r.json();
+    if(!active||!Array.isArray(d.shops))return;
+    setShops(d.shops);
+    setSelectedShop(current=>current?d.shops.find(shop=>String(shop.id)===String(current.id))||current:null);
+   }catch{/* Keep the last confirmed balances on transient failures. */}
+   finally{running=false}
+  }
+  const onFocus=()=>void refreshBalances();
+  const onVisibility=()=>{if(document.visibilityState==='visible')void refreshBalances()};
+  window.addEventListener('focus',onFocus);
+  document.addEventListener('visibilitychange',onVisibility);
+  const timer=setInterval(refreshBalances,3000);
+  return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',onFocus);document.removeEventListener('visibilitychange',onVisibility)};
+ },[]);
  const filteredShops=shops.filter(shop=>!search.trim()||[shop.shop_name,shop.email,shop.phone].some(value=>String(value||'').toLowerCase().includes(search.trim().toLowerCase())));
  const openCreate=()=>{setForm({...emptyForm});setCreateError('');setCreating(true)};
  const closeCreate=()=>{if(!creatingBusy){setCreating(false);setCreateError('')}};
@@ -1759,6 +1783,32 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  },[page]);
  // Non-order owner sections load on navigation; the order list has its own live filter.
  useEffect(()=>{if(page==='All Orders'||page==='Transactions & Sales'||page==='Recharge Account'){setLoading(false);return;}let live=true;setData(null);setLoading(true);setError('');const path=page==='Dashboard'?'dashboard':page==='Support Tickets'?'tickets':(page==='Accounts'||page==='Activity Summary')?'accounts':page==='Wallets'?'wallets':'reports';get(path).then(d=>{if(live)setData(d)}).catch(e=>{if(live)setError(e.message)}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[page]);
+ // Keep Owner Accounts balances live without resetting filters, scroll, or open details.
+ useEffect(()=>{
+  if(page!=='Accounts')return;
+  let active=true,running=false;
+  async function refreshAccounts(){
+   if(!active||running||document.visibilityState==='hidden')return;
+   running=true;
+   try{
+    const d=await get('accounts');
+    if(!active||!Array.isArray(d.accounts))return;
+    setData(d);
+    setSelectedOwnerRecord(current=>{
+     if(!current||current.type!=='account')return current;
+     const updated=d.accounts.find(account=>String(account.id)===String(current.record?.id));
+     return updated?{...current,record:updated}:current;
+    });
+   }catch{/* Retain the last loaded accounts if polling fails. */}
+   finally{running=false}
+  }
+  const onFocus=()=>void refreshAccounts();
+  const onVisibility=()=>{if(document.visibilityState==='visible')void refreshAccounts()};
+  window.addEventListener('focus',onFocus);
+  document.addEventListener('visibilitychange',onVisibility);
+  const timer=setInterval(refreshAccounts,3000);
+  return()=>{active=false;clearInterval(timer);window.removeEventListener('focus',onFocus);document.removeEventListener('visibilitychange',onVisibility)};
+ },[page]);
  // Match Dealer / Jounieh / Jbeil My Orders: load orders independently of the
  // search input, then filter locally so typing never resets focus or the list.
  useEffect(()=>{if(page!=='All Orders')return;let alive=true;let timer;
