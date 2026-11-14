@@ -3440,3 +3440,14 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityNestedHead.activityNoQuantity>span:nth-child(3){text-align:right}
 @media(max-width:700px){.branchActivity .activityNestedHead.activityNoQuantity,.branchActivity .activityNestedRow.activityNoQuantity{grid-template-columns:minmax(0,1fr) 36px minmax(64px,85px) 16px;column-gap:5px}}
 @media(max-width:380px){.branchActivity .activityNestedHead.activityNoQuantity,.branchActivity .activityNestedRow.activityNoQuantity{grid-template-columns:minmax(0,1fr) 30px 70px 13px;column-gap:3px}}
+
+/* Branch activity: quantity and sold only; never render financial values or charts. */
+.activityNoPrices .activityNestedHead,.activityNoPrices .activityNestedRow{grid-template-columns:minmax(0,1fr) minmax(60px,90px) 24px!important}
+.activityNoPrices .activityHasQuantity{grid-template-columns:minmax(0,1fr) minmax(65px,95px) minmax(60px,85px) 24px!important}
+.activityNoPrices .activityCategoryAmount{display:none}
+.ownerActivityShade{z-index:100000;overflow:auto;padding:16px}
+.ownerActivityDialog{width:min(1100px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#f4f7fc;border-radius:20px;padding:16px}
+.ownerActivityTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px}
+.ownerActivityTop h2{font-size:clamp(17px,2.5vw,25px);margin:0}
+.ownerActivityTop button{border:0;background:transparent;cursor:pointer;color:#172845}
+@media(max-width:600px){.ownerActivityShade{padding:4px}.ownerActivityDialog{max-height:calc(100dvh - 8px);padding:6px;border-radius:12px}.ownerActivityDialog .sectionPad{padding:8px}}
