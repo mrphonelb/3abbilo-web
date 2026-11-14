@@ -3398,3 +3398,11 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityDailySelection button{border:0;background:none;color:#72809a;font-size:17px;cursor:pointer}
 .branchActivity .activityDailyAxis{padding-left:69px;margin-top:4px}
 @media(max-width:600px){.branchActivity .activityChartSlide .activitySpending{height:310px;min-height:310px;max-height:310px}.branchActivity .activitySpendingLegend{gap:10px 7px}.branchActivity .activitySpendingName,.branchActivity .activitySpendingPercent{font-size:11px}.branchActivity .activitySpendingLegendItem{gap:4px}.branchActivity .activityDailyPlot{height:185px;flex-basis:185px}.branchActivity .activityDailyYAxis{width:42px;flex-basis:42px;font-size:9px}.branchActivity .activityDailyAxis{padding-left:51px}}
+
+/* Compact equal-height activity charts and a drag/hover crosshair on daily sales. */
+.branchActivity .activityChartSlide .activitySpending{height:270px;min-height:270px;max-height:270px}
+.branchActivity .activityDailyPlot{height:155px;flex:0 0 155px;margin-top:5px}
+.branchActivity .activityDailyYAxis{padding:11px 0 17px}
+.branchActivity .activityDailyGraph{cursor:crosshair;touch-action:pan-x}
+.branchActivity .activityDailySelection{top:0;pointer-events:none;transform:translateX(-50%);font-variant-numeric:tabular-nums}
+@media(max-width:600px){.branchActivity .activityChartSlide .activitySpending{height:265px;min-height:265px;max-height:265px}.branchActivity .activityDailyPlot{height:145px;flex-basis:145px}.branchActivity .activityDailySelection{font-size:10px;padding:5px 7px}}
