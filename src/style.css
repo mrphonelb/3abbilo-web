@@ -3269,3 +3269,12 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activitySpendingLegendItem b{font-size:13px;font-weight:750}
 .branchActivity .activitySpendingLegendItem small{grid-column:2 / 4;color:#72809a;font-size:12px}
 @media(max-width:550px){.branchActivity .activitySpending{padding:15px}.branchActivity .activitySpendingHeader strong{font-size:22px}.branchActivity .activitySpendingLegend{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px}}
+
+/* Compact, fluid Activity Summary spending legend (desktop, tablet, and mobile). */
+.branchActivity .activitySpendingLegend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;margin-top:14px;min-width:0}
+.branchActivity .activitySpendingLegendItem{display:inline-flex;flex:0 1 auto;align-items:center;gap:6px;min-width:0;max-width:100%;font-size:13px;line-height:1.4}
+.branchActivity .activitySpendingDot{width:9px;height:9px;min-width:9px;flex:none;border-radius:50%}
+.branchActivity .activitySpendingName{font-size:13px;font-weight:650;overflow-wrap:normal;word-break:normal}
+.branchActivity .activitySpendingLegendItem b{font-size:13px;font-weight:650;color:#72809a;white-space:nowrap}
+@media(max-width:700px){.branchActivity .activitySpending{padding:14px}.branchActivity .activitySpendingLegend{gap:9px 14px}.branchActivity .activitySpendingLegendItem,.branchActivity .activitySpendingName,.branchActivity .activitySpendingLegendItem b{font-size:12px}.branchActivity .activitySpendingBar{height:16px;border-radius:6px}.branchActivity .activitySpendingHeader{font-size:13px;margin-bottom:12px}.branchActivity .activitySpendingHeader strong{font-size:21px}}
+@media(max-width:380px){.branchActivity .activitySpendingLegend{gap:8px 10px}.branchActivity .activitySpendingName,.branchActivity .activitySpendingLegendItem b{font-size:11px}.branchActivity .activitySpendingDot{width:7px;height:7px;min-width:7px}}
