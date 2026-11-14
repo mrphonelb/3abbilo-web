@@ -3425,3 +3425,5 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityPackageRow:last-child{border-bottom:0}
 @media(max-width:700px){.branchActivity .activityNested{padding:2px 8px 10px}.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) minmax(36px,55px) minmax(68px,88px) 17px;column-gap:5px}.branchActivity .activityNestedHead{font-size:11px}.branchActivity .activityNestedRow{font-size:12px;padding:12px 5px}.branchActivity .activityPackageRow{font-size:11px}.branchActivity .activityPackageRows{margin-left:4px}.branchActivity .activityPackageRow .activityNestedLabel{padding-left:4px}}
 @media(max-width:380px){.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) 38px 72px 15px;column-gap:4px}.branchActivity .activityNestedRow{font-size:11px}}
+
+.branchActivity .activityDeliveredUnits{display:block;font-size:11px;font-weight:500;color:#74839a;margin-top:4px}

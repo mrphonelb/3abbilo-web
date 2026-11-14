@@ -1545,10 +1545,10 @@ function BranchActivitySummary(){
     const vendor=['ogero','wise','mobi','terranet','sodetel'].find(v=>text.includes(v))||key.split('_')[0];id='dsl_'+vendor;name=vendor.toUpperCase();leaf=vendor==='ogero'?'':(pack||title);
    }else if(c.id==='carfax'){id='carfax';name='CARFAX';leaf=/image/.test(text)?'Images':'CARFAX Report'}
    else if(['games','chat','esim','gift_cards'].includes(c.id)){id=key;name=title;leaf=pack||title;if(['games','chat'].includes(c.id)&&!pack){leaf='';unit='value'}}
-   if(!services.has(id))services.set(id,{id,name,quantity:0,total_cost:0,packages:[]});
+   if(!services.has(id))services.set(id,{id,name,quantity:0,transaction_count:0,total_cost:0,packages:[]});
    const service=services.get(id),cost=Number(p.total_cost||0);
-   service.total_cost+=cost;service.quantity+=qty;
-   if(leaf){const found=service.packages.find(x=>x.name===leaf);if(found){found.quantity+=qty;found.total_cost+=cost}else service.packages.push({name:leaf,quantity:qty,total_cost:cost,unit})}
+   service.total_cost+=cost;service.quantity+=qty;service.transaction_count+=Number(p.transaction_count??p.order_count??qty);
+   if(leaf){const found=service.packages.find(x=>x.name===leaf);if(found){found.quantity+=qty;found.transaction_count+=Number(p.transaction_count??p.order_count??qty);found.total_cost+=cost}else service.packages.push({name:leaf,quantity:qty,transaction_count:Number(p.transaction_count??p.order_count??qty),total_cost:cost,unit})}
   }
   return {...c,services:[...services.values()]};
  });
@@ -1596,11 +1596,11 @@ function BranchActivitySummary(){
  <div className="activityChartDots" role="tablist" aria-label="Swipe charts"><button type="button" aria-label="Category spending chart" aria-selected={chartIndex===0} className={chartIndex===0?'active':''} onClick={()=>setChartIndex(0)}/><button type="button" aria-label="Daily sales chart" aria-selected={chartIndex===1} className={chartIndex===1?'active':''} onClick={()=>setChartIndex(1)}/></div>
  {!categories.length?<div className="ordersEmpty"><BarChart3/><b>No successful sales for this period</b></div>:<div className="activityCategoryList">{categories.map(c=><div className="activityCategory" key={c.id}>
  <button type="button" className="activityCategoryToggle" aria-expanded={!!expanded[c.id]} onClick={()=>setExpanded(old=>({...old,[c.id]:!old[c.id]}))}><div className="activityCategoryName"><b>{c.name}</b></div><div className="activityCategoryAmount"><b>{money(c.total_cost)}</b><span>Total</span></div><ChevronDown size={19} className={expanded[c.id]?'activityArrow open':'activityArrow'}/></button>
- {expanded[c.id]&&<div className="activityNested"><div className="activityNestedHead"><span>Product / Package</span><span>Qty</span><span>Total</span><span/></div>
+ {expanded[c.id]&&<div className="activityNested"><div className="activityNestedHead"><span>Product / Package</span><span>Sold</span><span>Total</span><span/></div>
  {(c.services||[]).map(s=>{const serviceId=c.id+'|'+s.id;const hasPackages=!!s.packages?.length;return <div className="activityService" key={serviceId}>
  <button type="button" className="activityNestedRow activityServiceRow" disabled={!hasPackages} aria-expanded={hasPackages?!!expanded[serviceId]:undefined} onClick={()=>hasPackages&&setExpanded(old=>({...old,[serviceId]:!old[serviceId]}))}>
- <span className="activityNestedLabel">{s.name}</span><span className="activityNestedQty">{Number(s.quantity||0).toLocaleString('en-US',{maximumFractionDigits:2})}</span><strong className="activityNestedTotal">{money(s.total_cost)}</strong><span className="activityNestedArrow">{hasPackages&&<ChevronDown size={17} className={expanded[serviceId]?'activityArrow open':'activityArrow'}/>}</span></button>
- {hasPackages&&expanded[serviceId]&&<div className="activityPackageRows">{s.packages.map((p,i)=><div className="activityNestedRow activityPackageRow" key={i}><span className="activityNestedLabel">{p.name}</span><span className="activityNestedQty">{Number(p.quantity||0).toLocaleString('en-US',{maximumFractionDigits:2})}</span><span className="activityNestedTotal">{money(p.total_cost)}</span><span/></div>)}</div>}
+ <span className="activityNestedLabel">{s.name}{!hasPackages&&Number(s.delivered_units||0)>0&&<small className="activityDeliveredUnits">{Number(s.delivered_units||0).toLocaleString("en-US",{maximumFractionDigits:2})} units delivered</small>}</span><span className="activityNestedQty">{Number(s.transaction_count??s.quantity??0).toLocaleString('en-US',{maximumFractionDigits:0})}</span><strong className="activityNestedTotal">{money(s.total_cost)}</strong><span className="activityNestedArrow">{hasPackages&&<ChevronDown size={17} className={expanded[serviceId]?'activityArrow open':'activityArrow'}/>}</span></button>
+ {hasPackages&&expanded[serviceId]&&<div className="activityPackageRows">{s.packages.map((p,i)=><div className="activityNestedRow activityPackageRow" key={i}><span className="activityNestedLabel">{p.name}</span><span className="activityNestedQty">{Number(p.unit==='value'?p.quantity:(p.transaction_count??p.quantity??0)).toLocaleString('en-US',{maximumFractionDigits:2})}{p.unit==='value'?' units':''}</span><span className="activityNestedTotal">{money(p.total_cost)}</span><span/></div>)}</div>}
  </div>})}
  </div>}
  </div>)}</div>}
