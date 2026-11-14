@@ -3255,3 +3255,17 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityBreakdown td b{font-weight:750}
 .branchActivity .activityBreakdown td small{font-size:13px;color:#72809a}
 @media(max-width:550px){.branchActivity .financePeriod{gap:6px}.branchActivity .financePeriod button{padding:10px 11px;font-size:12px}.branchActivity .activityBreakdown td{font-size:13px}}
+
+/* Activity Summary category cost distribution */
+.branchActivity .activitySpending{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin:0 0 20px;box-shadow:0 1px 3px #1c2e5410}
+.branchActivity .activitySpendingHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;color:#72809a;font-size:15px;font-weight:650}
+.branchActivity .activitySpendingHeader strong{font-size:26px;color:#152440;font-weight:800}
+.branchActivity .activitySpendingBar{height:25px;border-radius:9px;overflow:hidden;display:flex;background:#edf1f6;gap:2px}
+.branchActivity .activitySpendingSegment{height:100%;min-width:0;flex-shrink:0}
+.branchActivity .activitySpendingLegend{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px 20px;margin-top:18px}
+.branchActivity .activitySpendingLegendItem{display:grid;grid-template-columns:11px minmax(0,1fr) auto;gap:4px 8px;align-items:center;font-size:13px;color:#152440}
+.branchActivity .activitySpendingDot{width:10px;height:10px;border-radius:3px}
+.branchActivity .activitySpendingName{font-weight:700;overflow-wrap:anywhere}
+.branchActivity .activitySpendingLegendItem b{font-size:13px;font-weight:750}
+.branchActivity .activitySpendingLegendItem small{grid-column:2 / 4;color:#72809a;font-size:12px}
+@media(max-width:550px){.branchActivity .activitySpending{padding:15px}.branchActivity .activitySpendingHeader strong{font-size:22px}.branchActivity .activitySpendingLegend{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px}}
