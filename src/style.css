@@ -3406,3 +3406,22 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityDailyGraph{cursor:crosshair;touch-action:pan-x}
 .branchActivity .activityDailySelection{top:0;pointer-events:none;transform:translateX(-50%);font-variant-numeric:tabular-nums}
 @media(max-width:600px){.branchActivity .activityChartSlide .activitySpending{height:265px;min-height:265px;max-height:265px}.branchActivity .activityDailyPlot{height:145px;flex-basis:145px}.branchActivity .activityDailySelection{font-size:10px;padding:5px 7px}}
+
+/* Branch activity: responsive nested service and package hierarchy. */
+.branchActivity .activityNested{border-top:1px solid #e2e8f0;padding:4px 16px 12px;min-width:0}
+.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(48px,90px) minmax(76px,120px) 20px;align-items:center;column-gap:12px;min-width:0}
+.branchActivity .activityNestedHead{padding:13px 8px 10px;font-size:12px;font-weight:750;color:#72809a;border-bottom:1px solid #e5eaf1}
+.branchActivity .activityNestedHead>span:nth-child(2),.branchActivity .activityNestedHead>span:nth-child(3){text-align:right}
+.branchActivity .activityNestedRow{width:100%;padding:13px 8px;border:0;border-bottom:1px solid #edf1f6;background:transparent;text-align:left;color:#152440;font:inherit;font-size:14px}
+.branchActivity button.activityNestedRow{cursor:pointer}
+.branchActivity button.activityNestedRow:disabled{cursor:default;opacity:1}
+.branchActivity button.activityNestedRow:not(:disabled):hover{background:#fff8f0}
+.branchActivity .activityNestedLabel{min-width:0;overflow-wrap:anywhere;font-weight:700}
+.branchActivity .activityNestedQty,.branchActivity .activityNestedTotal{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.branchActivity .activityNestedArrow{display:flex;justify-content:center;color:#7b8798}
+.branchActivity .activityPackageRows{background:#f7f9fc;border-radius:8px;margin:0 0 5px 10px}
+.branchActivity .activityPackageRow{padding:11px 8px;font-size:13px}
+.branchActivity .activityPackageRow .activityNestedLabel{font-weight:500;padding-left:10px;color:#43536c}
+.branchActivity .activityPackageRow:last-child{border-bottom:0}
+@media(max-width:700px){.branchActivity .activityNested{padding:2px 8px 10px}.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) minmax(36px,55px) minmax(68px,88px) 17px;column-gap:5px}.branchActivity .activityNestedHead{font-size:11px}.branchActivity .activityNestedRow{font-size:12px;padding:12px 5px}.branchActivity .activityPackageRow{font-size:11px}.branchActivity .activityPackageRows{margin-left:4px}.branchActivity .activityPackageRow .activityNestedLabel{padding-left:4px}}
+@media(max-width:380px){.branchActivity .activityNestedHead,.branchActivity .activityNestedRow{grid-template-columns:minmax(0,1fr) 38px 72px 15px;column-gap:4px}.branchActivity .activityNestedRow{font-size:11px}}
