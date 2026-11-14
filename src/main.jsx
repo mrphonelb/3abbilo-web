@@ -1554,11 +1554,8 @@ function BranchActivitySummary(){
  <div className="activityChartSlide"><div className="activitySpending" aria-label="Category spending distribution">
   <div className="activitySpendingHeader"><span>Total</span><strong>{money(categories.reduce((sum,c)=>sum+Number(c.total_cost||0),0))}</strong></div>
   {(()=>{const total=categories.reduce((sum,c)=>sum+Math.max(0,Number(c.total_cost)||0),0);const colors=['#ff8900','#173b6a','#8154d7','#149f9a','#e7a329','#d64a8c','#607b9b','#9b6b43','#62a64a','#b84d4d'];return <>
-   <button type="button" className="activitySpendingChartToggle" aria-expanded={spendingOpen} aria-controls="activity-spending-details" onClick={()=>setSpendingOpen(v=>!v)}>
-    <div className="activitySpendingBar" aria-hidden="true">{total>0&&categories.map((c,i)=>{const share=Math.max(0,Number(c.total_cost)||0)/total*100;return share>0?<div key={c.id} className="activitySpendingSegment" style={{width:share+'%',backgroundColor:colors[i%colors.length]}}/>:null})}</div>
-    <span className="activitySpendingHint"><ChevronDown size={20} className={spendingOpen?'activityArrow open':'activityArrow'}/></span>
-   </button>
-   {spendingOpen&&<div id="activity-spending-details" className="activitySpendingLegend">{categories.map((c,i)=>{const share=total>0?Math.max(0,Number(c.total_cost)||0)/total*100:0;return <div key={c.id} className="activitySpendingLegendItem"><span className="activitySpendingDot" style={{backgroundColor:colors[i%colors.length]}}/><span className="activitySpendingName">{c.name}</span><span className="activitySpendingLegendValues"><b>{share.toFixed(1)}%</b><small>{money(c.total_cost)}</small></span></div>})}</div>}
+   <div className="activitySpendingBar" aria-hidden="true">{total>0&&categories.map((c,i)=>{const share=Math.max(0,Number(c.total_cost)||0)/total*100;return share>0?<div key={c.id} className="activitySpendingSegment" style={{width:share+'%',backgroundColor:colors[i%colors.length]}}/>:null})}</div>
+   <div className="activitySpendingLegend">{categories.map((c,i)=>{const share=total>0?Math.max(0,Number(c.total_cost)||0)/total*100:0;return <div key={c.id} className="activitySpendingLegendItem"><span className="activitySpendingDot" style={{backgroundColor:colors[i%colors.length]}}/><span className="activitySpendingName">{c.name}</span><b className="activitySpendingPercent">{share.toFixed(1)}%</b></div>})}</div>
   </>})()}
  </div></div>
  <div className="activityChartSlide"><div className="activitySpending activityDailyChart"><div className="activitySpendingHeader"><span>Daily sales</span><strong>{money(dailyRows.reduce((sum,r)=>sum+r.amount,0))}</strong></div>

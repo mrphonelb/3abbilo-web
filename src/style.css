@@ -3370,3 +3370,12 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .branchActivity .activityChartDots button.active{width:24px;background:#ff8900}
 .branchActivity .activityChartDots button:focus-visible{outline:2px solid #ff8900;outline-offset:4px}
 @media(max-width:600px){.branchActivity .activityChartSlide .activitySpending{min-height:255px}.branchActivity .activityDailyPlot{height:135px;flex-basis:135px}.branchActivity .activityDailyAxis{font-size:10px}}
+
+/* Activity Summary: two-column, percentage-only legend with percentages immediately after names. */
+.branchActivity .activitySpendingLegend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:22px;row-gap:12px;border-top:0;margin-top:16px;align-items:start}
+.branchActivity .activitySpendingLegendItem{display:flex;justify-content:flex-start;align-items:baseline;gap:7px;width:100%;min-width:0;max-width:none;border:0;padding:3px 0;line-height:1.35}
+.branchActivity .activitySpendingDot{align-self:center;width:7px;height:7px;min-width:7px}
+.branchActivity .activitySpendingName{flex:0 1 auto;min-width:0;font-size:14px;font-weight:700;overflow-wrap:break-word}
+.branchActivity .activitySpendingPercent{flex:none;margin:0;color:#72809a;font-size:14px;font-weight:700;white-space:nowrap}
+@media(max-width:600px){.branchActivity .activitySpendingLegend{column-gap:12px;row-gap:9px}.branchActivity .activitySpendingLegendItem{gap:5px}.branchActivity .activitySpendingName,.branchActivity .activitySpendingPercent{font-size:12px}}
+@media(max-width:390px){.branchActivity .activitySpendingLegend{grid-template-columns:1fr}}
