@@ -154,7 +154,9 @@ function rechargeCardFaceValue(option){
  const match=label.match(/(?:[-–—]|\()\s*(?:Credit:\s*)?\$\s*(\d+(?:\.\d{1,2})?)\s*\)?\s*$/i);
  return match?Number(match[1]):null;
 }
-function PackagePicker({options,value,onChange,placeholder='Choose package',priceFor,subtitleFor}){
+// Show fractional wholesale cents when present, without changing the underlying price.
+function preciseCardMoney(value){const n=Number(value);return Number.isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4}):'—'}
+function PackagePicker({options,value,onChange,placeholder='Choose package',priceFor,subtitleFor,precisePrices=false}){
  const[open,setOpen]=useState(false),outer=useRef(null),list=useRef(null);
  const[position,setPosition]=useState(null);
  useEffect(()=>{if(!open)return;
@@ -210,11 +212,11 @@ function PackagePicker({options,value,onChange,placeholder='Choose package',pric
    const face=Number(raw.base),sell=Number(raw.selling);
    const cleanName=offerLabel(o).replace(/\s*[-–—]\s*(?:Credit:\s*)?\$[\d.]+\s*$/i,'').trim();
    if(raw.base!=null&&raw.selling!=null&&Number.isFinite(face)&&face>0&&Number.isFinite(sell)&&sell>0)
-    return `${cleanName} ($${face.toFixed(2)}) — $${sell.toFixed(2)}`;
-   if(raw.selling!=null&&Number.isFinite(sell)&&sell>0)return `${cleanName} — $${sell.toFixed(2)}`;
+    return `${cleanName} ($${face.toFixed(2)}) — $${precisePrices?preciseCardMoney(sell):sell.toFixed(2)}`;
+   if(raw.selling!=null&&Number.isFinite(sell)&&sell>0)return `${cleanName} — $${precisePrices?preciseCardMoney(sell):sell.toFixed(2)}`;
   }
   const price=raw&&typeof raw==='object'?raw.value:raw;
-  return offerLabel(o)+(price!=null&&price!==''&&Number.isFinite(Number(price))?' — $'+Number(price).toFixed(2):'');
+  return offerLabel(o)+(price!=null&&price!==''&&Number.isFinite(Number(price))?' — $'+(precisePrices?preciseCardMoney(price):Number(price).toFixed(2)):'');
  };
  return <div className={'branchPicker'+(open?' isOpen':'')} ref={outer}>
   <button type="button" className="branchPickerTrigger" aria-haspopup="listbox" aria-expanded={open} onClick={()=>setOpen(v=>!v)} disabled={!sorted.length}>{selected?format(selected):(sorted.length?placeholder:'No live packages available')}<span aria-hidden="true">⌄</span></button>
@@ -571,7 +573,7 @@ function PurchaseResult({orderId,initial=null,branch=false,hideShopSellingPrice=
    {order?.purchaser_name&&<div className="receiptRow"><span>Shop</span><strong>{order.purchaser_name}</strong></div>}
    {(order?.package_name||order?.product_title)&&<div className="receiptRow"><span>Product</span><strong>{order.package_name||order.product_title}</strong></div>}
    {!!order?.customer_reference&&<div className="receiptRow"><span>Recipient / reference</span><strong>{order.customer_reference}</strong></div>}
-   {!branch&&order?.account_cost!=null&&<div className="receiptRow"><span>Your cost</span><strong>${Number(order.account_cost).toFixed(4)}</strong></div>}
+   {!branch&&order?.account_cost!=null&&<div className="receiptRow"><span>Your cost</span><strong>${preciseCardMoney(order.account_cost)}</strong></div>}
    {!hideShopSellingPrice&&order?.selling_price!=null&&<div className="receiptRow"><span>Selling price</span><strong>${Number(order.selling_price).toFixed(2)}</strong></div>}
    {success&&code&&<div className="receiptDelivery receiptDeliveryCard"><small>Delivered recharge / redeem code</small><div className="receiptCode"><strong>{code}</strong></div><div className="receiptDivider"></div>
      {!!serial&&<div className="receiptRow"><span>Card serial</span><strong>{serial}</strong></div>}
@@ -761,7 +763,7 @@ function ServiceModal({p,close,branch=false}){
    <>
     {!loading&&detail&&<>
      {isCard&&<div className="popupField"><span className="popupLabel">Recharge Method</span><div className="rechargeMethodChoices"><button type="button" aria-pressed={values.method==='code'} className={values.method==='code'?'selected':''} onClick={()=>update('method','code')}>Buy Now</button><button type="button" aria-pressed={values.method==='direct'} className={values.method==='direct'?'selected':''} onClick={()=>update('method','direct')}>Direct Recharge</button></div></div>}
-     {hasOptions&&!isSodetel&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={touchInternet?touchInternetPackages:options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" priceFor={o=>{if(isGift)return branch?o.retail_price:(o.account_cost??null);if(isCard){const face=rechargeCardFaceValue(o);const accountPrice=branch?(o.retail_price??o.account_cost??null):(o.account_cost??null);return face!=null?{base:face,selling:accountPrice,sortValue:face}:{selling:accountPrice};}return branch?(o.retail_price??o.price??null):(o.account_cost??null);}}/>{touchInternet&&touchSmsCode&&<div className="touchInternetSmsInstruction" role="status" style={{marginTop:8,fontSize:13,fontWeight:600,color:"#0b2751",textAlign:"center"}}>Send <strong>{touchSmsCode.toUpperCase()}</strong> to <strong>1188</strong></div>}</div>}
+     {hasOptions&&!isSodetel&&<div className="popupField"><span className="popupLabel">{isGift?'Choose Denomination':'Choose Package'}</span><PackagePicker options={touchInternet?touchInternetPackages:options} value={offer} onChange={v=>{setOffer(v);setError('');setPhase(1);serviceRequestKey.current=null}} placeholder="Choose package" precisePrices={!branch&&((isCard&&['alfa','touch'].includes(telcoProvider))||(isGift&&/itunes|apple.*(?:us|usa)/i.test(String(p.key||p.title||''))))} priceFor={o=>{if(isGift)return branch?o.retail_price:(o.account_cost??null);if(isCard){const face=rechargeCardFaceValue(o);const accountPrice=branch?(o.retail_price??o.account_cost??null):(o.account_cost??null);return face!=null?{base:face,selling:accountPrice,sortValue:face}:{selling:accountPrice};}return branch?(o.retail_price??o.price??null):(o.account_cost??null);}}/>{touchInternet&&touchSmsCode&&<div className="touchInternetSmsInstruction" role="status" style={{marginTop:8,fontSize:13,fontWeight:600,color:"#0b2751",textAlign:"center"}}>Send <strong>{touchSmsCode.toUpperCase()}</strong> to <strong>1188</strong></div>}</div>}
      {orderedFields.map(x=><div key={x.key}><label className="popupField">{!(telcoBill&&x.key==='phone')&&(telcoCredit&&x.key==='amount'?<span className="alfaCreditAmountHeading"><span>{x.label}</span><span className="alfaCreditAmountCost">Cost: <strong>{quote?(branch?Number(quote.recommended_selling_price??quote.account_cost):Number(quote.account_cost)).toLocaleString('en-US',{style:'currency',currency:'USD'}):'—'}</strong></span></span>:x.label)}{telcoCredit&&x.key==='amount'?<input type="number" min="1" max="99" step="1" value={values.amount||''} onChange={e=>{const v=e.target.value;update('amount',v!==''&&(Number(v)<1||Number(v)>99)?'':v)}} onBlur={()=>{if(values.amount!==''&&(!Number.isInteger(Number(values.amount))||Number(values.amount)<1||Number(values.amount)>99))update('amount','')}} placeholder="Enter credit amount"/>:fieldInput(x)}</label>{telcoCredit&&x.key===phoneField?.key&&phoneStatus!==telcoProvider&&['alfa','touch'].includes(phoneStatus)&&<div className="alfaCreditError" role="alert">This is not a {telcoProvider==='alfa'?'Alfa':'Touch'} number.</div>}{telcoCredit&&x.key===phoneField?.key&&phoneStatus==='invalid'&&<div className="alfaCreditError" role="alert">Enter a valid {telcoProvider==='alfa'?'Alfa':'Touch'} number.</div>}{telcoCredit&&x.key==='amount'&&<><div className="alfaCreditShortcuts">{[1,2,3,4,5,10,15,20,25,30].map(n=><button type="button" key={n} className={Number(values.amount)===n?'selected':''} onClick={()=>update('amount',String(n))}>${n}</button>)}</div></>}</div>)}
      {isSodetel&&values.service&&values.identifier&&<div className="popupField"><span className="popupLabel">Choose Package</span><PackagePicker options={moreOptions} value={offer} onChange={v=>{
       // The already fetched account price makes the field available immediately.
@@ -2005,7 +2007,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
       {!!ownerCopyMessage&&<p className="receiptCopyNotice" role="status">{ownerCopyMessage}</p>}
       {current.ogero_bill_url&&<div className="receiptRow"><span>Ogero receipt</span><a href={current.ogero_bill_url} target="_blank" rel="noopener noreferrer">Open receipt</a></div>}
       <div className="receiptRow"><span>Recipient / reference</span><strong>{current.customer_reference||'—'}</strong></div>
-      <div className="receiptRow"><span>Cost</span><strong>{money(current.charged_price)}</strong></div>
+      <div className="receiptRow"><span>Cost</span><strong>{/^(?:alfa_recharge|touch_recharge|itunes)/i.test(String(current.product_key||''))?'$'+preciseCardMoney(current.charged_price):money(current.charged_price)}</strong></div>
       {current.selling_price!=null&&<div className="receiptRow"><span>Selected selling price</span><strong>{money(current.selling_price)}</strong></div>}
       {!!current.supplier_reference&&<div className="receiptRow"><span>Purchase reference</span><strong>{current.supplier_reference}</strong></div>}
       {failed&&current.failure_reason&&<div className="receiptRow"><span>Failure reason</span><strong>{current.failure_reason}</strong></div>}
