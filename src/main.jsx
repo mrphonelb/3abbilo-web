@@ -1876,7 +1876,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   setOwnerCreateError('');setOwnerCreateBusy(true);
   try{
    const f=ownerCreateForm;
-   const payload={account_type:f.account_type,parent_account_id:f.account_type==='shop'&&f.parent_account_id?Number(f.parent_account_id):null,shop_name:f.shop_name.trim(),phone:f.phone.trim(),email:f.email.trim(),password:f.password};
+   const payload={account_type:f.account_type,parent_account_id:['shop','shop_mrphone'].includes(f.account_type)&&f.parent_account_id?Number(f.parent_account_id):null,shop_name:f.shop_name.trim(),phone:f.phone.trim(),email:f.email.trim(),password:f.password};
    const result=await get('accounts',{method:'POST',body:JSON.stringify(payload)});
    if(!result.ok)throw Error(result.error||'Unable to create account');
    setOwnerCreateOpen(false);setOwnerCreateForm({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''});
@@ -1948,9 +1948,9 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
    <div className="popupTitle"><Store size={30}/><h2>Create Account</h2></div>
    <form onSubmit={submitOwnerAccount}>
     <div className="createShopFields">
-     <label className="createShopField"><span>Account Type</span><select value={ownerCreateForm.account_type} onChange={e=>setOwnerCreateForm(f=>({...f,account_type:e.target.value,parent_account_id:''}))}><option value="dealer">Dealer</option><option value="shop">Shop</option></select></label>
-     {ownerCreateForm.account_type==='shop'&&<label className="createShopField"><span>Account Related To</span><select value={ownerCreateForm.parent_account_id} onChange={e=>setOwnerCreateForm(f=>({...f,parent_account_id:e.target.value}))}><option value="">3ABBILO</option>{allRows.filter(a=>a.account_type==='dealer'&&a.status==='active').map(a=><option key={a.id} value={a.id}>{a.shop_name}</option>)}</select></label>}
-     {[["shop_name",ownerCreateForm.account_type==='dealer'?'Dealer Name':'Shop Name','text'],['phone','Phone Number','tel'],['email','Email Address','email'],['password','Password (minimum 8 characters)','password']].map(([key,label,type])=><label className="createShopField" key={key}><span>{label}</span><input type={type} required minLength={key==='password'?8:undefined} autoComplete="off" value={ownerCreateForm[key]} onChange={e=>setOwnerCreateForm(f=>({...f,[key]:e.target.value}))}/></label>)}
+     <label className="createShopField"><span>Account Type</span><select value={ownerCreateForm.account_type} onChange={e=>setOwnerCreateForm(f=>({...f,account_type:e.target.value,parent_account_id:''}))}><option value="dealer">Dealer (459)</option><option value="shop">Shop (460)</option><option value="dealer_mrphone">DEALER MRPHONE (467)</option><option value="shop_mrphone">SHOP MRPHONE (468)</option></select></label>
+     {['shop','shop_mrphone'].includes(ownerCreateForm.account_type)&&<label className="createShopField"><span>Account Related To</span><select value={ownerCreateForm.parent_account_id} onChange={e=>setOwnerCreateForm(f=>({...f,parent_account_id:e.target.value}))}><option value="">3ABBILO</option>{allRows.filter(a=>a.account_type==='dealer'&&a.status==='active'&&(ownerCreateForm.account_type!=='shop_mrphone'||Number(a.daftra_category_id)===467)&&(ownerCreateForm.account_type!=='shop'||Number(a.daftra_category_id)!==467)).map(a=><option key={a.id} value={a.id}>{a.shop_name}</option>)}</select></label>}
+     {[["shop_name",['dealer','dealer_mrphone'].includes(ownerCreateForm.account_type)?'Dealer Name':'Shop Name','text'],['phone','Phone Number','tel'],['email','Email Address','email'],['password','Password (minimum 8 characters)','password']].map(([key,label,type])=><label className="createShopField" key={key}><span>{label}</span><input type={type} required minLength={key==='password'?8:undefined} autoComplete="off" value={ownerCreateForm[key]} onChange={e=>setOwnerCreateForm(f=>({...f,[key]:e.target.value}))}/></label>)}
     </div>
     {ownerCreateError&&<p role="alert" className="shopCreateError">{ownerCreateError}</p>}
     <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={ownerCreateBusy}>{ownerCreateBusy?'Creating account…':'Create Account'}</button>
