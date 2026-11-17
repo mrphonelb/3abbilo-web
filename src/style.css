@@ -3811,3 +3811,24 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedHead > span:nth-child(4) {
   text-align:left !important;
 }
+
+/* Owner Transactions & Sales: Arabic-only RTL presentation. English and dealer/shop
+   financial screens retain their original layout and data formatting. */
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic{direction:rtl;text-align:right}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financePeriod{direction:rtl;justify-content:flex-start}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeCustom{direction:rtl}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeSummary{direction:rtl}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeMetric{text-align:right;align-items:flex-start}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeMetric strong{direction:ltr;unicode-bidi:isolate}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeFilters{direction:rtl}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeFilters input,
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeFilters select{text-align:right;direction:rtl}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeListHeader{direction:rtl}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryTop{direction:rtl;text-align:right}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryInfo{text-align:right}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryInfo small{unicode-bidi:plaintext}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryAmount{direction:ltr;unicode-bidi:isolate}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails{direction:rtl;padding:14px 18px 15px 18px}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails>div{direction:rtl;text-align:right}
+.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails b{text-align:left;unicode-bidi:plaintext}
+@media(max-width:550px){.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails{padding:12px}}

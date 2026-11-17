@@ -1170,7 +1170,50 @@ function ProductsPage({branch=false,accountType="shop",dealerMrphone=false}){
 }
 // Combined read-only financial history. Account ownership and field-level access
 // are enforced by the authenticated backend, never by frontend filtering alone.
-function FinancialPage({owner=false,dealer=false}){
+// Owner-only transaction labels. Financial event values and API keys stay in English.
+const OWNER_FINANCE_AR={
+ 'Today':'اليوم','7 Days':'آخر 7 أيام','30 Days':'آخر 30 يومًا','All Time':'كل الفترات','Custom':'فترة مخصصة',
+ 'From':'من','To':'إلى','Total Sales Cost':'إجمالي تكلفة المبيعات','Jounieh / Jbeil Cost':'تكلفة جونية / جبيل',
+ 'Dealer / Shop Cost':'تكلفة الموزعين / المتاجر','All Dealer / Shop Wallets':'إجمالي أرصدة محافظ الموزعين والمتاجر',
+ 'My Profit from Dealers':'أرباحي من الموزعين','My Profit from Shops':'أرباحي من المتاجر','Total Owner Profit':'إجمالي أرباح المالك',
+ 'All Activity':'جميع المعاملات','Sales & Returns':'المبيعات والمرتجعات','Profit - Dealers':'أرباح الموزعين',
+ 'Profit - Shops':'أرباح المتاجر','Wallet Movements':'حركات المحافظ','Financial Activity':'النشاط المالي',
+ 'Search order, product or shop...':'بحث','Loading…':'جارٍ التحميل…','Loading transactions…':'جارٍ تحميل المعاملات…',
+ 'No transactions found':'لم يتم العثور على معاملات','Try another date or category.':'جرّب تاريخًا أو فئة أخرى.',
+ 'Load More Transactions':'تحميل المزيد من المعاملات','Financial totals':'الإجماليات المالية',
+ 'Dealer Commission Received':'تم استلام عمولة الموزع','Wallet Recharge':'شحن المحفظة','Dealer Commission':'عمولة الموزع',
+ 'Wallet Correction':'تعديل رصيد المحفظة','Return':'مرتجع','Transfer Sent':'تحويل صادر',
+ 'Transfer Received':'تحويل وارد','Wallet Transaction':'معاملة محفظة','Purchase':'شراء',
+ 'Profit Reversed':'تم عكس الربح','My Profit':'ربحي','Dealer':'موزع','Shop':'متجر',
+ 'Shop Profit':'ربح المتجر','Sale':'بيع','Order':'طلب','Returned':'مرتجع',
+ 'Supplier':'المورّد','Price to dealer':'السعر للموزع','Account cost':'تكلفة الحساب','My profit':'ربحي',
+ 'Cost':'التكلفة','Sold to shop':'السعر للمتجر','Profit':'الربح',
+ 'Returned Cost':'تكلفة المرتجع','Selected Selling':'سعر البيع المحدد',
+ 'Failed':'فشل','Processing':'قيد المعالجة','Pending':'قيد الانتظار',
+ 'Account':'الحساب','Sent to':'أُرسل إلى','Related account':'الحساب المرتبط',
+ 'Amount':'المبلغ','Balance before':'الرصيد قبل العملية','Balance after':'الرصيد بعد العملية',
+ 'Package':'الباقة','Supplier cost':'تكلفة المورّد','Price received by 3ABBILO':'السعر المستلم من 3ABBILO',
+ 'Dealer margin (not my profit)':'هامش ربح الموزع (ليس ربحي)','Reversed owner profit':'ربح المالك المعكوس',
+ 'Owner profit':'ربح المالك','My cost':'تكلفتي','Price to shop':'السعر للمتجر',
+ 'Parent account':'الحساب الرئيسي','Returned cost':'تكلفة المرتجع','Purchase cost':'تكلفة الشراء',
+ 'Order status':'حالة الطلب','Selected selling price':'سعر البيع المحدد','Recorded profit':'الربح المسجل',
+ 'Wallet':'المحفظة','Sale':'بيع','Price to dealer':'السعر للموزع',
+ 'success':'نجاح','failed':'فشل','processing':'قيد المعالجة','pending':'قيد الانتظار',
+ 'refunded':'تم الاسترداد','To':'إلى','From':'من'
+};
+function ownerFinanceTranslate(value,lang){
+ if(lang!=='ar')return value;
+ const raw=String(value??'');
+ if(OWNER_FINANCE_AR[raw])return OWNER_FINANCE_AR[raw];
+ // Only translate system-generated transaction labels; never product or account names.
+ return raw.replace(/\b(Order|Recharge) #(\d+)\b/g,(_,kind,id)=>(kind==='Order'?'طلب رقم ':'شحن رقم ')+id)
+  .replace(/\b(Dealer Commission Received|Wallet Recharge|Dealer Commission|Wallet Correction|Transfer Sent|Transfer Received|Wallet Transaction|Shop Profit|Profit Reversed|My Profit|Purchase|Return|Sale|Returned)\b/g,m=>OWNER_FINANCE_AR[m]||m)
+  .replace(/\b(Dealer|Shop)\b/g,m=>OWNER_FINANCE_AR[m]||m);
+}
+function FinancialPage({owner=false,dealer=false,ownerLang="en"}){
+ const financeLang=owner?ownerLang:"en";
+ const ar=financeLang==="ar";
+ const tx=value=>ownerFinanceTranslate(value,financeLang);
  const [period,setPeriod]=useState('24h');
  const [from,setFrom]=useState('');
  const [to,setTo]=useState('');
@@ -1303,18 +1346,18 @@ function FinancialPage({owner=false,dealer=false}){
  ]:[
   ['My Purchases',s.purchases],['Refunds',s.refunds],['Total Profit',s.total_profit??s.own_profit,'positive'],['Wallet Balance',s.balance]
  ];
- return <div className={'financePage financeSimple'+(owner?' financeOwner':'')}>
-  <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{label}</button>)}</div>
-  {period==='custom'&&<div className="financeCustom"><label>From<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>To<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
+ return <div className={'financePage financeSimple'+(owner?' financeOwner':'')+(ar?' ownerFinanceArabic':'')} data-no-translate={ar?'true':undefined} dir={ar?'rtl':undefined}>
+  <div className="financePeriod" role="group" aria-label="Date filter">{[['24h','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time'],['custom','Custom']].map(([value,label])=><button key={value} type="button" className={period===value?'selected':''} onClick={()=>setPeriod(value)}>{tx(label)}</button>)}</div>
+  {period==='custom'&&<div className="financeCustom"><label>{tx("From")}<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>{tx("To")}<input type="date" value={to} onChange={e=>setTo(e.target.value)} min={from||undefined}/></label></div>}
   {error&&<div className="catalogNotice error" role="alert">{error}</div>}
-  {owner&&summaryError&&<div className="catalogNotice error" role="alert">Financial totals: {summaryError}</div>}
-  <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{label}</span><strong className={kind==='positive'?'financePositive':''}>{owner&&summaryBusy&&!ownerSummary?'…':fmt(val)}</strong></div>)}</div>
+  {owner&&summaryError&&<div className="catalogNotice error" role="alert">{tx("Financial totals")}: {summaryError}</div>}
+  <div className="financeSummary">{metrics.map(([label,val,kind])=><div className="financeMetric" key={label}><span>{tx(label)}</span><strong className={kind==='positive'?'financePositive':''}>{owner&&summaryBusy&&!ownerSummary?'…':fmt(val)}</strong></div>)}</div>
   <div className="financeFilters">
-   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select>
-   <input type="search" placeholder="Search order, product or shop..." value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search transactions"/>
+   <select value={view} onChange={e=>{setView(e.target.value);setSelected(null)}} aria-label="Transaction type">{views.map(([key,label])=><option key={key} value={key}>{tx(label)}</option>)}</select>
+   <input type="search" placeholder={tx("Search order, product or shop...")} value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search transactions"/>
   </div>
-  <div className="financeListHeader"><strong>Financial Activity</strong><span>{busy?'Loading…':events.length+' records'}</span></div>
-  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> Loading transactions…</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>No transactions found</b><span>Try another date or category.</span></div>:<div className="financeList">{events.map(item=>{
+  <div className="financeListHeader"><strong>{tx("Financial Activity")}</strong><span>{busy?tx("Loading…"):(ar?`${events.length} سجل`:events.length+" records")}</span></div>
+  {busy?<div className="ordersLoading"><RefreshCw className="spin" size={20}/> {tx("Loading transactions…")}</div>:!events.length?<div className="ordersEmpty"><History size={25}/><b>{tx("No transactions found")}</b><span>{tx("Try another date or category.")}</span></div>:<div className="financeList">{events.map(item=>{
    const wallet=item.kind==='wallet',purchase=item.kind==='purchase'||item.kind==='own_sale';
    const shop=item.kind==='shop_profit',ownerProfit=item.kind==='owner_profit'||item.kind==='owner_profit_return';
    const returned=item.kind==='sale_return',sale=purchase||item.kind==='sale'||returned;
@@ -1333,50 +1376,50 @@ function FinancialPage({owner=false,dealer=false}){
    return <div key={item.id} className="financeEntry">
     <button type="button" className="financeEntryTop" onClick={()=>setSelected(v=>v===item.id?null:item.id)} aria-expanded={selected===item.id}>
      <span className="financeEntryIcon">{wallet?<Wallet size={20}/>:shop?<Store size={20}/>:<ReceiptText size={20}/>}</span>
-     <span className="financeEntryInfo"><strong>{displayLabel}</strong><small>{owner&&itemName?itemName+' · ':''}{sub}</small>
-      {(sale&&!cleanOwnerSales&&!cleanAccountSales)&&<small className="financeEntryPreview">{returned||(cleanAccountSales&&item.wallet_type==='refund')?'Returned Cost':'Cost'} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.wallet_type!=='refund'&&item.selling_price!=null&&<> · Selected Selling {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · Profit {fmt(item.profit??item.account_profit)}</>}{!returned&&(purchase||cleanAccountSales&&item.wallet_type==='purchase')&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?'Failed':item.order_status==='processing'?'Processing':'Pending'}</>}</small>}
-      {ownerProfit&&!cleanOwnerProfit&&<small className="financeEntryPreview">Supplier {fmt(item.supplier_cost)} · {item.parent_type==='dealer'?'Price to dealer':'Account cost'} {fmt(item.parent_type==='dealer'?item.platform_price:item.cost)} · My profit {signed(item.amount)}</small>}
-      {shop&&<small className="financeEntryPreview">Cost {fmt(item.dealer_cost)} · Sold to shop {fmt(item.shop_cost)} · Profit {fmt(item.profit)}</small>}
+     <span className="financeEntryInfo"><strong>{tx(displayLabel)}</strong><small>{owner&&itemName?itemName+' · ':''}{ar?sub.replace(/^(To |From )/,m=>m==='To '?'إلى ':'من ').replace(/Order #(\d+)/g,(_,id)=>'طلب رقم '+id).replace(/^Wallet$/,'المحفظة'):sub}</small>
+      {(sale&&!cleanOwnerSales&&!cleanAccountSales)&&<small className="financeEntryPreview">{tx(returned||(cleanAccountSales&&item.wallet_type==='refund')?'Returned Cost':'Cost')} {fmt(item.cost??Math.abs(Number(item.amount||0)))}{!returned&&item.wallet_type!=='refund'&&item.selling_price!=null&&<> · {tx("Selected Selling")} {fmt(item.selling_price)}</>}{!owner&&(finished||item.kind==='sale')&&<> · {tx("Profit")} {fmt(item.profit??item.account_profit)}</>}{!returned&&(purchase||cleanAccountSales&&item.wallet_type==='purchase')&&!finished&&item.order_status&&<> · {item.order_status==='failed'||item.order_status==='refunded'?tx('Failed'):item.order_status==='processing'?tx('Processing'):tx('Pending')}</>}</small>}
+      {ownerProfit&&!cleanOwnerProfit&&<small className="financeEntryPreview">{tx("Supplier")} {fmt(item.supplier_cost)} · {tx(item.parent_type==='dealer'?'Price to dealer':'Account cost')} {fmt(item.parent_type==='dealer'?item.platform_price:item.cost)} · {tx("My profit")} {signed(item.amount)}</small>}
+      {shop&&<small className="financeEntryPreview">{tx("Cost")} {fmt(item.dealer_cost)} · {tx("Sold to shop")} {fmt(item.shop_cost)} · {tx("Profit")} {fmt(item.profit)}</small>}
       <small>{date(item.at)}</small>
      </span>
      <span className={'financeEntryAmount'+(shownAmount>0?' positive':'')}>{amountText}</span><ChevronDown size={17} className={selected===item.id?'financeExpanded':''}/>
     </button>
     {selected===item.id&&<div className="financeEntryDetails">
      {wallet?<>
-       {owner&&<div><span>Account</span><b>{itemName||'Shop'}</b></div>}
-       {related&&<div><span>{item.wallet_type==='dealer_transfer_out'?'Sent to':'Related account'}</span><b>{related}</b></div>}
-       {item.order_id&&<div><span>Order</span><b>#{item.order_id}</b></div>}
-       <div><span>Amount</span><b>{signed(amount)}</b></div>
-       <div><span>Balance before</span><b>{fmt(item.balance_before)}</b></div>
-       <div><span>Balance after</span><b>{fmt(item.balance_after)}</b></div>
+       {owner&&<div><span>{tx("Account")}</span><b>{itemName||'Shop'}</b></div>}
+       {related&&<div><span>{tx(item.wallet_type==='dealer_transfer_out'?'Sent to':'Related account')}</span><b>{related}</b></div>}
+       {item.order_id&&<div><span>{tx("Order")}</span><b>#{item.order_id}</b></div>}
+       <div><span>{tx("Amount")}</span><b>{signed(amount)}</b></div>
+       <div><span>{tx("Balance before")}</span><b>{fmt(item.balance_before)}</b></div>
+       <div><span>{tx("Balance after")}</span><b>{fmt(item.balance_after)}</b></div>
       </>:ownerProfit?<>
-       <div><span>Account</span><b>{itemName||'Shop'}</b></div>
-       <div><span>Package</span><b>{item.product||'Sale'}</b></div>
-       <div><span>Supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>
-       <div><span>{item.parent_type==='dealer'?'Price received by 3ABBILO':'Account cost'}</span><b>{fmt(item.parent_type==='dealer'?item.platform_price:item.cost)}</b></div>
-       {item.parent_type==='dealer'&&<div><span>Dealer margin (not my profit)</span><b>{fmt(item.dealer_profit)}</b></div>}
-       <div><span>{item.kind==='owner_profit_return'?'Reversed owner profit':'Owner profit'}</span><b className={Number(item.amount)>=0?'financePositive':''}>{signed(item.amount)}</b></div>
+       <div><span>{tx("Account")}</span><b>{itemName||'Shop'}</b></div>
+       <div><span>{tx("Package")}</span><b>{item.product||'Sale'}</b></div>
+       <div><span>{tx("Supplier cost")}</span><b>{fmt(item.supplier_cost)}</b></div>
+       <div><span>{tx(item.parent_type==='dealer'?'Price received by 3ABBILO':'Account cost')}</span><b>{fmt(item.parent_type==='dealer'?item.platform_price:item.cost)}</b></div>
+       {item.parent_type==='dealer'&&<div><span>{tx("Dealer margin (not my profit)")}</span><b>{fmt(item.dealer_profit)}</b></div>}
+       <div><span>{tx(item.kind==='owner_profit_return'?'Reversed owner profit':'Owner profit')}</span><b className={Number(item.amount)>=0?'financePositive':''}>{signed(item.amount)}</b></div>
       </>:shop?<>
-       <div><span>Shop</span><b>{publicName(item.shop_name)||'Shop'}</b></div>
-       <div><span>Package</span><b>{item.product||'Sale'}</b></div>
-       <div><span>My cost</span><b>{fmt(item.dealer_cost)}</b></div>
-       <div><span>Price to shop</span><b>{fmt(item.shop_cost)}</b></div>
-       <div><span>Profit</span><b className="financePositive">{fmt(item.profit)}</b></div>
+       <div><span>{tx("Shop")}</span><b>{publicName(item.shop_name)||'Shop'}</b></div>
+       <div><span>{tx("Package")}</span><b>{item.product||'Sale'}</b></div>
+       <div><span>{tx("My cost")}</span><b>{fmt(item.dealer_cost)}</b></div>
+       <div><span>{tx("Price to shop")}</span><b>{fmt(item.shop_cost)}</b></div>
+       <div><span>{tx("Profit")}</span><b className="financePositive">{fmt(item.profit)}</b></div>
       </>:<>
-       {owner&&<div><span>Account</span><b>{itemName||'Shop'}</b></div>}
-       {owner&&item.parent_name&&<div><span>Parent account</span><b>{publicName(item.parent_name)}</b></div>}
-       <div><span>Package</span><b>{item.product||item.title||'Sale'}</b></div>
-       <div><span>{returned?'Returned cost':'Purchase cost'}</span><b>{fmt(item.cost??Math.abs(Number(item.amount||0)))}</b></div>
-       {item.order_status&&<div><span>Order status</span><b>{item.order_status==='refunded'?'Failed':item.order_status}</b></div>}
-       {item.selling_price!=null&&<div><span>Selected selling price</span><b>{fmt(item.selling_price)}</b></div>}
-       {!owner&&(finished||item.kind==='sale')&&<div><span>Recorded profit</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>}
-       {owner&&item.supplier_cost!=null&&<div><span>Supplier cost</span><b>{fmt(item.supplier_cost)}</b></div>}
+       {owner&&<div><span>{tx("Account")}</span><b>{itemName||'Shop'}</b></div>}
+       {owner&&item.parent_name&&<div><span>{tx("Parent account")}</span><b>{publicName(item.parent_name)}</b></div>}
+       <div><span>{tx("Package")}</span><b>{item.product||item.title||'Sale'}</b></div>
+       <div><span>{tx(returned?'Returned cost':'Purchase cost')}</span><b>{fmt(item.cost??Math.abs(Number(item.amount||0)))}</b></div>
+       {item.order_status&&<div><span>{tx("Order status")}</span><b>{tx(item.order_status==='refunded'?'Failed':item.order_status)}</b></div>}
+       {item.selling_price!=null&&<div><span>{tx("Selected selling price")}</span><b>{fmt(item.selling_price)}</b></div>}
+       {!owner&&(finished||item.kind==='sale')&&<div><span>{tx("Recorded profit")}</span><b className="financePositive">{fmt(item.profit??item.account_profit)}</b></div>}
+       {owner&&item.supplier_cost!=null&&<div><span>{tx("Supplier cost")}</span><b>{fmt(item.supplier_cost)}</b></div>}
       </>}
     </div>}
    </div>;
   })}</div>}
-  {owner&&hasMore&&<div className="financeLoadMore"><button type="button" disabled={loadingMore} onClick={loadMore}>{loadingMore?'Loading…':'Load More Transactions'}</button></div>}
-  {owner&&Number(s.missing_supplier_cost)>0&&<p className="financeNote">{s.missing_supplier_cost} completed orders lack a verified supplier/account cost. Their unknown amounts are excluded from affected sales-cost or profit totals until reviewed.</p>}
+  {owner&&hasMore&&<div className="financeLoadMore"><button type="button" disabled={loadingMore} onClick={loadMore}>{tx(loadingMore?'Loading…':'Load More Transactions')}</button></div>}
+  {owner&&Number(s.missing_supplier_cost)>0&&<p className="financeNote">{ar?`${s.missing_supplier_cost} طلبًا مكتملًا يفتقر إلى تكلفة مورّد أو حساب مؤكدة. لا تُحتسب المبالغ غير المعروفة ضمن إجمالي التكلفة أو الأرباح المتأثرة حتى مراجعتها.`:`${s.missing_supplier_cost} completed orders lack a verified supplier/account cost. Their unknown amounts are excluded from affected sales-cost or profit totals until reviewed.`}</p>}
   {!owner&&data?.limited&&<p className="financeNote">Showing the latest transactions. Choose a shorter date range to view earlier records.</p>}
  </div>;
 }
@@ -2155,7 +2198,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
    </form>
   </div>
  </div>,document.body)}
- {page==='Transactions & Sales'&&<FinancialPage owner/>}
+ {page==='Transactions & Sales'&&<FinancialPage owner ownerLang={ownerOrderLang}/>}
  {page==='Reports'&&<><div className="pageTitle"><small>REPORTS</small><h1>Last 30 Days</h1></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.map(r=><button type="button" key={String(r.day)} className="ownerRecordCard" onClick={()=>setSelectedOwnerRecord({type:'report',record:r})}><span className="ownerRecordIcon"><BarChart3 size={23}/></span><span className="ownerRecordMain"><strong>{String(r.day||'').slice(0,10)}</strong><small>{r.orders||0} orders · {r.successful||0} successful</small></span><strong className="ownerRecordAmount">{money(r.sales)}</strong><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><BarChart3/><b>No reports available</b></div>)}</>}
  {selectedOwnerOrder&&createPortal(
  <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedOwnerOrder(null)}>
