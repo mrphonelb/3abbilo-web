@@ -4215,3 +4215,16 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
     text-align:right;
   }
 }
+
+/* TEST DEALER 469 / TEST SHOP 470: Arabic View all label with left arrow. */
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardRecentHeader button {
+  display:inline-flex;
+  direction:ltr;
+  flex-direction:row-reverse;
+  align-items:center;
+  gap:5px;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardRecentHeader button svg {
+  transform:rotate(180deg);
+  flex-shrink:0;
+}
