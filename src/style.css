@@ -4065,3 +4065,20 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   .ownerShell .ownerLanguageButton{gap:0;padding:3px;font-size:12px}
   .ownerShell .ownerLanguageButton span:not(.ownerLangSeparator){min-width:39px;min-height:30px;padding:7px 10px}
 }
+
+/* Bilingual pilot: only Daftra categories 469 (test dealer) and 470 (test shop). */
+.appShell.testLanguageEnabled .appTop{position:relative;padding-right:145px;}
+.appShell.testLanguageEnabled .ownerLanguageControls{position:absolute;right:15px;top:50%;transform:translateY(-50%);z-index:3;}
+.appShell.testLanguageEnabled.testArabic{direction:rtl;text-align:right;}
+.appShell.testLanguageEnabled.testArabic .side{left:auto;right:0;}
+.appShell.testLanguageEnabled.testArabic .appMain{margin-left:0;margin-right:var(--sidebar-width,260px);}
+.appShell.testLanguageEnabled.testArabic .appTop,.appShell.testLanguageEnabled.testArabic .sideTop,.appShell.testLanguageEnabled.testArabic .accountMini,.appShell.testLanguageEnabled.testArabic nav button{direction:rtl;}
+.appShell.testLanguageEnabled.testArabic .side nav button{text-align:right;}
+.appShell.testLanguageEnabled.testArabic .appTop{padding-left:145px;padding-right:20px;}
+.appShell.testLanguageEnabled.testArabic .ownerLanguageControls{right:auto;left:15px;}
+.appShell.testLanguageEnabled.testArabic input,.appShell.testLanguageEnabled.testArabic textarea,.appShell.testLanguageEnabled.testArabic select{text-align:right;direction:rtl;}
+.appShell.testLanguageEnabled.testArabic input[type=email],.appShell.testLanguageEnabled.testArabic input[type=number],.appShell.testLanguageEnabled.testArabic input[type=tel],.appShell.testLanguageEnabled.testArabic input[type=password]{direction:ltr;text-align:left;}
+.appShell.testLanguageEnabled.testArabic .topBalance{direction:ltr;}
+.appShell.testLanguageEnabled.testArabic .modalShade,.appShell.testLanguageEnabled.testArabic .productModal{direction:rtl;text-align:right;}
+@media(max-width:900px){.appShell.testLanguageEnabled.testArabic .appMain{margin-right:0;}.appShell.testLanguageEnabled.testArabic .side{transform:translateX(110%);}.appShell.testLanguageEnabled.testArabic .side.open{transform:translateX(0);}}
+@media(max-width:600px){.appShell.testLanguageEnabled .appTop{padding-right:118px;}.appShell.testLanguageEnabled.testArabic .appTop{padding-left:118px;padding-right:10px;}.appShell.testLanguageEnabled .ownerLanguageControls{right:8px;}.appShell.testLanguageEnabled.testArabic .ownerLanguageControls{left:8px;right:auto;}.appShell.testLanguageEnabled .ownerLanguageButton{font-size:12px;}}
