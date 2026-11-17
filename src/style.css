@@ -3832,3 +3832,56 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails>div{direction:rtl;text-align:right}
 .ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails b{text-align:left;unicode-bidi:plaintext}
 @media(max-width:550px){.ownerShell.ownerArabic .financeOwner.ownerFinanceArabic .financeEntryDetails{padding:12px}}
+
+/* Arabic ONLY — Owner Recharge Account. No dealer/shop or English UI changes. */
+.ownerShell.ownerArabic .ownerArabicRecharge {
+  direction:rtl;
+  text-align:right;
+}
+.ownerShell.ownerArabic .ownerArabicRecharge .rechargePageActions,
+.ownerShell.ownerArabic .ownerArabicRecharge .rechargeOrdersFilters,
+.ownerShell.ownerArabic .ownerArabicRecharge .rechargeMethodsSection {
+  direction:rtl;
+}
+.ownerShell.ownerArabic .ownerArabicRecharge .rechargeOrderRow {
+  direction:rtl;
+  text-align:right;
+}
+.ownerShell.ownerArabic .ownerArabicRecharge .rechargeOrdersFilters input {
+  direction:rtl;
+  text-align:right;
+}
+.ownerArabicRechargeShade .rechargeModal,
+.ownerArabicRechargeShade .whishDirectGuideModal {
+  direction:rtl;
+}
+.ownerArabicRechargeShade .rechargeModal .popupTitle,
+.ownerArabicRechargeShade .whishDirectGuideModal h2 {
+  text-align:center;
+}
+.ownerArabicRechargeShade .rechargeModal .rechargeDetailLine {
+  direction:rtl;
+  text-align:right;
+}
+.ownerArabicRechargeShade .rechargeModal .rechargeDetailLine > strong,
+.ownerArabicRechargeShade .rechargeModal .rechargeDetailLine > .rechargeCenteredStatus {
+  direction:ltr;
+  unicode-bidi:isolate;
+  text-align:left;
+}
+.ownerArabicRechargeShade .rechargeModal label,
+.ownerArabicRechargeShade .rechargeModal .rechargeActivation,
+.ownerArabicRechargeShade .rechargeModal .rechargeBalancePreview,
+.ownerArabicRechargeShade .rechargeModal .rechargeUnpaidRow {
+  direction:rtl;
+  text-align:right;
+}
+.ownerArabicRechargeShade .rechargeModal input[type="number"],
+.ownerArabicRechargeShade .rechargeModal input[type="tel"],
+.ownerArabicRechargeShade .rechargeModal input[type="email"],
+.ownerArabicRechargeShade .rechargeModal .rechargeMoney,
+.ownerArabicRechargeShade .rechargeModal .rechargeDirectCountdown {
+  direction:ltr;
+  unicode-bidi:isolate;
+}
+.ownerArabicRechargeShade .rechargeModal .modalClose {right:auto;left:14px;}
