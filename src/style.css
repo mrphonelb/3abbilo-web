@@ -3534,3 +3534,20 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button svg {
   transform:none !important;
 }
+
+/* Arabic owner dashboard header: heading right, View All action left. */
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader {
+  direction:ltr !important;
+  flex-direction:row-reverse !important;
+  justify-content:space-between !important;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader h2 {
+  margin:0 !important;
+  text-align:right !important;
+  direction:rtl;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button {
+  margin:0 !important;
+  direction:rtl !important;
+  flex-direction:row !important;
+}
