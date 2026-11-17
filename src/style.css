@@ -3646,3 +3646,19 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerShell:not(.ownerArabic) .ownerDashboardRecent .dashboardRecentHeader button svg {
   transform:rotate(180deg);
 }
+
+/* Owner order results: scoped Arabic RTL styling; English and other accounts unaffected. */
+.ownerOrderModal.ownerOrderArabicPopup{direction:rtl;text-align:right}
+.ownerOrderArabicPopup .popupTitle{direction:rtl;justify-content:flex-start;text-align:right}
+.ownerOrderArabicPopup .receiptHeading{direction:rtl;text-align:right}
+.ownerOrderArabicPopup .receiptRow{direction:rtl;text-align:right}
+.ownerOrderArabicPopup .receiptRow>span{order:0;text-align:right}
+.ownerOrderArabicPopup .receiptRow>strong,.ownerOrderArabicPopup .receiptRow>a{order:1;text-align:left;unicode-bidi:plaintext}
+.ownerOrderArabicPopup .receiptRow strong{direction:auto;max-width:70%}
+.ownerOrderArabicPopup .receiptRow.esimDetailRow>button{order:2}
+.ownerOrderArabicPopup .modalClose{left:14px;right:auto}
+.ownerOrderArabicPopup .receiptDelivery>small,.ownerOrderArabicPopup .esimManualHeading{text-align:right}
+.ownerOrderArabicPopup .receiptCode,.ownerOrderArabicPopup .esimValue,.ownerOrderArabicPopup .esimIccidCode{direction:ltr;unicode-bidi:plaintext}
+.ownerOrderArabicPopup .ownerManualDropdownTrigger,.ownerOrderArabicPopup .ownerManualDropdownOption{direction:rtl;text-align:right}
+.ownerOrderArabicPopup .ownerManualDropdownTrigger{flex-direction:row}
+.ownerOrderArabicPopup .ownerManualDropdown input{direction:ltr;text-align:left}

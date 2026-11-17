@@ -1772,6 +1772,82 @@ class OwnerErrorBoundary extends React.Component{
 const OWNER_AR={
  'Dashboard':'لوحة التحكم','ALL ORDERS':'جميع الطلبات','SUPPORT TICKETS':'تذاكر الدعم','View all':'عرض الكل','All Orders':'جميع الطلبات','Support Tickets':'تذاكر الدعم','Accounts':'الحسابات','Wallets':'المحافظ','Reports':'التقارير','Recharge Account':'شحن الحساب','Transactions & Sales':'المعاملات والمبيعات','Transactions & Profit':'المعاملات والأرباح','Activity Summary':'ملخص النشاط','Logout':'تسجيل الخروج','Owner account':'حساب المالك','3ABBILO Owner':'مالك 3ABBILO','Available balance':'الرصيد المتاح','Available Balance':'الرصيد المتاح','Total Orders':'إجمالي الطلبات','Total Sales':'إجمالي المبيعات','Total Profit':'إجمالي الأرباح','Total Shops':'إجمالي المتاجر','Total Dealers':'إجمالي الموزعين','Recent Orders':'الطلبات الأخيرة','Recent Support Tickets':'تذاكر الدعم الأخيرة','View All':'عرض الكل','View All Orders':'عرض جميع الطلبات','Create Account':'إنشاء حساب','Create Shop':'إنشاء متجر','Create Dealer':'إنشاء موزع','Add Account':'إضافة حساب','Account Details':'تفاصيل الحساب','Account':'الحساب','Accounts Overview':'نظرة عامة على الحسابات','Name':'الاسم','Email':'البريد الإلكتروني','Phone':'الهاتف','Phone Number':'رقم الهاتف','Password':'كلمة المرور','Balance':'الرصيد','Status':'الحالة','Date':'التاريخ','Type':'النوع','Parent':'الحساب الرئيسي','Amount':'المبلغ','Price':'السعر','Profit':'الربح','Sales':'المبيعات','Orders':'الطلبات','Successful':'الناجحة','Open Tickets':'تذاكر الدعم المفتوحة','Pending':'قيد الانتظار','Failed':'فشل','Success':'نجاح','Active':'نشط','Inactive':'غير نشط','Search':'بحث','Search accounts':'البحث عن الحسابات','Search orders':'البحث عن الطلبات','Filter':'تصفية','All':'الكل','Actions':'الإجراءات','Details':'التفاصيل','View':'عرض','Edit':'تعديل','Delete':'حذف','Save':'حفظ','Cancel':'إلغاء','Close':'إغلاق','Confirm':'تأكيد','Submit':'إرسال','Reply':'رد','Send Reply':'إرسال الرد','Loading…':'جارٍ التحميل…','Loading...':'جارٍ التحميل...','Refresh':'تحديث','Create':'إنشاء','Add':'إضافة','Shop':'متجر','Dealer':'موزع','Owner':'المالك','My Account':'حسابي','View Recharge':'عرض الشحن','Order Details':'تفاصيل الطلب','Close result':'إغلاق النتيجة','Close Result':'إغلاق النتيجة','Order Number':'رقم الطلب','Customer':'العميل','Product':'المنتج','Products':'المنتجات','Payment Method':'طريقة الدفع','Payment methods':'طرق الدفع','Recharge Orders':'طلبات الشحن','Total Amount':'المبلغ الإجمالي','Wallet Balance':'رصيد المحفظة','New Account':'حساب جديد','Edit Account / Reset Password':'تعديل الحساب / إعادة تعيين كلمة المرور','Deactivate Account':'تعطيل الحساب','Activate Account':'تفعيل الحساب','Delete Account (if eligible)':'حذف الحساب (إذا كان مسموحًا)','Daily Report':'التقرير اليومي','Account type':'نوع الحساب','Related to':'مرتبط بـ','Account details and recorded wallet balance':'تفاصيل الحساب والرصيد المسجل','Recent Activity':'النشاط الأخير','No results':'لا توجد نتائج','No orders found':'لم يتم العثور على طلبات','View Details':'عرض التفاصيل','Support':'الدعم','Create Recharge Order':'إنشاء طلب شحن','Wallet Transactions':'معاملات المحفظة','Payment':'الدفع','Payments':'المدفوعات','Transactions':'المعاملات','Total':'الإجمالي','Commission':'العمولة','Dealer Profit':'ربح الموزع','Shops Profit':'ربح المتاجر','Sales Profit':'ربح المبيعات','Today':'اليوم','Yesterday':'أمس','This Month':'هذا الشهر','This Week':'هذا الأسبوع','From':'من','To':'إلى','Clear':'مسح','Apply':'تطبيق','All Statuses':'جميع الحالات','All Status':'جميع الحالات','Search product, order, shop, dealer or recipient…':'بحث','All Accounts':'جميع الحسابات','Order':'الطلب','Shop Orders':'طلبات المتاجر','Shop Support Tickets':'تذاكر دعم المتاجر','Recent Transactions':'المعاملات الأخيرة','Manual Recharge':'الشحن اليدوي','Whish Direct':'ويش مباشر','Whish Money':'ويش موني','OMT Wallet':'محفظة OMT','Binance':'باينانس','Copy':'نسخ','Print':'طباعة','Share':'مشاركة','Notes':'ملاحظات','Message':'الرسالة','Subject':'الموضوع','Ticket':'تذكرة','Tickets':'التذاكر','Create New Account':'إنشاء حساب جديد','Select Account':'اختر الحساب','Select':'اختر','All Transactions':'جميع المعاملات','Download':'تنزيل','Back to Dashboard':'العودة إلى لوحة التحكم'
 };
+
+// Owner order-popup-only translation; supplier payloads and English UI are left untouched.
+const OWNER_ORDER_AR = {
+ "Order Result": "نتيجة الطلب",
+ "Close": "إغلاق",
+ "Purchase successful": "تمت عملية الشراء بنجاح",
+ "Purchase failed": "فشلت عملية الشراء",
+ "Order received — processing": "تم استلام الطلب وجارٍ معالجته",
+ "Service completed and receipt recorded": "تم إتمام الخدمة وتسجيل الإيصال",
+ "Please review the order details below": "يرجى مراجعة تفاصيل الطلب أدناه",
+ "Order is awaiting confirmation. Do not purchase again.": "الطلب بانتظار التأكيد. يرجى عدم إعادة الشراء.",
+ "Order number": "رقم الطلب",
+ "Shop / account": "المتجر / الحساب",
+ "Product": "المنتج",
+ "Purchased package": "الباقة المشتراة",
+ "Loading saved delivery details…": "جارٍ تحميل تفاصيل التسليم…",
+ "Delivered recharge / redeem code": "رمز الشحن / الاسترداد",
+ "Card serial": "الرقم التسلسلي للبطاقة",
+ "Expiry date": "تاريخ انتهاء الصلاحية",
+ "Copy redeem code": "نسخ رمز الاسترداد",
+ "Print receipt": "طباعة الإيصال",
+ "Share on WhatsApp": "مشاركة عبر واتساب",
+ "This code belongs to a failed/refunded order. Verify before sharing it.": "هذا الرمز تابع لطلب فاشل أو مسترد. يرجى التحقق منه قبل مشاركته.",
+ "No redeem code is saved for this order. Check its delivery status before resending anything.": "لم يتم حفظ رمز لهذا الطلب. تحقق من حالة التسليم قبل إعادة إرساله.",
+ "CARFAX report": "تقرير CARFAX",
+ "Open report": "فتح التقرير",
+ "eSIM activation QR code": "رمز QR لتفعيل eSIM",
+ "Open QR code": "فتح رمز QR",
+ "Manual activation information": "معلومات التفعيل اليدوي",
+ "Copy manual activation": "نسخ بيانات التفعيل اليدوي",
+ "SM-DP+ address": "عنوان SM-DP+",
+ "Copy SM-DP+ address": "نسخ عنوان SM-DP+",
+ "Activation code": "رمز التفعيل",
+ "Copy activation code": "نسخ رمز التفعيل",
+ "Copy eSIM ICCID": "نسخ رقم eSIM ICCID",
+ "Print eSIM activation details": "طباعة تفاصيل تفعيل eSIM",
+ "Share eSIM on WhatsApp": "مشاركة eSIM عبر واتساب",
+ "Ogero receipt": "إيصال أوجيرو",
+ "Open receipt": "فتح الإيصال",
+ "Recipient / reference": "المستلم / المرجع",
+ "Cost": "التكلفة",
+ "Selected selling price": "سعر البيع المحدد",
+ "Purchase reference": "مرجع الشراء",
+ "Failure reason": "سبب الفشل",
+ "Account type": "نوع الحساب",
+ "Related to": "تابع لـ",
+ "Date": "التاريخ",
+ "This order has no stored redeem code; direct recharges and account top-ups normally do not issue one.": "لا يوجد رمز استرداد محفوظ لهذا الطلب؛ الشحن المباشر وشحن الحساب لا يصدران رمزًا عادةً.",
+ "This is the saved platform order. Do not submit another purchase while confirmation is pending.": "هذا هو الطلب المسجل في المنصة. لا تُرسل عملية شراء جديدة ما دام التأكيد معلقًا.",
+ "This order was not completed successfully.": "لم تكتمل عملية الشراء بنجاح.",
+ "Owner manual order resolution": "المعالجة اليدوية للطلب من قِبل المالك",
+ "Use only after verifying the supplier result. The original wallet reservation is already charged when the order is placed. These actions never submit another purchase.": "استخدم هذه الخيارات فقط بعد التحقق من نتيجة المورّد. تم حجز المبلغ من المحفظة عند إنشاء الطلب، ولن تُنشئ هذه الإجراءات عملية شراء أخرى.",
+ "Manual order resolution": "المعالجة اليدوية للطلب",
+ "Resolution actions": "إجراءات المعالجة",
+ "Choose resolution action": "اختر إجراء المعالجة",
+ "Success — create invoice and dealer commission": "نجاح — إنشاء الفاتورة وعمولة الموزع",
+ "Success — change status only": "نجاح — تغيير الحالة فقط",
+ "Failed — refund reserved wallet (if applicable)": "فشل — استرداد المبلغ المحجوز من المحفظة (إن وُجد)",
+ "Failed — change status only": "فشل — تغيير الحالة فقط",
+ "Runs the normal success finalizer: invoice under purchasing account, plus shop-to-dealer commission where applicable. Status can remain Processing while invoice sync completes.": "ينفّذ معالجة النجاح المعتادة: إنشاء فاتورة باسم حساب المشتري وعمولة المتجر للموزع عند تطبيقها. قد تبقى الحالة قيد المعالجة حتى تكتمل مزامنة الفاتورة.",
+ "Runs the normal failure finalizer: refunds an already reserved shop/dealer wallet amount. No invoice return is created for orders that have never been invoiced. Existing invoices require accounting reconciliation.": "ينفّذ معالجة الفشل المعتادة ويعيد المبلغ المحجوز لمحفظة المتجر أو الموزع. لا يتم إنشاء مرتجع لطلب لم تصدر له فاتورة، والفواتير الموجودة تتطلب تسوية محاسبية.",
+ "Only changes the visible order status. No invoices, returns, wallet entries or commissions are created. This can leave accounting out of sync.": "يغيّر حالة الطلب الظاهرة فقط من دون إنشاء فواتير أو مرتجعات أو قيود محفظة أو عمولات. قد يؤدي ذلك إلى عدم تطابق الحسابات.",
+ "Confirm manual order resolution": "تأكيد المعالجة اليدوية للطلب",
+ "Resolving…": "جارٍ تنفيذ المعالجة…",
+ "Apply manual resolution": "تنفيذ المعالجة اليدوية",
+ "Payment confirmed.": "تم تأكيد الدفع.",
+ "Checking receipt…": "جارٍ التحقق من الإيصال…",
+ "Close result": "إغلاق النتيجة",
+ "Code copied": "تم نسخ الرمز",
+ "Copy unavailable. Select the code to copy manually.": "تعذر النسخ. حدد الرمز وانسخه يدويًا.",
+ "Order updated": "تم تحديث الطلب",
+ "Unable to resolve order": "تعذرت معالجة الطلب",
+ "eSIM ICCID": "رقم eSIM ICCID",
+ "Use this action only after checking that no receipt exists for this exact order. It will not buy again or deduct a second wallet payment.": "استخدم هذا الإجراء فقط بعد التحقق من عدم وجود إيصال لهذا الطلب تحديدًا. لن يعيد الشراء أو يخصم مبلغًا ثانيًا من المحفظة."
+};
+const ownerOrderText=(value,lang)=>lang==='ar'?(OWNER_ORDER_AR[value]||value):value;
 function OwnerArabicControls(){
  const [lang,setLang]=useState(()=>localStorage.getItem('3abbilo_owner_lang')==='ar'?'ar':'en');
  const [confirm,setConfirm]=useState(false),[switching,setSwitching]=useState(false);
@@ -1804,7 +1880,7 @@ function OwnerArabicControls(){
   translate();const observer=new MutationObserver(translate);observer.observe(root,{childList:true,subtree:true,characterData:true});
   return()=>{observer.disconnect();root.classList.remove('ownerArabic');document.documentElement.dir='ltr';document.documentElement.lang='en';};
  },[lang]);
- function switchLanguage(){setConfirm(false);setSwitching(true);window.setTimeout(()=>{const next=lang==='en'?'ar':'en';localStorage.setItem('3abbilo_owner_lang',next);setLang(next);setSwitching(false);},550)}
+ function switchLanguage(){setConfirm(false);setSwitching(true);window.setTimeout(()=>{const next=lang==='en'?'ar':'en';localStorage.setItem('3abbilo_owner_lang',next);window.dispatchEvent(new CustomEvent('3abbilo:owner-language-changed',{detail:{lang:next}}));setLang(next);setSwitching(false);},550)}
  return <div className="ownerLanguageControls" dir="ltr"><button type="button" className="ownerLanguageButton" onClick={()=>setConfirm(true)} aria-label={lang==='en'?'Switch language to Arabic':'التبديل إلى الإنجليزية'}><span className={lang==='en'?'ownerLangActive':''}>EN</span><span className="ownerLangSeparator" aria-hidden="true"/><span className={lang==='ar'?'ownerLangActive':''}>AR</span></button>
  {confirm&&createPortal(<div className="ownerLanguageShade" role="presentation"><div className={"ownerLanguageDialog "+(lang==='ar'?'ownerLanguageDialogArabic':'')} dir={lang==='ar'?'rtl':'ltr'} role="dialog" aria-modal="true" aria-label="Change language"><h3>{lang==='en'?'Switch to Arabic?':'التبديل إلى الإنجليزية؟'}</h3><p>{lang==='en'?'Are you sure you want to switch to Arabic?':'هل أنت متأكد من التبديل إلى الإنجليزية؟'}</p><div className="ownerLanguageActions"><button type="button" onClick={()=>setConfirm(false)}>{lang==='en'?'Cancel':'إلغاء'}</button><button type="button" onClick={switchLanguage}>{lang==='en'?'Confirm':'تأكيد'}</button></div></div></div>,document.body)}
  {switching&&createPortal(<div className="ownerLanguageShade" role="status" aria-live="polite"><div className="ownerLanguageDialog ownerLanguageLoading"><RefreshCw className="spin" size={30}/><p>{lang==='en'?'Switching to Arabic…':'جارٍ التبديل إلى الإنجليزية…'}</p></div></div>,document.body)}
@@ -1812,6 +1888,9 @@ function OwnerArabicControls(){
 }
 
 function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false),[ownerCreateBusy,setOwnerCreateBusy]=useState(false),[ownerCreateError,setOwnerCreateError]=useState(''),[ownerCreateForm,setOwnerCreateForm]=useState({account_type:'dealer',parent_account_id:'',shop_name:'',phone:'',email:'',password:''}),[page,setPage]=useState(ownerPageFromUrl),[accountSearch,setAccountSearch]=useState(''),[accountBusy,setAccountBusy]=useState(false),[accountError,setAccountError]=useState(''),[selectedOwnerRecord,setSelectedOwnerRecord]=useState(null),[activityAccount,setActivityAccount]=useState(null),[ownerManageRecord,setOwnerManageRecord]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[ticket,setTicket]=useState(null),[ticketRechargeId,setTicketRechargeId]=useState(null),[ticketSearch,setTicketSearch]=useState(''),[ownerTicketAlerts,setOwnerTicketAlerts]=useState(0),[selectedOwnerOrder,setSelectedOwnerOrder]=useState(null),[ownerReceipt,setOwnerReceipt]=useState(null),[ownerReceiptLoading,setOwnerReceiptLoading]=useState(false),[ownerReceiptError,setOwnerReceiptError]=useState(''),[ownerCopyMessage,setOwnerCopyMessage]=useState(''),[messages,setMessages]=useState([]),[reply,setReply]=useState(''),[open,setOpen]=useState(false),[manualOrderMode,setManualOrderMode]=useState(''),[manualOrderDropdownOpen,setManualOrderDropdownOpen]=useState(false),[manualOrderConfirm,setManualOrderConfirm]=useState(''),[manualOrderBusy,setManualOrderBusy]=useState(false),[manualOrderMessage,setManualOrderMessage]=useState(''),[recoveryBusy,setRecoveryBusy]=useState(false),[recoveryMessage,setRecoveryMessage]=useState(''),[dashboardRecent,setDashboardRecent]=useState({orders:[],tickets:[],loading:true,error:false});
+ const [ownerOrderLang,setOwnerOrderLang]=useState(()=>localStorage.getItem('3abbilo_owner_lang')==='ar'?'ar':'en');
+ useEffect(()=>{const sync=e=>setOwnerOrderLang(e.detail?.lang==='ar'?'ar':'en');window.addEventListener('3abbilo:owner-language-changed',sync);return()=>window.removeEventListener('3abbilo:owner-language-changed',sync)},[]);
+ const ot=value=>ownerOrderText(value,ownerOrderLang);
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
  async function get(path,options){const r=await fetch(API+'/api/wholesale/owner/'+path,{headers:headers(),cache:'no-store',...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
  async function load(pg=page,q=search,st=status){setLoading(true);setError('');try{const path=pg==='Dashboard'?'dashboard':pg==='All Orders'?'orders?q='+encodeURIComponent(q)+'&status='+encodeURIComponent(st):pg==='Support Tickets'?'tickets':pg==='Accounts'?'accounts':pg==='Wallets'?'wallets':'reports';setData(await get(path))}catch(e){setError(e.message)}finally{setLoading(false)}}
@@ -1879,8 +1958,8 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   return()=>{active=false};
  },[selectedOwnerOrder?.id]);
  async function copyOwnerCode(value){
-  try{await navigator.clipboard.writeText(String(value));setOwnerCopyMessage('Code copied')}
-  catch{setOwnerCopyMessage('Copy unavailable. Select the code to copy manually.')}
+  try{await navigator.clipboard.writeText(String(value));setOwnerCopyMessage(ot('Code copied'))}
+  catch{setOwnerCopyMessage(ot('Copy unavailable. Select the code to copy manually.'))}
  }
  function navigateOwner(next){if(next===page){setOpen(false);return}setTicket(null);setSelectedOwnerOrder(null);setSelectedOwnerRecord(null);setSearch('');setStatus('');setOpen(false);ownerNavigate(next)}
  async function ownerResolveOrder(){
@@ -1889,12 +1968,12 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   setManualOrderBusy(true);setManualOrderMessage('');
   try{
    const result=await get('orders/'+id+'/manual-resolution',{method:'POST',body:JSON.stringify({mode:manualOrderMode,confirmation:manualOrderConfirm})});
-   setManualOrderMessage(result.message||'Order updated');
+   setManualOrderMessage(ot(result.message||'Order updated'));
    setSelectedOwnerOrder(previous=>previous&&Number(previous.id)===id?{...previous,status:result.status}:previous);
    setOwnerReceipt(previous=>previous&&Number(previous.id)===id?{...previous,status:result.status}:previous);
    setManualOrderMode('');setManualOrderConfirm('');
    const list=await get('orders');setData(list);
-  }catch(e){setManualOrderMessage(e.message||'Unable to resolve order')}
+  }catch(e){setManualOrderMessage(ot(e.message||'Unable to resolve order'))}
   finally{setManualOrderBusy(false)}
  }
  async function recoverPaidAlfaCard(){
@@ -2004,9 +2083,9 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  {page==='Reports'&&<><div className="pageTitle"><small>REPORTS</small><h1>Last 30 Days</h1></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.map(r=><button type="button" key={String(r.day)} className="ownerRecordCard" onClick={()=>setSelectedOwnerRecord({type:'report',record:r})}><span className="ownerRecordIcon"><BarChart3 size={23}/></span><span className="ownerRecordMain"><strong>{String(r.day||'').slice(0,10)}</strong><small>{r.orders||0} orders · {r.successful||0} successful</small></span><strong className="ownerRecordAmount">{money(r.sales)}</strong><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><BarChart3/><b>No reports available</b></div>)}</>}
  {selectedOwnerOrder&&createPortal(
  <div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedOwnerOrder(null)}>
-  <div className="productModal compactModal orderResultModal ownerOrderModal">
-   <button type="button" className="modalClose" onClick={()=>setSelectedOwnerOrder(null)} aria-label="Close"><X size={21}/></button>
-   <div className="popupTitle"><ReceiptText size={32}/><h2>Order Result</h2></div>
+  <div className={"productModal compactModal orderResultModal ownerOrderModal"+(ownerOrderLang==='ar'?" ownerOrderArabicPopup":"")} dir={ownerOrderLang==='ar'?"rtl":"ltr"}>
+   <button type="button" className="modalClose" onClick={()=>setSelectedOwnerOrder(null)} aria-label={ot("Close")}><X size={21}/></button>
+   <div className="popupTitle"><ReceiptText size={32}/><h2>{ot("Order Result")}</h2></div>
    <div className="unifiedReceipt ownerUnifiedReceipt">
     {(()=>{
      const current=ownerReceipt&&Number(ownerReceipt.id)===Number(selectedOwnerOrder.id)?ownerReceipt:selectedOwnerOrder;
@@ -2022,75 +2101,75 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
      return <>
       <div className={'receiptHeading '+(success?'receiptSuccess':failed?'receiptFailed':'receiptPending')}>
        {pending?<RefreshCw size={28} className="spin"/>:<ShieldCheck size={28}/>}
-       <div><h3>{success?'Purchase successful':failed?'Purchase failed':'Order received — processing'}</h3>
-        <p>{success?'Service completed and receipt recorded':failed?'Please review the order details below':'Order is awaiting confirmation. Do not purchase again.'}</p></div>
+       <div><h3>{success?ot("Purchase successful"):failed?ot("Purchase failed"):ot("Order received — processing")}</h3>
+        <p>{success?ot("Service completed and receipt recorded"):failed?ot("Please review the order details below"):ot("Order is awaiting confirmation. Do not purchase again.")}</p></div>
       </div>
-      <div className="receiptRow"><span>Order number</span><strong>#{current.id}</strong></div>
-      <div className="receiptRow"><span>Shop / account</span><strong>{current.purchaser||'—'}</strong></div>
-      <div className="receiptRow"><span>Product</span><strong>{current.product_title||'—'}</strong></div>
-      <div className="receiptRow"><span>Purchased package</span><strong>{current.package_name||current.product_title||'—'}</strong></div>
-      {ownerReceiptLoading&&<div className="ownerReceiptLoading"><RefreshCw size={15} className="spin"/> Loading saved delivery details…</div>}
+      <div className="receiptRow"><span>{ot("Order number")}</span><strong>#{current.id}</strong></div>
+      <div className="receiptRow"><span>{ot("Shop / account")}</span><strong>{current.purchaser||'—'}</strong></div>
+      <div className="receiptRow"><span>{ot("Product")}</span><strong>{current.product_title||'—'}</strong></div>
+      <div className="receiptRow"><span>{ot("Purchased package")}</span><strong>{current.package_name||current.product_title||'—'}</strong></div>
+      {ownerReceiptLoading&&<div className="ownerReceiptLoading"><RefreshCw size={15} className="spin"/>{ot("Loading saved delivery details…")}</div>}
       {ownerReceiptError&&<div className="receiptNote receiptNoteError">{ownerReceiptError}</div>}
-      {!ownerReceiptLoading&&!ownerReceiptError&&code&&<div className="receiptDelivery receiptDeliveryCard"><small>Delivered recharge / redeem code</small><div className="receiptCode"><strong>{code}</strong></div><div className="receiptDivider"/>
-       {!!card.serial_number&&<div className="receiptRow"><span>Card serial</span><strong className="ownerCodeValue">{card.serial_number}</strong></div>}
-       {!!card.expiry_date&&<div className="receiptRow"><span>Expiry date</span><strong>{card.expiry_date}</strong></div>}
-       <div className="receiptCardActions receiptCardActionsCentered"><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(code)} title="Copy redeem code" aria-label="Copy redeem code"><Copy size={20}/></button><button type="button" className="receiptIconButton" onClick={ownerPrint} title="Print receipt" aria-label="Print receipt"><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={ownerShare} title="Share on WhatsApp" aria-label="Share on WhatsApp"><WhatsappBrandIcon size={20}/></button></div>
-       {failed&&<small className="ownerCodeWarning">This code belongs to a failed/refunded order. Verify before sharing it.</small>}
+      {!ownerReceiptLoading&&!ownerReceiptError&&code&&<div className="receiptDelivery receiptDeliveryCard"><small>{ot("Delivered recharge / redeem code")}</small><div className="receiptCode"><strong>{code}</strong></div><div className="receiptDivider"/>
+       {!!card.serial_number&&<div className="receiptRow"><span>{ot("Card serial")}</span><strong className="ownerCodeValue">{card.serial_number}</strong></div>}
+       {!!card.expiry_date&&<div className="receiptRow"><span>{ot("Expiry date")}</span><strong>{card.expiry_date}</strong></div>}
+       <div className="receiptCardActions receiptCardActionsCentered"><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(code)} title={ot("Copy redeem code")} aria-label={ot("Copy redeem code")}><Copy size={20}/></button><button type="button" className="receiptIconButton" onClick={ownerPrint} title={ot("Print receipt")} aria-label={ot("Print receipt")}><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={ownerShare} title={ot("Share on WhatsApp")} aria-label={ot("Share on WhatsApp")}><WhatsappBrandIcon size={20}/></button></div>
+       {failed&&<small className="ownerCodeWarning">{ot("This code belongs to a failed/refunded order. Verify before sharing it.")}</small>}
       </div>}
-      {!ownerReceiptLoading&&!ownerReceiptError&&current.purchase_method==='code'&&!code&&<div className="receiptNote receiptNoteError">No redeem code is saved for this order. Check its delivery status before resending anything.</div>}
-      {current.report_url&&<div className="receiptRow"><span>CARFAX report</span><a href={current.report_url} target="_blank" rel="noopener noreferrer">Open report</a></div>}
+      {!ownerReceiptLoading&&!ownerReceiptError&&current.purchase_method==='code'&&!code&&<div className="receiptNote receiptNoteError">{ot("No redeem code is saved for this order. Check its delivery status before resending anything.")}</div>}
+      {current.report_url&&<div className="receiptRow"><span>{ot("CARFAX report")}</span><a href={current.report_url} target="_blank" rel="noopener noreferrer">{ot("Open report")}</a></div>}
       {!ownerReceiptLoading&&!ownerReceiptError&&(install.qr_code_url||install.iccid||install.lpa||install.smdp_address||install.activation_code)&&<>
-       {!!install.iccid&&<div className="receiptDelivery esimIccidBox"><small>eSIM ICCID</small><div className="receiptCode esimIccidCode"><strong>{install.iccid}</strong><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.iccid)} title="Copy eSIM ICCID" aria-label="Copy eSIM ICCID"><Copy size={20}/></button></div></div>}
-       {!!install.qr_code_url&&/^https:\/\//i.test(install.qr_code_url)&&<div className="receiptDelivery receiptQr esimQrCentered"><small>eSIM activation QR code</small><img src={install.qr_code_url} alt="eSIM activation QR code" loading="lazy"/><a href={install.qr_code_url} target="_blank" rel="noopener noreferrer">Open QR code</a></div>}
-       {!!install.lpa&&<div className="receiptDelivery esimActivationBox"><small className="esimManualHeading">Manual activation information</small><div className="esimValue">{install.lpa}</div><div className="receiptCardActions receiptCardActionsCentered"><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.lpa)} title="Copy manual activation" aria-label="Copy manual activation"><Copy size={20}/></button></div></div>}
-       {!!install.smdp_address&&<div className="receiptRow esimDetailRow"><span>SM-DP+ address</span><strong>{install.smdp_address}</strong><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.smdp_address)} title="Copy SM-DP+ address" aria-label="Copy SM-DP+ address"><Copy size={20}/></button></div>}
-       {!!install.activation_code&&<div className="receiptRow esimDetailRow"><span>Activation code</span><strong>{install.activation_code}</strong><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.activation_code)} title="Copy activation code" aria-label="Copy activation code"><Copy size={20}/></button></div>}
-       <div className="receiptCardActions receiptCardActionsCentered esimBottomActions"><button type="button" className="receiptIconButton" onClick={ownerPrint} title="Print eSIM activation details" aria-label="Print eSIM activation details"><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={ownerShare} title="Share eSIM on WhatsApp" aria-label="Share eSIM on WhatsApp"><WhatsappBrandIcon size={20}/></button></div>
+       {!!install.iccid&&<div className="receiptDelivery esimIccidBox"><small>{ot("eSIM ICCID")}</small><div className="receiptCode esimIccidCode"><strong>{install.iccid}</strong><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.iccid)} title={ot("Copy eSIM ICCID")} aria-label={ot("Copy eSIM ICCID")}><Copy size={20}/></button></div></div>}
+       {!!install.qr_code_url&&/^https:\/\//i.test(install.qr_code_url)&&<div className="receiptDelivery receiptQr esimQrCentered"><small>{ot("eSIM activation QR code")}</small><img src={install.qr_code_url} alt={ot("eSIM activation QR code")} loading="lazy"/><a href={install.qr_code_url} target="_blank" rel="noopener noreferrer">{ot("Open QR code")}</a></div>}
+       {!!install.lpa&&<div className="receiptDelivery esimActivationBox"><small className="esimManualHeading">{ot("Manual activation information")}</small><div className="esimValue">{install.lpa}</div><div className="receiptCardActions receiptCardActionsCentered"><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.lpa)} title={ot("Copy manual activation")} aria-label={ot("Copy manual activation")}><Copy size={20}/></button></div></div>}
+       {!!install.smdp_address&&<div className="receiptRow esimDetailRow"><span>{ot("SM-DP+ address")}</span><strong>{install.smdp_address}</strong><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.smdp_address)} title={ot("Copy SM-DP+ address")} aria-label={ot("Copy SM-DP+ address")}><Copy size={20}/></button></div>}
+       {!!install.activation_code&&<div className="receiptRow esimDetailRow"><span>{ot("Activation code")}</span><strong>{install.activation_code}</strong><button type="button" className="receiptIconButton" onClick={()=>copyOwnerCode(install.activation_code)} title={ot("Copy activation code")} aria-label={ot("Copy activation code")}><Copy size={20}/></button></div>}
+       <div className="receiptCardActions receiptCardActionsCentered esimBottomActions"><button type="button" className="receiptIconButton" onClick={ownerPrint} title={ot("Print eSIM activation details")} aria-label={ot("Print eSIM activation details")}><Printer size={20}/></button><button type="button" className="receiptIconButton" onClick={ownerShare} title={ot("Share eSIM on WhatsApp")} aria-label={ot("Share eSIM on WhatsApp")}><WhatsappBrandIcon size={20}/></button></div>
       </>}
       {!!ownerCopyMessage&&<p className="receiptCopyNotice" role="status">{ownerCopyMessage}</p>}
-      {current.ogero_bill_url&&<div className="receiptRow"><span>Ogero receipt</span><a href={current.ogero_bill_url} target="_blank" rel="noopener noreferrer">Open receipt</a></div>}
-      <div className="receiptRow"><span>Recipient / reference</span><strong>{current.customer_reference||'—'}</strong></div>
-      <div className="receiptRow"><span>Cost</span><strong>{/^(?:alfa_recharge|touch_recharge|itunes)/i.test(String(current.product_key||''))?'$'+preciseCardMoney(current.charged_price):money(current.charged_price)}</strong></div>
-      {current.selling_price!=null&&<div className="receiptRow"><span>Selected selling price</span><strong>{money(current.selling_price)}</strong></div>}
-      {!!current.supplier_reference&&<div className="receiptRow"><span>Purchase reference</span><strong>{current.supplier_reference}</strong></div>}
-      {failed&&current.failure_reason&&<div className="receiptRow"><span>Failure reason</span><strong>{current.failure_reason}</strong></div>}
-      {current.account_type&&<div className="receiptRow"><span>Account type</span><strong>{current.account_type}</strong></div>}
-      {(current.parent_name||current.dealer_name)&&<div className="receiptRow"><span>Related to</span><strong>{current.parent_name||current.dealer_name}</strong></div>}
-      <div className="receiptRow"><span>Date</span><strong>{current.created_at?new Date(current.created_at).toLocaleString():'—'}</strong></div>
-      {success&&!ownerReceiptLoading&&!ownerReceiptError&&!code&&!current.report_url&&!current.install?.qr_code_url&&<div className="receiptNote">This order has no stored redeem code; direct recharges and account top-ups normally do not issue one.</div>}
-      {pending&&<div className="receiptNote">This is the saved platform order. Do not submit another purchase while confirmation is pending.</div>}
-      {failed&&<div className="receiptNote receiptNoteError">This order was not completed successfully.</div>}
+      {current.ogero_bill_url&&<div className="receiptRow"><span>{ot("Ogero receipt")}</span><a href={current.ogero_bill_url} target="_blank" rel="noopener noreferrer">{ot("Open receipt")}</a></div>}
+      <div className="receiptRow"><span>{ot("Recipient / reference")}</span><strong>{current.customer_reference||'—'}</strong></div>
+      <div className="receiptRow"><span>{ot("Cost")}</span><strong>{/^(?:alfa_recharge|touch_recharge|itunes)/i.test(String(current.product_key||''))?'$'+preciseCardMoney(current.charged_price):money(current.charged_price)}</strong></div>
+      {current.selling_price!=null&&<div className="receiptRow"><span>{ot("Selected selling price")}</span><strong>{money(current.selling_price)}</strong></div>}
+      {!!current.supplier_reference&&<div className="receiptRow"><span>{ot("Purchase reference")}</span><strong>{current.supplier_reference}</strong></div>}
+      {failed&&current.failure_reason&&<div className="receiptRow"><span>{ot("Failure reason")}</span><strong>{current.failure_reason}</strong></div>}
+      {current.account_type&&<div className="receiptRow"><span>{ot("Account type")}</span><strong>{current.account_type}</strong></div>}
+      {(current.parent_name||current.dealer_name)&&<div className="receiptRow"><span>{ot("Related to")}</span><strong>{current.parent_name||current.dealer_name}</strong></div>}
+      <div className="receiptRow"><span>{ot("Date")}</span><strong>{current.created_at?new Date(current.created_at).toLocaleString():'—'}</strong></div>
+      {success&&!ownerReceiptLoading&&!ownerReceiptError&&!code&&!current.report_url&&!current.install?.qr_code_url&&<div className="receiptNote">{ot("This order has no stored redeem code; direct recharges and account top-ups normally do not issue one.")}</div>}
+      {pending&&<div className="receiptNote">{ot("This is the saved platform order. Do not submit another purchase while confirmation is pending.")}</div>}
+      {failed&&<div className="receiptNote receiptNoteError">{ot("This order was not completed successfully.")}</div>}
      </>;
     })()}
     {String((ownerReceipt&&Number(ownerReceipt.id)===Number(selectedOwnerOrder.id)?ownerReceipt:selectedOwnerOrder).status)==='pending'&&<section className="receiptDelivery" style={{marginTop:20,padding:16}}>
-     <strong>Owner manual order resolution</strong>
-     <p style={{fontSize:13,margin:'8px 0'}}>Use only after verifying the supplier result. The original wallet reservation is already charged when the order is placed. These actions never submit another purchase.</p>
+     <strong>{ot("Owner manual order resolution")}</strong>
+     <p style={{fontSize:13,margin:'8px 0'}}>{ot("Use only after verifying the supplier result. The original wallet reservation is already charged when the order is placed. These actions never submit another purchase.")}</p>
      <div className="ownerManualDropdown">
-      <button type="button" className={'ownerManualDropdownTrigger'+(manualOrderDropdownOpen?' isOpen':'')} aria-label="Manual order resolution" aria-expanded={manualOrderDropdownOpen} aria-controls="owner-manual-resolution-options" onClick={()=>setManualOrderDropdownOpen(v=>!v)}>
-       <span>{({success_accounting:'Success — create invoice and dealer commission',success_status_only:'Success — change status only',failed_accounting:'Failed — refund reserved wallet (if applicable)',failed_status_only:'Failed — change status only'})[manualOrderMode]||'Choose resolution action'}</span>
+      <button type="button" className={'ownerManualDropdownTrigger'+(manualOrderDropdownOpen?' isOpen':'')} aria-label={ot("Manual order resolution")} aria-expanded={manualOrderDropdownOpen} aria-controls="owner-manual-resolution-options" onClick={()=>setManualOrderDropdownOpen(v=>!v)}>
+       <span>{({success_accounting:ot("Success — create invoice and dealer commission"),success_status_only:ot("Success — change status only"),failed_accounting:ot("Failed — refund reserved wallet (if applicable)"),failed_status_only:ot("Failed — change status only")})[manualOrderMode]||ot("Choose resolution action")}</span>
        <ChevronDown size={19} aria-hidden="true"/>
       </button>
-      {manualOrderDropdownOpen&&<div id="owner-manual-resolution-options" className="ownerManualDropdownOptions" role="group" aria-label="Resolution actions">
+      {manualOrderDropdownOpen&&<div id="owner-manual-resolution-options" className="ownerManualDropdownOptions" role="group" aria-label={ot("Resolution actions")}>
        {[
-        ['success_accounting','Success — create invoice and dealer commission'],
-        ['success_status_only','Success — change status only'],
-        ['failed_accounting','Failed — refund reserved wallet (if applicable)'],
-        ['failed_status_only','Failed — change status only']
+        ['success_accounting',ot("Success — create invoice and dealer commission")],
+        ['success_status_only',ot("Success — change status only")],
+        ['failed_accounting',ot("Failed — refund reserved wallet (if applicable)")],
+        ['failed_status_only',ot("Failed — change status only")]
        ].map(([value,label])=><button key={value} type="button" className={'ownerManualDropdownOption'+(manualOrderMode===value?' selected':'')} aria-pressed={manualOrderMode===value} onClick={()=>{setManualOrderMode(value);setManualOrderDropdownOpen(false);setManualOrderConfirm('');setManualOrderMessage('')}}>{label}</button>)}
       </div>}
      </div>
      {manualOrderMode&&<>
-      <p style={{fontSize:13,margin:'6px 0'}}>{manualOrderMode==='success_accounting'?'Runs the normal success finalizer: invoice under purchasing account, plus shop-to-dealer commission where applicable. Status can remain Processing while invoice sync completes.':manualOrderMode==='failed_accounting'?'Runs the normal failure finalizer: refunds an already reserved shop/dealer wallet amount. No invoice return is created for orders that have never been invoiced. Existing invoices require accounting reconciliation.': 'Only changes the visible order status. No invoices, returns, wallet entries or commissions are created. This can leave accounting out of sync.'}</p>
-      <label style={{display:'block',fontSize:13,marginTop:10}}>Type CONFIRM {selectedOwnerOrder.id} to proceed</label>
-      <input aria-label="Confirm manual order resolution" value={manualOrderConfirm} onChange={e=>setManualOrderConfirm(e.target.value)} placeholder={'CONFIRM '+selectedOwnerOrder.id} style={{width:'100%',padding:12,margin:'8px 0'}}/>
-      <button type="button" className="popupAction" disabled={manualOrderBusy||manualOrderConfirm!==`CONFIRM ${selectedOwnerOrder.id}`} onClick={ownerResolveOrder}>{manualOrderBusy?'Resolving…':'Apply manual resolution'}</button>
+      <p style={{fontSize:13,margin:'6px 0'}}>{manualOrderMode==='success_accounting'?ot("Runs the normal success finalizer: invoice under purchasing account, plus shop-to-dealer commission where applicable. Status can remain Processing while invoice sync completes."):manualOrderMode==='failed_accounting'?ot("Runs the normal failure finalizer: refunds an already reserved shop/dealer wallet amount. No invoice return is created for orders that have never been invoiced. Existing invoices require accounting reconciliation."): ot("Only changes the visible order status. No invoices, returns, wallet entries or commissions are created. This can leave accounting out of sync.")}</p>
+      <label style={{display:'block',fontSize:13,marginTop:10}}>{ownerOrderLang==='ar'?<>اكتب <b dir="ltr">CONFIRM {selectedOwnerOrder.id}</b> للمتابعة</>:<>Type CONFIRM {selectedOwnerOrder.id} to proceed</>}</label>
+      <input aria-label={ot("Confirm manual order resolution")} value={manualOrderConfirm} onChange={e=>setManualOrderConfirm(e.target.value)} placeholder={'CONFIRM '+selectedOwnerOrder.id} style={{width:'100%',padding:12,margin:'8px 0'}}/>
+      <button type="button" className="popupAction" disabled={manualOrderBusy||manualOrderConfirm!==`CONFIRM ${selectedOwnerOrder.id}`} onClick={ownerResolveOrder}>{manualOrderBusy?ot("Resolving…"):ot("Apply manual resolution")}</button>
      </>}
      {manualOrderMessage&&<p role="status">{manualOrderMessage}</p>}
     </section>}
     {manualOrderMessage&&String((ownerReceipt&&Number(ownerReceipt.id)===Number(selectedOwnerOrder.id)?ownerReceipt:selectedOwnerOrder).status)!=='pending'&&<p role="status">{manualOrderMessage}</p>}
-    {Number(selectedOwnerOrder.id)===25&&selectedOwnerOrder.status==='pending'&&<div className="ownerOnezoneRecovery"><p><b>Payment confirmed.</b> Use this action only after checking that no receipt exists for this exact order. It will not buy again or deduct a second wallet payment.</p><button type="button" disabled={recoveryBusy} onClick={recoverPaidAlfaCard}>{recoveryBusy?'Checking receipt…':'Recover Order #25 receipt'}</button></div>}
+    {Number(selectedOwnerOrder.id)===25&&selectedOwnerOrder.status==='pending'&&<div className="ownerOnezoneRecovery"><p><b>{ot("Payment confirmed.")}</b> {ot("Use this action only after checking that no receipt exists for this exact order. It will not buy again or deduct a second wallet payment.")}</p><button type="button" disabled={recoveryBusy} onClick={recoverPaidAlfaCard}>{recoveryBusy?ot("Checking receipt…"):(ownerOrderLang==='ar'?'استرجاع إيصال الطلب #25':'Recover Order #25 receipt')}</button></div>}
     {Number(selectedOwnerOrder.id)===25&&recoveryMessage&&<p className="ownerRecoveryMessage">{recoveryMessage}</p>}
-    <button type="button" className="popupAction" onClick={()=>setSelectedOwnerOrder(null)}>Close result</button>
+    <button type="button" className="popupAction" onClick={()=>setSelectedOwnerOrder(null)}>{ot("Close result")}</button>
    </div>
   </div>
  </div>,document.body)}
