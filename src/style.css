@@ -4148,3 +4148,28 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .appShell.testLanguageEnabled.testArabic .sectionPad > .orderLandingNotice {direction:rtl;text-align:right;}
 .appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList {direction:ltr;text-align:left;}
 .appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentRow {direction:ltr;text-align:left;}
+
+/* TEST DEALER 469 / TEST SHOP 470: Arabic order list follows RTL visual order.
+   Product artwork and title start on the right; numeric values retain LTR reading. */
+.appShell.testLanguageEnabled.testArabic .sectionPad > .orderTools {
+  direction: rtl;
+}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentRow {
+  direction: rtl;
+  text-align: right;
+}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentName,
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentCustomer,
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentPrice,
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentTime {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentName,
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentCustomer {text-align:right;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentTime {text-align:left;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentChevron {transform:rotate(180deg);}
+@media(max-width:720px){
+  .appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentPrice {margin-left:0;margin-right:55px;}
+  .appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentTime {margin-left:0;margin-right:auto;}
+}
