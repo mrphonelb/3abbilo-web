@@ -3673,3 +3673,22 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerOrderArabicPopup .popupTitle{ text-align:center; }
 .ownerOrderArabicPopup .popupTitle>svg{display:block;margin:0 auto 8px;}
 .ownerOrderArabicPopup .popupTitle>h2{ text-align:center; }
+
+/* Owner Arabic Accounts: isolate these changes from all English/dealer/shop views. */
+.ownerShell.ownerArabic .ownerAccountCardArabic{direction:rtl;flex-direction:row;text-align:right;position:relative;padding-left:43px;}
+.ownerShell.ownerArabic .ownerAccountCardArabic>.ownerRecordArrow{position:absolute;left:14px;top:50%;transform:translateY(-50%) rotate(180deg);}
+.ownerShell.ownerArabic .ownerAccountCardArabic .ownerRecordMain{direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .ownerAccountCardArabic .ownerAccountBalance{direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .ownerAccountsActions{direction:rtl;display:flex;justify-content:flex-start;}
+.ownerShell.ownerArabic .ownerAccountsSearch input{direction:rtl;text-align:right;}
+.ownerArabicAccountPopup{direction:rtl;text-align:right;}
+.ownerArabicAccountPopup .popupTitle{align-items:center;text-align:center;}
+.ownerArabicAccountPopup .receiptRow{direction:rtl;}
+.ownerArabicAccountPopup .receiptRow span{text-align:right;}
+.ownerArabicAccountPopup .receiptRow strong{text-align:left;direction:ltr;unicode-bidi:plaintext;}
+.ownerArabicAccountPopup .receiptHeading{direction:rtl;text-align:right;}
+.ownerArabicAccountPopup .receiptHeading>div{text-align:right;}
+.ownerArabicAccountPopup .createShopFields,.ownerArabicAccountPopup .createShopField,.ownerArabicAccountPopup .popupField{direction:rtl;text-align:right;}
+.ownerArabicAccountPopup input[type=email],.ownerArabicAccountPopup input[type=tel],.ownerArabicAccountPopup input[type=password]{direction:ltr;text-align:left;}
+.ownerArabicAccountPopup .accountAdminTabs{direction:rtl;}
+@media(max-width:520px){.ownerShell.ownerArabic .ownerAccountCardArabic{padding-left:37px;}.ownerShell.ownerArabic .ownerAccountCardArabic>.ownerRecordArrow{left:11px;width:15px;height:15px;}}

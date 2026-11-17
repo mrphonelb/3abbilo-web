@@ -1381,13 +1381,14 @@ function FinancialPage({owner=false,dealer=false}){
  </div>;
 }
 
-function AccountAdminModal({record,endpoint,onClose,onSaved}){
+function AccountAdminModal({record,endpoint,onClose,onSaved,ownerLang='en'}){
+ const a=value=>ownerAccountText(value,ownerLang);
  const [mode,setMode]=useState('profile'),[form,setForm]=useState({shop_name:record.shop_name||'',email:record.email||'',phone:record.phone||'',new_password:'',confirm_password:''}),[busy,setBusy]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState('');
  async function save(e){e.preventDefault();if(busy)return;setBusy(true);setError('');setSuccess('');try{
   const password=mode==='password';const r=await fetch(API+endpoint+(password?'/reset-password':'/profile'),{method:password?'POST':'PUT',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify(password?{new_password:form.new_password,confirm_password:form.confirm_password}:{shop_name:form.shop_name,email:form.email,phone:form.phone})});const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to update account');
   setForm(f=>({...f,new_password:'',confirm_password:''}));await onSaved?.(d);onClose();
  }catch(e){setError(e.message||'Account update failed')}finally{setBusy(false)}}
- return createPortal(<div className="modalShade"><div className="productModal compactModal accountPasswordModal" role="dialog" aria-modal="true" aria-label="Manage Account"><button type="button" className="modalClose" disabled={busy} onClick={onClose}><X size={21}/></button><div className="popupTitle"><Store size={30}/><h2>Manage Account</h2></div><p>{record.shop_name}</p><div className="dashboardPeriodTabs accountAdminTabs"><button type="button" className={mode==='profile'?'active':''} onClick={()=>{setMode('profile');setError('');setSuccess('')}}>Edit Information</button><button type="button" className={mode==='password'?'active':''} onClick={()=>{setMode('password');setError('');setSuccess('')}}>Reset Password</button></div><form onSubmit={save}>{mode==='password'&&<p className="accountAdminPasswordNotice">This is a temporary password. The user must change it when they next sign in.</p>}{(mode==='profile'?[['shop_name','Account Name','text'],['email','Email Address','email'],['phone','Phone Number','tel']]:[['new_password','New Temporary Password','password'],['confirm_password','Confirm Password','password']]).map(([key,label,type])=><label key={key} className="popupField accountPasswordField"><span className="popupLabel">{label}</span><input type={type} required minLength={type==='password'?10:undefined} autoComplete="off" value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))}/></label>)}{error&&<p className="loginError" role="alert">{error}</p>}{success&&<p role="status">{success}</p>}<button type="submit" className="popupAction" disabled={busy}>{busy?'Saving…':mode==='password'?'Reset Password':'Save Changes'}</button></form></div></div>,document.body);
+ return createPortal(<div className="modalShade"><div className={"productModal compactModal accountPasswordModal"+(ownerLang==='ar'?" ownerArabicAccountPopup":"")} dir={ownerLang==='ar'?"rtl":"ltr"} role="dialog" aria-modal="true" aria-label="Manage Account"><button type="button" className="modalClose" disabled={busy} onClick={onClose}><X size={21}/></button><div className="popupTitle"><Store size={30}/><h2>{a("Manage Account")}</h2></div><p>{record.shop_name}</p><div className="dashboardPeriodTabs accountAdminTabs"><button type="button" className={mode==='profile'?'active':''} onClick={()=>{setMode('profile');setError('');setSuccess('')}}>{a("Edit Information")}</button><button type="button" className={mode==='password'?'active':''} onClick={()=>{setMode('password');setError('');setSuccess('')}}>{a("Reset Password")}</button></div><form onSubmit={save}>{mode==='password'&&<p className="accountAdminPasswordNotice">{a("This is a temporary password. The user must change it when they next sign in.")}</p>}{(mode==='profile'?[['shop_name','Account Name','text'],['email','Email Address','email'],['phone','Phone Number','tel']]:[['new_password','New Temporary Password','password'],['confirm_password','Confirm Password','password']]).map(([key,label,type])=><label key={key} className="popupField accountPasswordField"><span className="popupLabel">{a(label)}</span><input type={type} required minLength={type==='password'?10:undefined} autoComplete="off" value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))}/></label>)}{error&&<p className="loginError" role="alert">{error}</p>}{success&&<p role="status">{success}</p>}<button type="submit" className="popupAction" disabled={busy}>{a(busy?'Saving…':mode==='password'?'Reset Password':'Save Changes')}</button></form></div></div>,document.body);
 }
 
 function DealerShopsPage({dealerBalance,onWalletTransferred}){
@@ -1875,6 +1876,29 @@ function ownerTicketSubject(subject,id,lang){
 }
 const ownerTicketReference=(label,id,lang)=>lang==='ar'?`${label==='Ticket'?'تذكرة':label==='Recharge'?'شحن':'طلب'} رقم ${id}`:`${label} #${id}`;
 
+// Owner-only Arabic account labels. Stored identifiers and API fields are never translated.
+const OWNER_ACCOUNT_AR={
+ 'Accounts':'الحسابات','Add New Account':'إضافة حساب جديد','Create Account':'إنشاء حساب',
+ 'Search account, dealer, shop, phone or email...':'بحث',
+ 'Account Details':'تفاصيل الحساب','Active Account':'حساب نشط','Inactive Account':'حساب غير نشط',
+ 'Account details and recorded wallet balance':'تفاصيل الحساب ورصيد المحفظة المسجل',
+ 'Balance':'الرصيد','Account':'الحساب','Type':'النوع','Parent':'الحساب الرئيسي','Email':'البريد الإلكتروني',
+ 'Phone Number':'رقم الهاتف','Status':'الحالة','Active':'نشط','Inactive':'غير نشط',
+ 'Direct account':'حساب مباشر','active':'نشط','disabled':'غير نشط','Daily Report':'التقرير اليومي','dealer':'موزع','shop':'متجر','dealer_mrphone':'موزع MRPHONE','shop_mrphone':'متجر MRPHONE',
+ 'No accounts found':'لم يتم العثور على حسابات','Account Type':'نوع الحساب','Account Related To':'الحساب تابع لـ',
+ 'Dealer Name':'اسم الموزع','Shop Name':'اسم المتجر','Email Address':'البريد الإلكتروني',
+ 'Password (minimum 8 characters)':'كلمة المرور (8 أحرف على الأقل)','Creating account…':'جارٍ إنشاء الحساب…',
+ 'Edit Account / Reset Password':'تعديل الحساب / إعادة تعيين كلمة المرور',
+ 'Deactivate Account':'تعطيل الحساب','Activate Account':'تفعيل الحساب','Delete Account (if eligible)':'حذف الحساب (عند استيفاء الشروط)',
+ 'Updating…':'جارٍ التحديث…','Close result':'إغلاق','Close':'إغلاق',
+ 'Manage Account':'إدارة الحساب','Edit Information':'تعديل المعلومات','Reset Password':'إعادة تعيين كلمة المرور',
+ 'Account Name':'اسم الحساب','New Temporary Password':'كلمة المرور المؤقتة الجديدة',
+ 'Confirm Password':'تأكيد كلمة المرور','Saving…':'جارٍ الحفظ…','Save Changes':'حفظ التغييرات',
+ 'This is a temporary password. The user must change it when they next sign in.':'هذه كلمة مرور مؤقتة. يجب على المستخدم تغييرها عند تسجيل الدخول التالي.',
+ 'Dealer (459)':'موزع (459)','Shop (460)':'متجر (460)',
+ 'DEALER MRPHONE (467)':'موزع MRPHONE (467)','SHOP MRPHONE (468)':'متجر MRPHONE (468)'
+};
+const ownerAccountText=(value,lang)=>lang==='ar'?(OWNER_ACCOUNT_AR[String(value)]||value):value;
 function OwnerArabicControls(){
  const [lang,setLang]=useState(()=>localStorage.getItem('3abbilo_owner_lang')==='ar'?'ar':'en');
  const [confirm,setConfirm]=useState(false),[switching,setSwitching]=useState(false);
@@ -1918,6 +1942,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  const [ownerOrderLang,setOwnerOrderLang]=useState(()=>localStorage.getItem('3abbilo_owner_lang')==='ar'?'ar':'en');
  useEffect(()=>{const sync=e=>setOwnerOrderLang(e.detail?.lang==='ar'?'ar':'en');window.addEventListener('3abbilo:owner-language-changed',sync);return()=>window.removeEventListener('3abbilo:owner-language-changed',sync)},[]);
  const ot=value=>ownerOrderText(value,ownerOrderLang);
+ const oa=value=>ownerAccountText(value,ownerOrderLang);
  const tt=value=>ownerTicketText(value,ownerOrderLang);
  const tr=(label,id)=>ownerTicketReference(label,id,ownerOrderLang);
  const headers=()=>({...authHeaders(),'Content-Type':'application/json'});
@@ -2039,7 +2064,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   if(!record||accountBusy)return;
   const next=action==='status'?(record.status==='active'?'disabled':'active'):null;
   const warning=action==='delete'?`Permanently delete ${record.shop_name}? This is allowed ONLY if there are no orders, financial records, child shops, or wallet balance. Associated external records may remain.`:`${next==='disabled'?'Deactivate':'Activate'} ${record.shop_name}?`;
-  if(!window.confirm(warning))return;
+  if(!window.confirm(ownerOrderLang==='ar'?(action==='delete'?`هل تريد حذف الحساب ${record.shop_name} نهائيًا؟ لا يُسمح بالحذف إذا وُجدت طلبات أو سجلات مالية أو متاجر فرعية أو رصيد في المحفظة. قد تبقى السجلات الخارجية المرتبطة.`:`هل تريد ${next==='disabled'?'تعطيل':'تفعيل'} الحساب ${record.shop_name}؟`):warning))return;
   setAccountBusy(true);setAccountError('');
   try{
    const response=await get('accounts/'+encodeURIComponent(record.id),{method:action==='delete'?'DELETE':'PATCH',...(action==='status'?{body:JSON.stringify({status:next})}:{})});
@@ -2062,7 +2087,7 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
   if(!ownerQuery)return true;
   return [r.id,r.product_title,r.package_name,r.product_key,r.customer_reference,r.purchaser,r.parent_name,r.dealer_name].some(v=>String(v??'').toLowerCase().includes(ownerQuery));
  }):allRows;
- return <div className="appShell ownerShell"><aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">O</div><div><b>3ABBILO Owner</b><span>Owner account</span></div></div><nav>{ownerMenu.map(([Icon,n])=><button type="button" key={n} className={page===n?'active':''} onClick={()=>navigateOwner(n)}><Icon size={19}/><span>{n}</span>{n==='Support Tickets'&&ownerTicketAlerts>0&&<span className="ticketNotifyBadge">{ownerTicketAlerts}</span>}{n==='Recharge Account'&&<RechargeNavBadge owner/>}</button>)}</nav><button className="logout" onClick={()=>{localStorage.removeItem('3abbilo_token');location.replace('/login')}}><LogOut size={18}/>Logout</button></aside>{open&&<button type="button" className="mobileSidebarBackdrop" aria-label="Close menu" onClick={()=>setOpen(false)}/>}<main className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page==='Accounts'?`Accounts (${allRows.length})`:page}</h2><OwnerArabicControls/></div><div className={"sectionPad ownerContent"+(page==='Activity Summary'?" ownerActivityPage":"")}>{error&&<div className="loginError">{error}</div>}{loading&&<p>Loading…</p>}
+ return <div className="appShell ownerShell"><aside className={open?'side open':'side'}><div className="sideTop"><Brand/><button onClick={()=>setOpen(false)}><X/></button></div><div className="accountMini"><div className="avatar">O</div><div><b>3ABBILO Owner</b><span>Owner account</span></div></div><nav>{ownerMenu.map(([Icon,n])=><button type="button" key={n} className={page===n?'active':''} onClick={()=>navigateOwner(n)}><Icon size={19}/><span>{n}</span>{n==='Support Tickets'&&ownerTicketAlerts>0&&<span className="ticketNotifyBadge">{ownerTicketAlerts}</span>}{n==='Recharge Account'&&<RechargeNavBadge owner/>}</button>)}</nav><button className="logout" onClick={()=>{localStorage.removeItem('3abbilo_token');location.replace('/login')}}><LogOut size={18}/>Logout</button></aside>{open&&<button type="button" className="mobileSidebarBackdrop" aria-label="Close menu" onClick={()=>setOpen(false)}/>}<main className="appMain"><div className="appTop"><button className="menuBtn" onClick={()=>setOpen(true)}><Menu/></button><h2>{page==='Accounts'?`${oa('Accounts')} (${allRows.length})`:page}</h2><OwnerArabicControls/></div><div className={"sectionPad ownerContent"+(page==='Activity Summary'?" ownerActivityPage":"")}>{error&&<div className="loginError">{error}</div>}{loading&&<p>Loading…</p>}
  {page==='Activity Summary'&&<div className="ownerActivityStandalone"><div className="orderTools"><select aria-label="Select account for Activity Summary" value={activityAccount?.id||''} onChange={e=>setActivityAccount((data?.accounts||[]).find(a=>String(a.id)===e.target.value)||null)}><option value="">Select an account</option>{(data?.accounts||[]).map(a=><option key={a.id} value={a.id}>{a.shop_name} ({a.account_type})</option>)}</select></div>{activityAccount?<BranchActivitySummary key={activityAccount.id} accountId={activityAccount.id} owner/>:<div className="ordersEmpty"><BarChart3/><b>Select an account to view its Activity Summary</b></div>}</div>}
  {page==='Recharge Account'&&<RechargeAccount owner focusRequestId={ticketRechargeId} onFocusHandled={()=>setTicketRechargeId(null)}/>}
  {page==='Support Tickets'&&ticketRechargeId&&<RechargeAccount owner modalOnly focusRequestId={ticketRechargeId} onModalClose={()=>setTicketRechargeId(null)}/>}
@@ -2083,28 +2108,28 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  </div>}
  {page==='Support Tickets'&&<><div className="orderTools supportSearch"><input value={ticketSearch} onChange={e=>setTicketSearch(e.target.value)} placeholder={tt('Search ticket number, account, product or order...')}/></div>{!loading&&(rows.length?<div className="ownerRecordList">{rows.filter(r=>[r.id,r.order_id,r.recharge_request_id,r.shop_name,r.subject,r.description,r.product_title,r.package_name].some(v=>String(v||'').toLowerCase().includes(ticketSearch.trim().toLowerCase()))).map(r=><button type="button" key={r.id} className={'ownerRecordCard supportTicketRow '+(ticketAlert(r,'owner','owner')?'ticketRowUnread':'')} onClick={()=>openTicket(r)}><span className="ownerRecordIcon"><MessageCircle size={23}/></span><span className="ownerRecordMain"><strong>{ownerTicketSubject(r.subject,r.id,ownerOrderLang)} {ticketAlert(r,'owner','owner')&&<span className="ticketNewLabel">{tt('New')}</span>}</strong><small>{tr('Ticket',r.id)} · {r.recharge_request_id?tr('Recharge',r.recharge_request_id):tr('Order',r.order_id||'—')} · {r.shop_name||tt('Account')}</small><span>{r.description}</span></span><span className={'orderStatus '+(r.status==='resolved'?'success':r.status==='open'?'pending':'processing')}>{ownerOrderLang==='ar'?(r.status==='resolved'?tt('Resolved'):ownerTicketStatus(r.status,ownerOrderLang)):String(r.status||'open').replace('_',' ')}</span><ChevronRight size={18} className="ownerRecordArrow"/></button>)}</div>:<div className="ordersEmpty"><MessageCircle/><b>{tt('No support tickets')}</b></div>)}</>}
  {page==='Accounts'&&<>
-  <div className="ownerAccountsActions"><button type="button" className="dealerShopsAddButton" onClick={()=>{setOwnerCreateError('');setOwnerCreateOpen(true)}}><Plus size={18}/> Add New Account</button></div>
-  <div className="orderTools ownerOrderTools ownerAccountsSearch"><input type="search" placeholder="Search account, dealer, shop, phone or email..." aria-label="Search accounts" value={accountSearch} onChange={e=>setAccountSearch(e.target.value)}/></div>
-  {!loading&&(accountRows.length?<div className="ownerRecordList">{accountRows.map(r=><button type="button" key={r.id} className="ownerRecordCard ownerAccountCard" onClick={()=>setSelectedOwnerRecord({type:'account',record:r})}>
+  <div className="ownerAccountsActions"><button type="button" className="dealerShopsAddButton" onClick={()=>{setOwnerCreateError('');setOwnerCreateOpen(true)}}><Plus size={18}/> {oa("Add New Account")}</button></div>
+  <div className="orderTools ownerOrderTools ownerAccountsSearch"><input type="search" placeholder={oa("Search account, dealer, shop, phone or email...")} aria-label="Search accounts" value={accountSearch} onChange={e=>setAccountSearch(e.target.value)}/></div>
+  {!loading&&(accountRows.length?<div className="ownerRecordList">{accountRows.map(r=><button type="button" key={r.id} className={"ownerRecordCard ownerAccountCard"+(ownerOrderLang==='ar'?" ownerAccountCardArabic":"")} onClick={()=>setSelectedOwnerRecord({type:'account',record:r})}>
    <span className="ownerRecordIcon"><Store size={23}/></span>
-   <span className="ownerRecordMain"><strong>{r.shop_name||'Account'}</strong><small>{r.account_type||'—'} · {r.parent_name||'Direct account'}</small><span>{r.phone||'—'}</span></span>
-   <span className="ownerAccountBalance"><small>Balance</small><strong>{r.balance==null?'—':balanceMoney(r.balance)}</strong></span>
-   <span className={'orderStatus '+(String(r.status).toLowerCase()==='active'?'success':'pending')}>{r.status==='disabled'?'Inactive':r.status||'—'}</span>
+   <span className="ownerRecordMain"><strong>{r.shop_name||oa('Account')}</strong><small>{oa(r.account_type||'—')} · {r.parent_name||oa('Direct account')}</small><span>{r.phone||'—'}</span></span>
+   <span className="ownerAccountBalance"><small>{oa("Balance")}</small><strong>{r.balance==null?'—':balanceMoney(r.balance)}</strong></span>
+   <span className={'orderStatus '+(String(r.status).toLowerCase()==='active'?'success':'pending')}>{oa(r.status==='disabled'?'Inactive':r.status||'—')}</span>
    <ChevronRight size={18} className="ownerRecordArrow"/>
-  </button>)}</div>:<div className="ordersEmpty"><Store/><b>No accounts found</b></div>)}
+  </button>)}</div>:<div className="ordersEmpty"><Store/><b>{oa("No accounts found")}</b></div>)}
  </>}
  {ownerCreateOpen&&createPortal(<div className="modalShade" onMouseDown={e=>{if(e.target===e.currentTarget&&!ownerCreateBusy)setOwnerCreateOpen(false)}}>
-  <div className="productModal dealerShopsCreateModal ownerCreateAccountModal" role="dialog" aria-modal="true" aria-label="Create Account">
+  <div className={"productModal dealerShopsCreateModal ownerCreateAccountModal"+(ownerOrderLang==='ar'?" ownerArabicAccountPopup":"")} dir={ownerOrderLang==='ar'?"rtl":"ltr"} role="dialog" aria-modal="true" aria-label="Create Account">
    <button type="button" className="modalClose" disabled={ownerCreateBusy} onClick={()=>setOwnerCreateOpen(false)}><X size={21}/></button>
-   <div className="popupTitle"><Store size={30}/><h2>Create Account</h2></div>
+   <div className="popupTitle"><Store size={30}/><h2>{oa("Create Account")}</h2></div>
    <form onSubmit={submitOwnerAccount}>
     <div className="createShopFields">
-     <label className="createShopField"><span>Account Type</span><select value={ownerCreateForm.account_type} onChange={e=>setOwnerCreateForm(f=>({...f,account_type:e.target.value,parent_account_id:''}))}><option value="dealer">Dealer (459)</option><option value="shop">Shop (460)</option><option value="dealer_mrphone">DEALER MRPHONE (467)</option><option value="shop_mrphone">SHOP MRPHONE (468)</option></select></label>
-     {['shop','shop_mrphone'].includes(ownerCreateForm.account_type)&&<label className="createShopField"><span>Account Related To</span><select value={ownerCreateForm.parent_account_id} onChange={e=>setOwnerCreateForm(f=>({...f,parent_account_id:e.target.value}))}><option value="">3ABBILO</option>{allRows.filter(a=>a.account_type==='dealer'&&a.status==='active'&&(ownerCreateForm.account_type!=='shop_mrphone'||Number(a.daftra_category_id)===467)&&(ownerCreateForm.account_type!=='shop'||Number(a.daftra_category_id)!==467)).map(a=><option key={a.id} value={a.id}>{a.shop_name}</option>)}</select></label>}
-     {[["shop_name",['dealer','dealer_mrphone'].includes(ownerCreateForm.account_type)?'Dealer Name':'Shop Name','text'],['phone','Phone Number','tel'],['email','Email Address','email'],['password','Password (minimum 8 characters)','password']].map(([key,label,type])=><label className="createShopField" key={key}><span>{label}</span><input type={type} required minLength={key==='password'?8:undefined} autoComplete="off" value={ownerCreateForm[key]} onChange={e=>setOwnerCreateForm(f=>({...f,[key]:e.target.value}))}/></label>)}
+     <label className="createShopField"><span>{oa("Account Type")}</span><select value={ownerCreateForm.account_type} onChange={e=>setOwnerCreateForm(f=>({...f,account_type:e.target.value,parent_account_id:''}))}><option value="dealer">{oa("Dealer (459)")}</option><option value="shop">{oa("Shop (460)")}</option><option value="dealer_mrphone">{oa("DEALER MRPHONE (467)")}</option><option value="shop_mrphone">{oa("SHOP MRPHONE (468)")}</option></select></label>
+     {['shop','shop_mrphone'].includes(ownerCreateForm.account_type)&&<label className="createShopField"><span>{oa("Account Related To")}</span><select value={ownerCreateForm.parent_account_id} onChange={e=>setOwnerCreateForm(f=>({...f,parent_account_id:e.target.value}))}><option value="">3ABBILO</option>{allRows.filter(a=>a.account_type==='dealer'&&a.status==='active'&&(ownerCreateForm.account_type!=='shop_mrphone'||Number(a.daftra_category_id)===467)&&(ownerCreateForm.account_type!=='shop'||Number(a.daftra_category_id)!==467)).map(a=><option key={a.id} value={a.id}>{a.shop_name}</option>)}</select></label>}
+     {[["shop_name",['dealer','dealer_mrphone'].includes(ownerCreateForm.account_type)?'Dealer Name':'Shop Name','text'],['phone','Phone Number','tel'],['email','Email Address','email'],['password','Password (minimum 8 characters)','password']].map(([key,label,type])=><label className="createShopField" key={key}><span>{oa(label)}</span><input type={type} required minLength={key==='password'?8:undefined} autoComplete="off" value={ownerCreateForm[key]} onChange={e=>setOwnerCreateForm(f=>({...f,[key]:e.target.value}))}/></label>)}
     </div>
     {ownerCreateError&&<p role="alert" className="shopCreateError">{ownerCreateError}</p>}
-    <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={ownerCreateBusy}>{ownerCreateBusy?'Creating account…':'Create Account'}</button>
+    <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={ownerCreateBusy}>{oa(ownerCreateBusy?'Creating account…':'Create Account')}</button>
    </form>
   </div>
  </div>,document.body)}
@@ -2204,21 +2229,21 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  </div>,document.body)}
 
 
- {ownerManageRecord&&<AccountAdminModal record={ownerManageRecord} endpoint={'/api/wholesale/owner/accounts/'+encodeURIComponent(ownerManageRecord.id)} onClose={()=>setOwnerManageRecord(null)} onSaved={async d=>{if(d.account){setData(prev=>prev?.accounts?{...prev,accounts:prev.accounts.map(a=>String(a.id)===String(d.account.id)?{...a,...d.account}:a)}:prev);}setData(await get('accounts'));setSelectedOwnerRecord(null)}}/>}
+ {ownerManageRecord&&<AccountAdminModal ownerLang={ownerOrderLang} record={ownerManageRecord} endpoint={'/api/wholesale/owner/accounts/'+encodeURIComponent(ownerManageRecord.id)} onClose={()=>setOwnerManageRecord(null)} onSaved={async d=>{if(d.account){setData(prev=>prev?.accounts?{...prev,accounts:prev.accounts.map(a=>String(a.id)===String(d.account.id)?{...a,...d.account}:a)}:prev);}setData(await get('accounts'));setSelectedOwnerRecord(null)}}/>}
  {selectedOwnerRecord&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&setSelectedOwnerRecord(null)}>
- <div className="productModal compactModal orderResultModal ownerDetailModal ownerAccountModal">
+ <div className={"productModal compactModal orderResultModal ownerDetailModal ownerAccountModal"+(ownerOrderLang==='ar'?" ownerArabicAccountPopup":"")} dir={ownerOrderLang==='ar'?"rtl":"ltr"}>
   <button type="button" className="modalClose" onClick={()=>setSelectedOwnerRecord(null)} aria-label="Close"><X size={21}/></button>
-  <div className="popupTitle">{selectedOwnerRecord.type==='report'?<BarChart3 size={30}/>:<Store size={30}/>}<h2>{selectedOwnerRecord.type==='report'?'Daily Report':'Account Details'}</h2></div>
+  <div className="popupTitle">{selectedOwnerRecord.type==='report'?<BarChart3 size={30}/>:<Store size={30}/>}<h2>{oa(selectedOwnerRecord.type==='report'?'Daily Report':'Account Details')}</h2></div>
   <div className="unifiedReceipt">
-   {selectedOwnerRecord.type==='account'&&<div className={'receiptHeading '+(String(selectedOwnerRecord.record.status).toLowerCase()==='active'?'receiptSuccess':'receiptPending')}><ShieldCheck size={28}/><div><h3>{String(selectedOwnerRecord.record.status).toLowerCase()==='active'?'Active Account':'Account '+(selectedOwnerRecord.record.status||'status unknown')}</h3><p>Account details and recorded wallet balance</p></div></div>}
-   {(selectedOwnerRecord.type==='account'?[['Account',selectedOwnerRecord.record.shop_name],['Type',selectedOwnerRecord.record.account_type],['Parent',selectedOwnerRecord.record.parent_name||'—'],['Email',selectedOwnerRecord.record.email],['Phone Number',selectedOwnerRecord.record.phone||'—'],['Balance',selectedOwnerRecord.record.balance==null?'—':balanceMoney(selectedOwnerRecord.record.balance)],['Status',selectedOwnerRecord.record.status==='disabled'?'Inactive':selectedOwnerRecord.record.status]]:[['Date',String(selectedOwnerRecord.record.day).slice(0,10)],['Orders',selectedOwnerRecord.record.orders],['Successful',selectedOwnerRecord.record.successful],['Sales',money(selectedOwnerRecord.record.sales)]]).map(([k,v])=><div className="receiptRow" key={k}><span>{k}</span><strong>{v??'—'}</strong></div>)}
+   {selectedOwnerRecord.type==='account'&&<div className={'receiptHeading '+(String(selectedOwnerRecord.record.status).toLowerCase()==='active'?'receiptSuccess':'receiptPending')}><ShieldCheck size={28}/><div><h3>{String(selectedOwnerRecord.record.status).toLowerCase()==='active'?oa('Active Account'):oa('Inactive Account')}</h3><p>{oa("Account details and recorded wallet balance")}</p></div></div>}
+   {(selectedOwnerRecord.type==='account'?[['Account',selectedOwnerRecord.record.shop_name],['Type',selectedOwnerRecord.record.account_type],['Parent',selectedOwnerRecord.record.parent_name||'—'],['Email',selectedOwnerRecord.record.email],['Phone Number',selectedOwnerRecord.record.phone||'—'],['Balance',selectedOwnerRecord.record.balance==null?'—':balanceMoney(selectedOwnerRecord.record.balance)],['Status',selectedOwnerRecord.record.status==='disabled'?'Inactive':selectedOwnerRecord.record.status]]:[['Date',String(selectedOwnerRecord.record.day).slice(0,10)],['Orders',selectedOwnerRecord.record.orders],['Successful',selectedOwnerRecord.record.successful],['Sales',money(selectedOwnerRecord.record.sales)]]).map(([k,v])=><div className="receiptRow" key={k}><span>{oa(k)}</span><strong>{['Type','Status'].includes(k)?oa(v??'—'):(v??'—')}</strong></div>)}
    {selectedOwnerRecord.type==='account'&&<div className="ownerAccountActions">
     {accountError&&<div className="catalogNotice error" role="alert">{accountError}</div>}
-    <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>{setOwnerManageRecord(selectedOwnerRecord.record);setSelectedOwnerRecord(null)}}>Edit Account / Reset Password</button>
-    <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>manageAccount('status')}>{accountBusy?'Updating…':selectedOwnerRecord.record.status==='active'?'Deactivate Account':'Activate Account'}</button>
-    <button type="button" className="ownerDeleteAccount" disabled={accountBusy} onClick={()=>manageAccount('delete')}>Delete Account (if eligible)</button>
+    <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>{setOwnerManageRecord(selectedOwnerRecord.record);setSelectedOwnerRecord(null)}}>{oa("Edit Account / Reset Password")}</button>
+    <button type="button" className="popupSecondary" disabled={accountBusy} onClick={()=>manageAccount('status')}>{oa(accountBusy?'Updating…':selectedOwnerRecord.record.status==='active'?'Deactivate Account':'Activate Account')}</button>
+    <button type="button" className="ownerDeleteAccount" disabled={accountBusy} onClick={()=>manageAccount('delete')}>{oa("Delete Account (if eligible)")}</button>
    </div>}
-   <button type="button" className="popupAction" onClick={()=>setSelectedOwnerRecord(null)}>Close result</button>
+   <button type="button" className="popupAction" onClick={()=>setSelectedOwnerRecord(null)}>{oa("Close result")}</button>
   </div>
  </div></div>,document.body)}
 
