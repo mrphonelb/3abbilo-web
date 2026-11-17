@@ -1913,6 +1913,63 @@ const OWNER_ORDER_AR = {
  "eSIM ICCID": "رقم eSIM ICCID",
  "Use this action only after checking that no receipt exists for this exact order. It will not buy again or deduct a second wallet payment.": "استخدم هذا الإجراء فقط بعد التحقق من عدم وجود إيصال لهذا الطلب تحديدًا. لن يعيد الشراء أو يخصم مبلغًا ثانيًا من المحفظة."
 };
+// Additional interface labels used by TEST DEALER (469) and TEST SHOP (470).
+// This dictionary changes presentation only; API values, product names and IDs stay intact.
+const TEST_ACCOUNT_AR={
+ 'My Shops':'متاجري','My Orders':'طلباتي','Shop Orders':'طلبات المتاجر',
+ 'Shop Support Tickets':'تذاكر دعم المتاجر','Recharge My Account':'شحن حسابي',
+ 'Recharge Shop Account':'شحن حساب المتجر','Dealer Profit Rates':'نسب أرباح الموزع',
+ 'Dealer account':'حساب الموزع','Shop account':'حساب المتجر','Branch account':'حساب الفرع',
+ 'AVAILABLE BALANCE':'الرصيد المتاح','SALES PROFIT':'أرباح المبيعات',
+ 'SHOPS PROFIT':'أرباح المتاجر','Recharge account':'شحن الحساب',
+ 'Today':'اليوم','7 days':'آخر 7 أيام','30 days':'آخر 30 يومًا','All time':'كل الفترات',
+ 'Total Orders':'إجمالي الطلبات','Success':'نجاح','Failed':'فشل',
+ 'Pending':'قيد الانتظار','Total Spent':'إجمالي الإنفاق','Total Profit':'إجمالي الأرباح',
+ 'TOP PRODUCTS':'المنتجات الأكثر طلبًا','RECENT ORDERS':'الطلبات الأخيرة',
+ 'RECENT SHOP ORDERS':'طلبات المتاجر الأخيرة','View all':'عرض الكل',
+ 'No recent orders.':'لا توجد طلبات حديثة.','Loading orders…':'جارٍ تحميل الطلبات…',
+ 'Orders are temporarily unavailable.':'الطلبات غير متاحة مؤقتًا.',
+ 'Your most-used products will appear here after successful purchases.':'ستظهر المنتجات الأكثر استخدامًا هنا بعد عمليات الشراء الناجحة.',
+ 'Unable to refresh order statistics. Showing the last available figures.':'تعذر تحديث إحصاءات الطلبات. يتم عرض آخر بيانات متاحة.',
+ 'Products':'المنتجات','Dashboard':'لوحة التحكم','Support Tickets':'تذاكر الدعم',
+ 'Transactions & Profit':'المعاملات والأرباح','Activity Summary':'ملخص النشاط',
+ 'Logout':'تسجيل الخروج','Available balance':'الرصيد المتاح',
+ 'My Account':'حسابي','Account Settings':'إعدادات الحساب','Account Name':'اسم الحساب',
+ 'Email Address':'البريد الإلكتروني','Phone Number':'رقم الهاتف',
+ 'Password':'كلمة المرور','Keep your account secure':'حافظ على أمان حسابك',
+ 'Your account details and security':'تفاصيل حسابك وأمانه',
+ 'Order Details':'تفاصيل الطلب','Order Result':'نتيجة الطلب','Close result':'إغلاق النتيجة',
+ 'Close Result':'إغلاق النتيجة','Order number':'رقم الطلب','Purchase successful':'تمت عملية الشراء بنجاح',
+ 'Purchase failed':'فشلت عملية الشراء','Loading…':'جارٍ التحميل…',
+ 'Loading...':'جارٍ التحميل...','Search':'بحث','Search products':'البحث عن المنتجات',
+ 'All Products':'جميع المنتجات','All Categories':'جميع الفئات','All':'الكل',
+ 'My Shops':'متاجري','Create Shop':'إنشاء متجر','Shop Name':'اسم المتجر',
+ 'Shop':'متجر','Dealer':'موزع','Active':'نشط','Inactive':'غير نشط',
+ 'Status':'الحالة','Balance':'الرصيد','Amount':'المبلغ','Date':'التاريخ',
+ 'Profit':'الربح','Sales':'المبيعات','Orders':'الطلبات','Total':'الإجمالي',
+ 'Order':'الطلب','Details':'التفاصيل','View':'عرض','View Details':'عرض التفاصيل',
+ 'Back':'رجوع','Cancel':'إلغاء','Confirm':'تأكيد','Save':'حفظ',
+ 'Submit':'إرسال','Close':'إغلاق','Refresh':'تحديث','Copy':'نسخ',
+ 'Print':'طباعة','Share':'مشاركة','Payment Method':'طريقة الدفع',
+ 'Wallet Balance':'رصيد المحفظة','Wallet Transactions':'معاملات المحفظة',
+ 'New':'جديد','Open':'مفتوحة','Closed':'مغلقة','Resolved':'تم الحل',
+ 'Send Reply':'إرسال الرد','Write a reply':'اكتب ردك هنا',
+ 'No support tickets':'لا توجد تذاكر دعم','No orders found':'لم يتم العثور على طلبات',
+ 'Create Recharge Order':'إنشاء طلب شحن','Recharge Orders':'طلبات الشحن',
+ 'Payment methods':'طرق الدفع','Transactions':'المعاملات',
+ '7 Days':'آخر 7 أيام','30 Days':'آخر 30 يومًا','All Time':'كل الفترات',
+ 'Select':'اختر','Select Account':'اختر الحساب',
+ 'Daily Report':'التقرير اليومي','Recent Activity':'النشاط الأخير',
+ 'TOTAL ORDERS':'إجمالي الطلبات','TOTAL PROFIT':'إجمالي الأرباح',
+ 'TOTAL SPENT':'إجمالي الإنفاق','SUCCESS':'نجاح','FAILED':'فشل',
+ 'PENDING':'قيد الانتظار','Top Products':'المنتجات الأكثر طلبًا',
+ 'Recent Orders':'الطلبات الأخيرة','Recent Shop Orders':'طلبات المتاجر الأخيرة',
+ 'No recent orders':'لا توجد طلبات حديثة',
+ 'Sales Profit':'أرباح المبيعات','Shops Profit':'أرباح المتاجر',
+ 'Total Sales':'إجمالي المبيعات','Total Shops':'إجمالي المتاجر',
+ 'My Transactions':'معاملاتي','Support':'الدعم',
+};
+const testAccountTranslation=(english)=>TEST_ACCOUNT_AR[english]||OWNER_AR[english]||OWNER_ORDER_AR[english]||OWNER_TICKET_AR[english]||OWNER_ACCOUNT_AR[english];
 const ownerOrderText=(value,lang)=>lang==='ar'?(OWNER_ORDER_AR[value]||value):value;
 // Owner support-ticket translations are display-only; stored ticket data stays unchanged.
 const OWNER_TICKET_AR={
@@ -1983,13 +2040,13 @@ function OwnerArabicControls({testMode=false}){
      const raw=node.nodeValue;const trimmed=raw.trim();if(!trimmed)continue;
      const remembered=original.current.get(node);
      if(lang==='ar'){
-      const english=remembered&&raw.trim()===OWNER_AR[remembered.trim()]?remembered:raw;
-      const value=OWNER_AR[english.trim()];if(value){original.current.set(node,english);const next=english.replace(english.trim(),value);if(raw!==next)node.nodeValue=next;}
-     }else if(remembered&&raw.trim()===OWNER_AR[remembered.trim()]){node.nodeValue=remembered;}
+      const english=remembered&&raw.trim()===(testMode?(remembered.trim().startsWith('Welcome, ')?'مرحبًا، '+remembered.trim().slice(9):testAccountTranslation(remembered.trim())):OWNER_AR[remembered.trim()])?remembered:raw;
+      const value=(testMode&&english.trim().startsWith('Welcome, '))?'مرحبًا، '+english.trim().slice(9):(testMode?testAccountTranslation(english.trim()):OWNER_AR[english.trim()]);if(value){original.current.set(node,english);const next=english.replace(english.trim(),value);if(raw!==next)node.nodeValue=next;}
+     }else if(remembered&&raw.trim()===(testMode?(remembered.trim().startsWith('Welcome, ')?'مرحبًا، '+remembered.trim().slice(9):testAccountTranslation(remembered.trim())):OWNER_AR[remembered.trim()])){node.nodeValue=remembered;}
     }
     root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(el=>{
       if(!el.dataset.ownerEnglishPlaceholder)el.dataset.ownerEnglishPlaceholder=el.getAttribute('placeholder')||'';
-      const en=el.dataset.ownerEnglishPlaceholder;const next=lang==='ar'?(OWNER_AR[en]||en):en;
+      const en=el.dataset.ownerEnglishPlaceholder;const next=lang==='ar'?((testMode?testAccountTranslation(en):OWNER_AR[en])||en):en;
       if(el.getAttribute('placeholder')!==next)el.setAttribute('placeholder',next);
     });
    });

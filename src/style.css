@@ -4082,3 +4082,24 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .appShell.testLanguageEnabled.testArabic .modalShade,.appShell.testLanguageEnabled.testArabic .productModal{direction:rtl;text-align:right;}
 @media(max-width:900px){.appShell.testLanguageEnabled.testArabic .appMain{margin-right:0;}.appShell.testLanguageEnabled.testArabic .side{transform:translateX(110%);}.appShell.testLanguageEnabled.testArabic .side.open{transform:translateX(0);}}
 @media(max-width:600px){.appShell.testLanguageEnabled .appTop{padding-right:118px;}.appShell.testLanguageEnabled.testArabic .appTop{padding-left:118px;padding-right:10px;}.appShell.testLanguageEnabled .ownerLanguageControls{right:8px;}.appShell.testLanguageEnabled.testArabic .ownerLanguageControls{left:8px;right:auto;}.appShell.testLanguageEnabled .ownerLanguageButton{font-size:12px;}}
+
+/* TEST 469/470: align Arabic dashboard layout with Owner while preserving numbers and products. */
+.appShell.testLanguageEnabled.testArabic .welcome,
+.appShell.testLanguageEnabled.testArabic .dashboardOrderSummary,
+.appShell.testLanguageEnabled.testArabic .dashSection {direction:rtl;text-align:right;}
+.appShell.testLanguageEnabled.testArabic .dashboardStatsGrid .dashboardStatCard {text-align:right;}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentHeader {direction:rtl;}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentHeader button {direction:rtl;}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentHeader button svg {transform:rotate(180deg);}
+.appShell.testLanguageEnabled.testArabic .walletHero {text-align:right;}
+.appShell.testLanguageEnabled.testArabic .walletHero strong,
+.appShell.testLanguageEnabled.testArabic .dashboardStatCard strong,
+.appShell.testLanguageEnabled.testArabic .topBalance b {direction:ltr;unicode-bidi:isolate;}
+.appShell.testLanguageEnabled.testArabic .side .accountMini {text-align:right;}
+.appShell.testLanguageEnabled.testArabic .side .accountMini span {text-align:right;}
+.appShell.testLanguageEnabled.testArabic .ordersRecentList,
+.appShell.testLanguageEnabled.testArabic .dashboardOrdersList {direction:ltr;text-align:left;}
+.appShell.testLanguageEnabled.testArabic .ordersRecentRow {direction:ltr;}
+.appShell.testLanguageEnabled.testArabic .dashboardPeriodTabs {direction:rtl;}
+.appShell.testLanguageEnabled.testArabic .topProductsGrid {direction:ltr;}
+.appShell.testLanguageEnabled.testArabic .topProductCard {direction:ltr;}
