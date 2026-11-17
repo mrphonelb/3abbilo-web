@@ -1749,9 +1749,18 @@ function TopProducts({setPage}){
   const step=card.getBoundingClientRect().width+gap;
   const end=Math.max(0,el.scrollWidth-el.clientWidth);
   if(end<=1)return;
+  const rtl=!!el.closest('.appShell.testLanguageEnabled.testArabic');
+  if(rtl){
+   // RTL scrollLeft starts at 0 (rightmost card) and becomes negative as we advance left.
+   const distance=Math.max(0,Math.min(end,-el.scrollLeft));
+   const forward=direction<0; // In Arabic the left arrow advances to the next product.
+   const atEnd=distance>=end-2,atStart=distance<=2;
+   const next=forward?(atEnd?0:Math.min(end,distance+step)):(atStart?end:Math.max(0,distance-step));
+   el.scrollTo({left:-next,behavior:(forward&&atEnd)||(!forward&&atStart)?'instant':'smooth'});
+   return;
+  }
   const atEnd=el.scrollLeft>=end-2;
   const atStart=el.scrollLeft<=2;
-  // Wrap to the first/last card rather than stopping at the scroll boundary.
   const target=direction>0?(atEnd?0:Math.min(end,el.scrollLeft+step)):(atStart?end:Math.max(0,el.scrollLeft-step));
   el.scrollTo({left:target,behavior:(direction>0&&atEnd)||(direction<0&&atStart)?'instant':'smooth'});
  };
@@ -1759,12 +1768,12 @@ function TopProducts({setPage}){
   if(entries.length<2||loading||error)return;
   const timer=window.setInterval(()=>{
    if(document.visibilityState==='hidden'||selected)return;
-   moveProducts(1);
+   moveProducts(sliderRef.current?.closest('.appShell.testLanguageEnabled.testArabic')?-1:1);
   },3000);
   return()=>window.clearInterval(timer);
  },[entries.length,loading,error,selected]);
 
- return <section className="dashSection topProductsSection"><div className="topProductsHeading"><h2>TOP PRODUCTS</h2><div className="topProductsArrows"><button type="button" aria-label="Previous top products" onClick={()=>moveProducts(-1)}><ChevronLeft size={19}/></button><button type="button" aria-label="Next top products" onClick={()=>moveProducts(1)}><ChevronRight size={19}/></button></div></div>
+ return <section className="dashSection topProductsSection"><div className="topProductsHeading"><h2>TOP PRODUCTS</h2><div className="topProductsArrows"><button type="button" aria-label="Previous top products" onClick={()=>moveProducts(sliderRef.current?.closest('.appShell.testLanguageEnabled.testArabic')?1:-1)}><ChevronLeft size={19}/></button><button type="button" aria-label="Next top products" onClick={()=>moveProducts(sliderRef.current?.closest('.appShell.testLanguageEnabled.testArabic')?-1:1)}><ChevronRight size={19}/></button></div></div>
   {loading?<div className="topProductsEmpty"><RefreshCw size={17} className="spin"/> Loading top products…</div>
    :error?<div className="topProductsEmpty">Top products are temporarily unavailable.</div>
    :entries.length?<div className="topProductsGrid" ref={sliderRef}>{entries.map(({item,product})=><button type="button" className="topProductCard" key={item.product_key} onClick={()=>{

@@ -4124,3 +4124,16 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .appShell.testLanguageEnabled.testArabic .welcome .walletHero > a svg {
   transform: rotate(180deg);
 }
+
+/* TEST DEALER 469 / TEST SHOP 470: native right-to-left top-products carousel.
+   The first card starts at the right edge; touch swipes and scroll buttons follow RTL. */
+.appShell.testLanguageEnabled.testArabic .dashSection.topProductsSection .topProductsGrid {
+  direction:rtl;
+}
+.appShell.testLanguageEnabled.testArabic .dashSection.topProductsSection .topProductsArrows {
+  flex-direction:row-reverse;
+}
+
+.appShell.testLanguageEnabled.testArabic .dashSection.topProductsSection .topProductsArrows button svg {
+  transform:rotate(180deg);
+}
