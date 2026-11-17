@@ -3692,3 +3692,79 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerArabicAccountPopup input[type=email],.ownerArabicAccountPopup input[type=tel],.ownerArabicAccountPopup input[type=password]{direction:ltr;text-align:left;}
 .ownerArabicAccountPopup .accountAdminTabs{direction:rtl;}
 @media(max-width:520px){.ownerShell.ownerArabic .ownerAccountCardArabic{padding-left:37px;}.ownerShell.ownerArabic .ownerAccountCardArabic>.ownerRecordArrow{left:11px;width:15px;height:15px;}}
+
+/* Owner Arabic: actual right-to-left CARD CONTENT, without affecting English.
+   Explicit grid areas avoid inherited LTR desktop grids overriding the placement.
+   Physical order (right -> left): image, product, customer, price, status, date, arrow. */
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentRow,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentRow {
+  direction:ltr !important;
+  text-align:right;
+  position:relative;
+  padding-left:43px;
+  display:grid;
+  grid-template-columns:minmax(135px,1fr) minmax(90px,.75fr) minmax(85px,.75fr) minmax(100px,1fr) minmax(170px,2fr) 56px;
+  grid-template-areas:"order-date order-status order-price order-customer order-product order-image";
+  align-items:center;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentImage,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentImage {grid-area:order-image;justify-self:end;}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentName,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentName {grid-area:order-product;text-align:right;min-width:0;}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentCustomer,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentCustomer {grid-area:order-customer;text-align:right;min-width:0;}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentPrice,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentPrice {grid-area:order-price;text-align:center;}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentState,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentState {grid-area:order-status;justify-self:center;align-items:center;}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentTime,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentTime {grid-area:order-date;text-align:left;direction:ltr;}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentChevron,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentChevron {
+  position:absolute;grid-area:auto;left:14px;right:auto;top:50%;
+  transform:translateY(-50%) rotate(180deg);display:block;
+}
+/* Ticket card right -> left: message icon, text, status, left-pointing arrow. */
+.ownerShell.ownerArabic .ownerRecordCard.supportTicketRow {
+  direction:ltr !important;
+  flex-direction:row-reverse !important;
+  text-align:right;
+  position:relative;
+  padding-left:44px;
+}
+.ownerShell.ownerArabic .ownerRecordCard.supportTicketRow .ownerRecordMain {
+  direction:rtl;text-align:right;
+}
+.ownerShell.ownerArabic .ownerRecordCard.supportTicketRow>svg:last-child {
+  position:absolute;left:14px;right:auto;top:50%;
+  transform:translateY(-50%) rotate(180deg);
+}
+@media(max-width:1150px) {
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentRow,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentRow {
+    grid-template-columns:max-content minmax(0,1fr) 48px;
+    grid-template-areas:
+      "order-status order-product order-image"
+      "order-price order-customer order-image"
+      "order-date order-date order-image";
+  }
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentTime,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentTime{text-align:right;}
+}
+@media(max-width:650px) {
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentRow,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentRow {
+    grid-template-columns:max-content minmax(0,1fr) 44px;
+    grid-template-areas:
+      "order-status order-product order-image"
+      "order-price order-customer order-image"
+      "order-date order-date order-image";
+    padding-left:36px;
+  }
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentChevron,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentChevron{left:11px;width:15px;height:15px;}
+}
+@media(max-width:520px) {
+  .ownerShell.ownerArabic .ownerRecordCard.supportTicketRow{padding-left:38px;}
+  .ownerShell.ownerArabic .ownerRecordCard.supportTicketRow>svg:last-child{left:11px;width:15px;height:15px;}
+}
