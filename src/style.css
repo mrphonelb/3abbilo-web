@@ -3511,3 +3511,26 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 }
 .ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader {direction:ltr;}
 .ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader h2 {direction:rtl;unicode-bidi:isolate;}
+
+/* Arabic owner dashboard: All Orders and Support Tickets remain visually LTR. */
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader {
+  direction:ltr !important;
+  flex-direction:row !important;
+  justify-content:space-between;
+  text-align:left;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader h2 {
+  margin:0 auto 0 0;
+  text-align:left;
+  direction:rtl;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button {
+  direction:ltr !important;
+  flex-direction:row !important;
+  margin-left:auto;
+  margin-right:0;
+  white-space:nowrap;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button svg {
+  transform:none !important;
+}
