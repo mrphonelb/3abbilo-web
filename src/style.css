@@ -3554,3 +3554,13 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 
 /* Arabic owner: keep View All arrow to the left of its label. */
 .ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button {direction:ltr !important;flex-direction:row-reverse !important;}
+
+/* Owner Arabic View All: force icon to the visual left of Arabic label. */
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button {
+  direction:ltr !important;
+  flex-direction:row !important;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button svg {
+  order:-1 !important;
+  flex-shrink:0;
+}
