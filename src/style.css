@@ -3803,3 +3803,11 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 /* Dates and graph geometry are never mirrored or reordered. */
 .ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityDailyPlot,
 .ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityDailyAxis {direction:ltr;}
+
+/* Owner Arabic Activity Summary: table captions sit directly above their values.
+   Preserve English names for all product and category entries. */
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedHead > span:nth-child(2),
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedHead > span:nth-child(3),
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedHead > span:nth-child(4) {
+  text-align:left !important;
+}
