@@ -4032,3 +4032,10 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 /* Arabic owner Whish Money number: right-align placeholder and typed value only. */
 .rechargeSettings .rechargeArabicWhishNumberLabel input[type="tel"] { direction:rtl!important; text-align:right!important; }
 .rechargeSettings .rechargeArabicWhishNumberLabel input[type="tel"]::placeholder { direction:rtl!important; text-align:right!important; }
+
+/* Owner account/category filters; preserve English layout and Arabic RTL. */
+.ownerCategoryFilters {display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.ownerCategoryFilters select {flex:0 1 280px;min-width:200px;max-width:100%;}
+.ownerAccountsSearch.ownerCategoryFilters input {flex:1 1 340px;min-width:180px;}
+.ownerActivityStandalone .ownerCategoryFilters select {flex:0 1 330px;}
+@media(max-width:650px){.ownerCategoryFilters select,.ownerActivityStandalone .ownerCategoryFilters select,.ownerAccountsSearch.ownerCategoryFilters input{flex:1 1 100%;width:100%;}}
