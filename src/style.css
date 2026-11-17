@@ -4119,3 +4119,8 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .appShell.testLanguageEnabled.testArabic .testHeaderActions .topBalance{order:1;align-items:flex-start;text-align:left;}
 .appShell.testLanguageEnabled.testArabic .testHeaderActions .ownerLanguageControls{order:0;}
 @media(max-width:600px){.appShell.testLanguageEnabled .testHeaderActions{gap:9px;min-width:0}.appShell.testLanguageEnabled .ownerLanguageButton{padding:3px;font-size:12px}.appShell.testLanguageEnabled .ownerLanguageButton span:not(.ownerLangSeparator){min-width:35px;min-height:29px;padding:7px 8px}.appShell.testLanguageEnabled .topBalance b{font-size:14px}}
+
+/* Arabic test dealer/shop recharge CTA: point arrow left. */
+.appShell.testLanguageEnabled.testArabic .welcome .walletHero > a svg {
+  transform: rotate(180deg);
+}
