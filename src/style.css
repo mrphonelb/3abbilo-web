@@ -3768,3 +3768,38 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   .ownerShell.ownerArabic .ownerRecordCard.supportTicketRow{padding-left:38px;}
   .ownerShell.ownerArabic .ownerRecordCard.supportTicketRow>svg:last-child{left:11px;width:15px;height:15px;}
 }
+
+/* Owner Arabic Activity Summary only. Branch/dealer/shop and English remain unchanged. */
+.ownerShell.ownerArabic .ownerActivityPage .ownerActivityStandalone {direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .ownerActivityPage .ownerActivityStandalone>.orderTools {direction:rtl;}
+.ownerShell.ownerArabic .ownerActivityPage .ownerActivityStandalone>.branchActivity {direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .financePeriod,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .financeCustom {direction:rtl;}
+/* Chart drawing positions/swipe mechanics must stay LTR; textual cards are RTL. */
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityChartViewport,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityChartTrack {direction:ltr;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityChartSlide .activitySpending {direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activitySpendingHeader {direction:rtl;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activitySpendingHeader strong,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activitySpendingPercent,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityCategoryAmount b,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedQty,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedUnits,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedTotal {direction:ltr;unicode-bidi:isolate;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activitySpendingBar {direction:rtl;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activitySpendingLegend {direction:rtl;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activitySpendingLegendItem {direction:rtl;grid-template-columns:11px minmax(0,1fr) auto;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityCategoryList,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityCategoryToggle,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNested,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedHead,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedRow {direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityCategoryAmount {text-align:left;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedQty,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedTotal,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityNestedUnits {text-align:left;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityPackageRows {margin:0 10px 5px 0;}
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityPackageRow .activityNestedLabel {padding-right:10px;padding-left:0;}
+/* Dates and graph geometry are never mirrored or reordered. */
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityDailyPlot,
+.ownerShell.ownerArabic .ownerActivityPage .branchActivity .activityDailyAxis {direction:ltr;}
