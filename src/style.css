@@ -3564,3 +3564,21 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   order:-1 !important;
   flex-shrink:0;
 }
+
+/* Owner Arabic dashboard: explicit icon-first DOM order, with Arabic label isolated. */
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button {
+  display:inline-flex !important;
+  direction:ltr !important;
+  flex-direction:row !important;
+  align-items:center;
+  gap:6px;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button svg {
+  order:0 !important;
+  flex:none;
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .dashboardRecentHeader button span {
+  order:1 !important;
+  direction:rtl;
+  unicode-bidi:isolate;
+}
