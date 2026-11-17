@@ -2143,9 +2143,8 @@ function OwnerPanel(){const [ownerCreateOpen,setOwnerCreateOpen]=useState(false)
  async function sendReply(){if(!reply.trim()||!ticket)return;try{await get('tickets/'+ticket.id+'/reply',{method:'POST',body:JSON.stringify({message:reply})});setReply('');await openTicket(ticket);await load()}catch(e){setError(e.message)}}
  async function changeStatus(v){try{await get('tickets/'+ticket.id,{method:'PATCH',body:JSON.stringify({status:v})});setTicket({...ticket,status:v});await load()}catch(e){setError(e.message)}}
  const money=v=>'$'+Number(v||0).toFixed(2);const balanceMoney=v=>'$'+Number(v||0).toFixed(4);const rawRows=page==='All Orders'?data?.orders:page==='Support Tickets'?data?.tickets:(page==='Accounts'||page==='Activity Summary')?data?.accounts:page==='Wallets'?data?.wallets:page==='Reports'?data?.days:[];const allRows=Array.isArray(rawRows)?rawRows:[];
- // Filter using seven distinct Daftra category IDs (not generic account types).
  const ownerCategoryNames=[[459,'DEALER','وكيل'],[460,'SHOP','محل تابع لوكيل'],[463,'JOUNIEH','جونية'],[464,'JBEIL','جبيل'],[465,'MRPHONE','مستر فون'],[467,'DEALER MRPHONE','وكيل مستر فون'],[468,'SHOP MRPHONE','محل مستر فون']];
- const accountCategoryId=a=>String(a?.daftra_category_id??a?.category_id??a?.daftra_category?.id??'');
+ const accountCategoryId=a=>String(a?.daftra_category_id??'');
  const categoryOptions=ownerCategoryNames.map(([id,en,ar])=><option key={id} value={String(id)}>{ownerOrderLang==='ar'?ar:en}</option>);
  const activityAccounts=(data?.accounts||[]).filter(a=>!activityCategory||accountCategoryId(a)===activityCategory);
  const accountRows=page==='Accounts'?allRows.filter(r=>(!accountCategory||accountCategoryId(r)===accountCategory)&&[r.shop_name,r.account_type,r.parent_name,r.email,r.phone,r.daftra_client_id].some(v=>String(v??'').toLowerCase().includes(accountSearch.trim().toLowerCase()))):[];
