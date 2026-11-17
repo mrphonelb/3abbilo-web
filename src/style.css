@@ -3958,3 +3958,11 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerArabicRechargeShade .rechargeDetailsModal .rechargeDetailLine > .rechargeCenteredStatus{
   justify-content:flex-start!important;direction:ltr!important;text-align:left!important;
 }
+
+/* Owner Arabic recharge corrections; English and dealer/shop untouched. */
+.ownerArabicRechargeShade .rechargeArabicOmtNumberLabel input {direction:rtl!important;text-align:right!important;}
+.ownerArabicRechargeShade .rechargeArabicOmtNumberLabel input::placeholder {direction:rtl;text-align:right;}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentChevron {direction:ltr!important;unicode-bidi:isolate!important;font-family:Arial,sans-serif!important;font-size:25px!important;}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentName,
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentCustomer {min-width:0;justify-self:stretch!important;text-align:right!important;}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentCustomer .shopOrderIdentity {display:block;text-align:right!important;}
