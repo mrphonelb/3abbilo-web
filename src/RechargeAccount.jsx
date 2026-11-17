@@ -110,6 +110,7 @@ const OWNER_RECHARGE_AR = {
  'Payment credited successfully':'تمت إضافة الرصيد بنجاح',
  'Mark as Paid':'تحديد كمدفوع','Manual Credit':'إضافة رصيد يدوية',
  'Recharge Orders':'طلبات الشحن','1. 3ABBILO Binance':'1. 3ABBILO Binance','2. My Binance':'2. Binance الخاص بي',
+ 'OMT Wallet number':'رقم محفظة OMT', 'Whish number':'رقم Whish',
  'Whish Direct':'Whish Direct','Whish Money':'Whish Money','Whish Pay':'Whish Pay',
  'OMT Wallet':'OMT Wallet','Binance':'Binance'
 };
@@ -127,6 +128,38 @@ function translateOwnerRechargeText(value){
  if(m)return `هل تريد تعيين ${m[1]} للحساب ${m[2]} بالحالة ${OWNER_RECHARGE_AR[m[3]]||m[3]}؟`;
  if(trimmed==='Remove Whish Money from your payment methods? You can add it again later. Existing recharge requests, receipts and wallet history will be preserved.')return 'هل تريد حذف Whish Money من طرق الدفع؟ يمكنك إضافتها لاحقًا، وستبقى طلبات الشحن والإيصالات وسجل المحفظة محفوظة.';
  if(trimmed==='Remove OMT Wallet configuration? Existing recharge orders and wallet history will remain.')return 'هل تريد حذف إعدادات OMT Wallet؟ ستبقى طلبات الشحن السابقة وسجل المحفظة محفوظة.';
+ const noticeTranslations = {
+  'OMT Wallet added. Configure and activate it.':'تمت إضافة OMT Wallet. يرجى إعدادها وتفعيلها.',
+  'OMT Wallet settings saved.':'تم حفظ إعدادات OMT Wallet.',
+  'OMT Wallet removed. Recharge history is preserved.':'تم حذف OMT Wallet. سيبقى سجل الشحن محفوظًا.',
+  'Whish Direct added. Configure and activate it.':'تمت إضافة Whish Direct. يرجى إعدادها وتفعيلها.',
+  'Whish Direct settings saved.':'تم حفظ إعدادات Whish Direct.',
+  'Whish Direct removed. Existing orders are preserved.':'تم حذف Whish Direct. ستبقى الطلبات السابقة محفوظة.',
+  'Whish Money added. Click its card to configure and activate it.':'تمت إضافة Whish Money. اضغط على البطاقة لإعدادها وتفعيلها.',
+  'Whish Money removed. You can add it again later.':'تم حذف Whish Money. يمكنك إضافتها مجددًا لاحقًا.',
+  'Whish payment method saved.':'تم حفظ طريقة دفع Whish Money.',
+  'Binance added. Configure and activate it.':'تمت إضافة Binance. يرجى إعدادها وتفعيلها.',
+  'Binance settings saved.':'تم حفظ إعدادات Binance.',
+  'Binance configuration removed; recharge history preserved.':'تم حذف إعدادات Binance. سيبقى سجل الشحن محفوظًا.',
+  'Whish Pay added. Click its card to activate it.':'تمت إضافة Whish Pay. اضغط على البطاقة لتفعيلها.',
+  'Whish Pay settings saved.':'تم حفظ إعدادات Whish Pay.',
+  'Whish Pay removed. Existing payments remain recorded.':'تم حذف Whish Pay. ستبقى المدفوعات السابقة مسجلة.',
+  'Whish barcode removed. Your Whish number and payment method are unchanged.':'تم حذف باركود Whish. لم يتغير الرقم أو طريقة الدفع.',
+  'Your recharge request was submitted. Status: Pending.':'تم إرسال طلب الشحن. الحالة: قيد الانتظار.',
+  'Whish Direct order created. Transfer the exact amount and enter the six-digit code in the Whish note within 10 minutes.':'تم إنشاء طلب Whish Direct. حوّل المبلغ الدقيق وأدخل الرمز المكوّن من 6 أرقام في ملاحظة Whish خلال 10 دقائق.',
+  'Checking Whish Pay payment status…':'جارٍ التحقق من حالة دفع Whish Pay…',
+  'Whish Pay payment failed. No wallet balance was added.':'فشل دفع Whish Pay. لم تتم إضافة أي رصيد.',
+  'Whish Pay is still being verified. Your recharge order will update automatically. Do not pay again while pending.':'لا يزال دفع Whish Pay قيد التحقق. سيُحدَّث الطلب تلقائيًا. لا تدفع مرة أخرى أثناء الانتظار.',
+  'Your Whish Pay result is not confirmed yet. The order will remain pending until verification.':'لم يتم تأكيد نتيجة Whish Pay بعد. سيبقى الطلب قيد الانتظار حتى التحقق.',
+  'Unpaid balance marked as Paid. Wallet balance was not credited again.':'تم تحديد الرصيد غير المدفوع كمدفوع دون إضافته مرة أخرى.',
+  'Manual credit added to wallet and recorded as Not Paid.':'تمت إضافة الرصيد اليدوي للمحفظة وتسجيله كغير مدفوع.',
+  'Recharge marked Failed. No balance was transferred.':'تم تحديد الشحن كفاشل. لم يُحوّل أي رصيد.',
+  'This recharge requires manual review; do not repeat the payment.':'يحتاج هذا الشحن إلى مراجعة يدوية. لا تكرر الدفع.',
+  'Recharge remains Pending; no balance was transferred.':'يبقى الشحن قيد الانتظار. لم يُحوّل أي رصيد.'
+ };
+ if(noticeTranslations[trimmed])return noticeTranslations[trimmed];
+ if(/^Whish Pay successful\. (.+) was credited to your wallet\.$/.test(trimmed))return trimmed.replace(/^Whish Pay successful\. (.+) was credited to your wallet\.$/,'نجح دفع Whish Pay. تمت إضافة $1 إلى محفظتك.');
+ if(/^\$[\d,.]+ USD credited to .+\.$/.test(trimmed))return trimmed.replace(/^(\$[\d,.]+) USD credited to (.+)\.$/,'تمت إضافة $1 USD إلى محفظة $2.');
  if(trimmed==='Delete OMT Wallet?')return 'حذف OMT Wallet؟';
  if(trimmed==='This recharge failed or expired. Do not transfer using its old code. Create a new order.')return OWNER_RECHARGE_AR[trimmed];
  return null;
@@ -320,7 +353,7 @@ export default function RechargeAccount({owner=false,ownerLang='en',accountType=
  const canOmt=!owner&&view!=='shops'&&!!details?.omt_destination?.is_active&&!!details?.omt_destination?.wallet_number;
  return <div className={owner?(ownerLang==='ar'?"rechargePage ownerArabicRecharge":"rechargePage"):"sectionPad rechargePage"} style={modalOnly?{display:"none"}:undefined}>
   {isManager&&<div className="rechargePageActions"><button className="dealerShopsAddButton rechargeAddMethodButton" type="button" onClick={()=>setAddMethodOpen(true)}><Plus size={18}/> Add Payment Method</button><button className="dealerShopsAddButton rechargeUnpaidButton" type="button" onClick={openUnpaid}><Wallet size={18}/> Unpaid Balances</button><button className="dealerShopsAddButton rechargeAddBalanceButton" type="button" onClick={()=>{setShowBalance(true);setError('')}}><Plus size={18}/> Add Wallet Balance</button></div>}
-  {error&&<div className="catalogNotice error" role="alert">{error}</div>}{notice&&<div className="dealerShopsNotice success" role="status">{notice}</div>}
+  {error&&<div className="catalogNotice error" role="alert">{error}</div>}{notice&&<div className="dealerShopsNotice success" role="status">{owner&&ownerLang==='ar'?(translateOwnerRechargeText(notice)||notice):notice}</div>}
   {loading&&!details?<div className="ordersLoading"><RefreshCw className="spin"/> Loading recharge details…</div>:<>
   {isManager&&<section className="rechargeSection rechargeMethodsSection">{details?.whish_direct_own?.is_added&&<button className="rechargeWhishCard" type="button" onClick={()=>{setDirectNumber(details.whish_direct_own.whish_number||'');setDirectNote(details.whish_direct_own.note||'');setDirectActive(!!details.whish_direct_own.is_active);setDirectSettingsOpen(true)}}><img className="rechargeWhishLogo" src={whishMoneyLogo} alt="Whish Direct"/><b>Whish Direct</b><span className={'reStatus '+(details.whish_direct_own.is_active?'reSuccess':'reFailed')}>{details.whish_direct_own.is_active?'Active':'Inactive'}</span><small>Click to configure</small></button>}{details?.own_settings?.is_added?<button className="rechargeWhishCard" type="button" onClick={()=>{setNumber(details?.own_settings?.whish_number||'');setWhishNote(details?.own_settings?.note||'');setMethodActive(!!details?.own_settings?.is_active);setSettingsOpen(true)}}><img className="rechargeWhishLogo" src={whishMoneyLogo} alt="Whish Money"/><b>Whish Money</b><span className={'reStatus '+(details?.own_settings?.is_active?'reSuccess':'reFailed')}>{details?.own_settings?.is_active?'Active':'Inactive'}</span><small>Click to configure</small></button>:null}{details?.omt_own?.is_added&&<button className="rechargeWhishCard omtWalletCard" type="button" onClick={()=>{setOmtNumber(details.omt_own.wallet_number||'');setOmtNote(details.omt_own.note||'');setOmtActive(!!details.omt_own.is_active);setOmtSettingsOpen(true)}}><img className="rechargeWhishLogo" src={omtLogo} alt="OMT"/><b>OMT Wallet</b><span className={'reStatus '+(details.omt_own.is_active?'reSuccess':'reFailed')}>{details.omt_own.is_active?'Active':'Inactive'}</span><small>Click to configure</small></button>}{details?.binance_own?.is_added&&<button className="rechargeWhishCard" type="button" onClick={()=>{setBinanceMode(details.binance_own.receiving_mode||'owner');setBinanceId(details.binance_own.wallet_id||'');setBinanceNote(details.binance_own.note||'');setDealerBinanceDraft({wallet_id:details.binance_own.wallet_id||'',note:details.binance_own.note||''});setBinanceActive(!!details.binance_own.is_active);setBinanceSettingsOpen(true)}}><img className="rechargeWhishLogo" src={binanceLogo} alt="Binance"/><b>Binance</b><span className={'reStatus '+(details.binance_own.is_active?'reSuccess':'reFailed')}>{details.binance_own.is_active?'Active':'Inactive'}</span><small>Click to configure</small></button>}{!details?.whish_direct_own?.is_added&&!details?.own_settings?.is_added&&!details?.omt_own?.is_added&&!details?.binance_own?.is_added&&<div className="rechargeEmpty">No payment methods added yet. Click + Add Payment Method to get started.</div>}</section>}
   {(canDirect||canRequest||canOmt||canBinance)&&<section className="rechargeSection rechargeChooseMethodsSection"><h3>Choose Payment Method</h3><div className="rechargeChooseMethodsGrid">{canDirect&&<button className="rechargeWhishCard" type="button" onClick={()=>{setWhishOrder(null);setDirectOpen(true);setAmount('');setReceipt(null)}}><img className="rechargeWhishLogo" src={whishMoneyLogo} alt="Whish Direct"/><b>Whish Direct</b><small>Automatic Whish recharge</small></button>}{canRequest&&<button className="rechargeWhishCard" type="button" onClick={()=>{setWhishOrder(null);setRechargeOpen(true);setAmount('')}}><img className="rechargeWhishLogo" src={whishMoneyLogo} alt="Whish Money"/><b>Whish Money</b><small>Whish to Whish</small></button>}{canOmt&&<button className="rechargeWhishCard omtWalletCard" type="button" onClick={()=>{setOmtRechargeOpen(true);setAmount('');setReceipt(null)}}><img className="rechargeWhishLogo" src={omtLogo} alt="OMT"/><b>OMT Wallet</b><small>OMT Wallet transfer</small></button>}{canBinance&&<button className="rechargeWhishCard" type="button" onClick={()=>{setBinanceRechargeOpen(true);setAmount('');setReceipt(null)}}><img className="rechargeWhishLogo" src={binanceLogo} alt="Binance"/><b>Binance</b><small>Transfer to Binance ID</small></button>}</div></section>}
