@@ -3600,3 +3600,37 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
    The selector itself stays LTR, so logical inline margins would resolve incorrectly. */
 .ownerShell.ownerArabic .appTop > .ownerLanguageControls{margin-left:0;margin-right:auto;margin-inline-start:0;margin-inline-end:auto}
 .ownerShell:not(.ownerArabic) .appTop > .ownerLanguageControls{margin-left:auto;margin-right:0;margin-inline-start:auto;margin-inline-end:0}
+
+/* Owner Arabic: keep order data LTR, but put the navigation chevron at the
+   leading (left) edge and point it toward the left. English is unchanged. */
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentRow,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentRow {
+  position:relative;
+  padding-left:43px;
+  grid-template-columns:56px minmax(170px,2fr) minmax(100px,1fr) minmax(85px,.75fr) minmax(90px,.75fr) minmax(135px,1fr);
+}
+.ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentChevron,
+.ownerShell.ownerArabic .ownerOrdersList .ordersRecentChevron {
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%) rotate(180deg);
+  display:block;
+  grid-area:auto;
+}
+@media(max-width:1150px){
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentRow,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentRow {
+    grid-template-columns:48px minmax(0,1fr) max-content;
+    grid-template-areas:
+      "order-image order-name order-status"
+      "order-image order-customer order-price"
+      "order-image order-time order-time";
+  }
+}
+@media(max-width:650px){
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentRow,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentRow {padding-left:36px;}
+  .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentChevron,
+  .ownerShell.ownerArabic .ownerOrdersList .ordersRecentChevron {left:11px;width:15px;height:15px;}
+}
