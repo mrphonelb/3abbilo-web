@@ -4138,3 +4138,13 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .appShell.testLanguageEnabled.testArabic .dashSection.topProductsSection .topProductsArrows button svg {
   transform:none;
 }
+
+/* Arabic order pages: Owner-style filter alignment, while order data stays LTR.
+   Scoped to TEST DEALER 469 and TEST SHOP 470 only. */
+.appShell.testLanguageEnabled.testArabic .sectionPad > .orderTools {direction:ltr;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .orderTools input {direction:rtl;text-align:right;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .orderTools select {direction:rtl;text-align:right;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersEmpty {direction:rtl;text-align:center;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .orderLandingNotice {direction:rtl;text-align:right;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList {direction:ltr;text-align:left;}
+.appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentRow {direction:ltr;text-align:left;}

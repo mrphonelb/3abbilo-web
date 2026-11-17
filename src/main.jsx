@@ -1977,6 +1977,17 @@ const TEST_ACCOUNT_AR={
  'Sales Profit':'أرباح المبيعات','Shops Profit':'أرباح المتاجر',
  'Total Sales':'إجمالي المبيعات','Total Shops':'إجمالي المتاجر',
  'My Transactions':'معاملاتي','Support':'الدعم',
+ // Order pages for TEST DEALER (469) and TEST SHOP (470).
+ 'Search product or customer…':'ابحث عن منتج أو عميل…',
+ 'Search shop, product or customer…':'ابحث عن متجر أو منتج أو عميل…',
+ 'All Status':'جميع الحالات','Pending':'قيد الانتظار','Success':'نجاح','Failed':'فشل',
+ 'Loading orders…':'جارٍ تحميل الطلبات…',
+ 'No matching orders':'لا توجد طلبات مطابقة',
+ 'Try another search or status.':'جرّب بحثًا آخر أو حالة مختلفة.',
+ 'Order Result':'نتيجة الطلب','View Ticket':'عرض التذكرة','Open Ticket':'فتح تذكرة',
+ 'Shop':'متجر','Order':'طلب','Orders':'الطلبات',
+ 'My Orders':'طلباتي','Shop Orders':'طلبات المتاجر',
+ 'Order submitted':'تم إرسال الطلب',
 };
 const testAccountTranslation=(english)=>TEST_ACCOUNT_AR[english]||OWNER_AR[english]||OWNER_ORDER_AR[english]||OWNER_TICKET_AR[english]||OWNER_ACCOUNT_AR[english];
 const ownerOrderText=(value,lang)=>lang==='ar'?(OWNER_ORDER_AR[value]||value):value;
