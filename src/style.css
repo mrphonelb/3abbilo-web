@@ -3595,3 +3595,8 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerLanguageDialog.ownerLanguageDialogArabic .ownerLanguageActions button{direction:rtl}
 .ownerShell.ownerArabic .appTop{padding-left:20px;padding-right:20px}
 @media(max-width:600px){.ownerShell .ownerLanguageButton{gap:3px;padding:4px 5px}.ownerShell .ownerLanguageButton span:not(.ownerLangSeparator){padding:5px 6px}}
+
+/* Place language selector at the far left when the owner dashboard is Arabic.
+   The selector itself stays LTR, so logical inline margins would resolve incorrectly. */
+.ownerShell.ownerArabic .appTop > .ownerLanguageControls{margin-left:0;margin-right:auto;margin-inline-start:0;margin-inline-end:auto}
+.ownerShell:not(.ownerArabic) .appTop > .ownerLanguageControls{margin-left:auto;margin-right:0;margin-inline-start:auto;margin-inline-end:0}
