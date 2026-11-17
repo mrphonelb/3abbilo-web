@@ -3634,3 +3634,15 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   .ownerShell.ownerArabic .ownerDashboardRecent .ordersRecentChevron,
   .ownerShell.ownerArabic .ownerOrdersList .ordersRecentChevron {left:11px;width:15px;height:15px;}
 }
+
+/* English Owner dashboard only: restore View all followed by a right-pointing arrow.
+   Arabic mode retains its independent left-pointing icon layout. */
+.ownerShell:not(.ownerArabic) .ownerDashboardRecent .dashboardRecentHeader button {
+  display:inline-flex;
+  flex-direction:row-reverse;
+  direction:ltr;
+  align-items:center;
+}
+.ownerShell:not(.ownerArabic) .ownerDashboardRecent .dashboardRecentHeader button svg {
+  transform:rotate(180deg);
+}
