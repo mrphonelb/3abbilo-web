@@ -4028,3 +4028,7 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerArabicRechargeShade .rechargeSettings input[type="tel"]::placeholder {
   text-align:right!important;
 }
+
+/* Arabic owner Whish Money number: right-align placeholder and typed value only. */
+.rechargeSettings .rechargeArabicWhishNumberLabel input[type="tel"] { direction:rtl!important; text-align:right!important; }
+.rechargeSettings .rechargeArabicWhishNumberLabel input[type="tel"]::placeholder { direction:rtl!important; text-align:right!important; }
