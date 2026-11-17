@@ -4173,3 +4173,45 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   .appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentPrice {margin-left:0;margin-right:55px;}
   .appShell.testLanguageEnabled.testArabic .sectionPad > .ordersRecentList .ordersRecentTime {margin-left:0;margin-right:auto;}
 }
+
+/* Arabic dashboard recent orders: test dealer 469 and test shop 470 only. */
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardRecentHeader {
+  direction:rtl;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardRecentHeader h2 {
+  text-align:right;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardRecentHeader button {
+  direction:rtl;
+  flex-direction:row-reverse;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardRecentHeader button svg {
+  transform:rotate(180deg);
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentRow {
+  direction:rtl;
+  text-align:right;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentName,
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentCustomer {
+  direction:ltr;
+  unicode-bidi:isolate;
+  text-align:right;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentPrice,
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentTime {
+  direction:ltr;
+  unicode-bidi:isolate;
+  text-align:left;
+}
+.appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentChevron {
+  transform:rotate(180deg);
+}
+@media(max-width:650px){
+  .appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentRow {
+    grid-template-areas:"image product status" "image customer price" "image time time";
+  }
+  .appShell.testLanguageEnabled.testArabic .dashboardRecentSection .dashboardOrdersList .ordersRecentTime {
+    text-align:right;
+  }
+}
