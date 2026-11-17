@@ -3582,3 +3582,16 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   direction:rtl;
   unicode-bidi:isolate;
 }
+
+/* Owner language selector: in the normal header flow, never floating while scrolling. */
+.ownerShell .ownerLanguageControls,.ownerShell.ownerArabic .ownerLanguageControls{position:static;inset:auto;z-index:auto;flex-shrink:0;margin-inline-start:auto;direction:ltr}
+.ownerShell .ownerLanguageButton{display:inline-flex;align-items:center;gap:7px;padding:5px 7px 5px 11px;border:1px solid #e0e5ed;border-radius:999px;background:#fff;box-shadow:0 2px 8px #1118270b;font-size:12px;letter-spacing:.02em}
+.ownerShell .ownerLanguageButton svg{margin-right:2px;color:#5b6475}
+.ownerShell .ownerLanguageButton span:not(.ownerLangSeparator){padding:6px 9px;border-radius:999px;color:#667085;transition:background .15s,color .15s}
+.ownerShell .ownerLanguageButton .ownerLangActive{background:#fa8611;color:#fff!important}
+.ownerShell .ownerLangSeparator{height:17px;width:1px;background:#e5e7eb}
+.ownerLanguageDialog.ownerLanguageDialogArabic{direction:rtl;text-align:right}
+.ownerLanguageDialog.ownerLanguageDialogArabic .ownerLanguageActions{direction:ltr;justify-content:flex-start}
+.ownerLanguageDialog.ownerLanguageDialogArabic .ownerLanguageActions button{direction:rtl}
+.ownerShell.ownerArabic .appTop{padding-left:20px;padding-right:20px}
+@media(max-width:600px){.ownerShell .ownerLanguageButton{gap:3px;padding:4px 5px}.ownerShell .ownerLanguageButton span:not(.ownerLangSeparator){padding:5px 6px}}
