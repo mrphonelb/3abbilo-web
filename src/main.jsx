@@ -1773,7 +1773,7 @@ function TopProducts({setPage}){
   return()=>window.clearInterval(timer);
  },[entries.length,loading,error,selected]);
 
- return <section className="dashSection topProductsSection"><div className="topProductsHeading"><h2>TOP PRODUCTS</h2><div className="topProductsArrows"><button type="button" aria-label="Previous top products" onClick={()=>moveProducts(sliderRef.current?.closest('.appShell.testLanguageEnabled.testArabic')?1:-1)}><ChevronLeft size={19}/></button><button type="button" aria-label="Next top products" onClick={()=>moveProducts(sliderRef.current?.closest('.appShell.testLanguageEnabled.testArabic')?-1:1)}><ChevronRight size={19}/></button></div></div>
+ return <section className="dashSection topProductsSection"><div className="topProductsHeading"><h2>TOP PRODUCTS</h2><div className="topProductsArrows"><button type="button" aria-label="Previous top products" onClick={()=>moveProducts(-1)}><ChevronLeft size={19}/></button><button type="button" aria-label="Next top products" onClick={()=>moveProducts(1)}><ChevronRight size={19}/></button></div></div>
   {loading?<div className="topProductsEmpty"><RefreshCw size={17} className="spin"/> Loading top products…</div>
    :error?<div className="topProductsEmpty">Top products are temporarily unavailable.</div>
    :entries.length?<div className="topProductsGrid" ref={sliderRef}>{entries.map(({item,product})=><button type="button" className="topProductCard" key={item.product_key} onClick={()=>{
