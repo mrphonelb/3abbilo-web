@@ -3667,3 +3667,17 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerOrderArabicPopup .popupTitle{ text-align:center; }
 .ownerOrderArabicPopup .popupTitle>svg{display:block;margin:0 auto 8px;}
 .ownerOrderArabicPopup .popupTitle>h2{ text-align:center; }
+
+/* Owner Arabic Support Tickets only. The English ticket screen remains unchanged. */
+.ownerShell.ownerArabic .ownerSupportPanel{direction:rtl;text-align:right}
+.ownerShell.ownerArabic .ownerSupportPanel .supportPanelHeader{direction:rtl}
+.ownerShell.ownerArabic .ownerSupportPanel .supportPanelHeader h3{text-align:right}
+.ownerShell.ownerArabic .ownerSupportPanel .supportPanelHeader button{margin-right:auto;margin-left:0}
+.ownerShell.ownerArabic .ownerSupportPanel .ownerTicketStatusControl{align-self:flex-start;width:min(470px,100%);text-align:right}
+.ownerShell.ownerArabic .ownerSupportPanel .ownerTicketStatusControl select{direction:rtl;text-align:right}
+.ownerShell.ownerArabic .ownerSupportPanel .ownerTicketMeta{text-align:right;unicode-bidi:plaintext}
+.ownerShell.ownerArabic .ownerSupportPanel .ownerTicketDescription[dir=auto],
+.ownerShell.ownerArabic .ownerSupportPanel .ownerMessage p[dir=auto]{text-align:start;white-space:pre-wrap;overflow-wrap:anywhere}
+.ownerShell.ownerArabic .ownerSupportPanel textarea{text-align:right;direction:rtl}
+.ownerShell.ownerArabic .ownerSupportPanel .popupAction{align-self:flex-start}
+.ownerShell.ownerArabic .supportSearch input{text-align:right;direction:rtl}
