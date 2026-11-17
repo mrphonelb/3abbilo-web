@@ -4039,3 +4039,29 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerAccountsSearch.ownerCategoryFilters input {flex:1 1 340px;min-width:180px;}
 .ownerActivityStandalone .ownerCategoryFilters select {flex:0 1 330px;}
 @media(max-width:650px){.ownerCategoryFilters select,.ownerActivityStandalone .ownerCategoryFilters select,.ownerAccountsSearch.ownerCategoryFilters input{flex:1 1 100%;width:100%;}}
+
+/* Owner language selector — refined orange sliding-pill design. */
+.ownerShell .ownerLanguageButton{
+  display:inline-flex;align-items:center;gap:0;padding:4px;
+  border:1px solid #e1e3e8;border-radius:999px;background:#fff;
+  box-shadow:0 5px 15px rgba(20,27,40,.11),0 1px 2px rgba(20,27,40,.05);
+  font-size:13px;font-weight:800;letter-spacing:.025em;line-height:1;
+  transition:box-shadow .2s ease,border-color .2s ease;
+}
+.ownerShell .ownerLanguageButton:hover{border-color:#d4d8df;box-shadow:0 7px 18px rgba(20,27,40,.14)}
+.ownerShell .ownerLanguageButton span:not(.ownerLangSeparator){
+  display:flex;align-items:center;justify-content:center;
+  min-width:45px;min-height:32px;padding:8px 13px;
+  border-radius:999px;color:#222936;
+  transition:background .22s ease,color .22s ease,box-shadow .22s ease;
+}
+.ownerShell .ownerLanguageButton .ownerLangActive{
+  color:#fff!important;background:linear-gradient(145deg,#ff9c0b 0%,#ff7900 85%)!important;
+  box-shadow:0 2px 7px rgba(255,128,0,.22);
+}
+.ownerShell .ownerLangSeparator{display:none}
+.ownerShell .ownerLanguageButton:focus-visible{outline:3px solid rgba(255,136,0,.3);outline-offset:3px}
+@media(max-width:600px){
+  .ownerShell .ownerLanguageButton{gap:0;padding:3px;font-size:12px}
+  .ownerShell .ownerLanguageButton span:not(.ownerLangSeparator){min-width:39px;min-height:30px;padding:7px 10px}
+}
