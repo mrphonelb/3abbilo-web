@@ -3662,3 +3662,8 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .ownerOrderArabicPopup .ownerManualDropdownTrigger,.ownerOrderArabicPopup .ownerManualDropdownOption{direction:rtl;text-align:right}
 .ownerOrderArabicPopup .ownerManualDropdownTrigger{flex-direction:row}
 .ownerOrderArabicPopup .ownerManualDropdown input{direction:ltr;text-align:left}
+
+/* Owner Arabic order popup: center only the receipt icon and title. */
+.ownerOrderArabicPopup .popupTitle{ text-align:center; }
+.ownerOrderArabicPopup .popupTitle>svg{display:block;margin:0 auto 8px;}
+.ownerOrderArabicPopup .popupTitle>h2{ text-align:center; }
