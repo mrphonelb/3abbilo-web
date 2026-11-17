@@ -3885,3 +3885,76 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   unicode-bidi:isolate;
 }
 .ownerArabicRechargeShade .rechargeModal .modalClose {right:auto;left:14px;}
+
+
+/* Arabic Owner Recharge Account — five targeted fixes. English/dealer/shop untouched. */
+/* Buttons: add payment method + unpaid balances on left, manual balance at right. */
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargePageActions{
+  direction:ltr;justify-content:flex-start;display:flex;gap:12px;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargePageActions > button{direction:rtl;}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargePageActions .rechargeUnpaidButton{
+  margin:0!important;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargePageActions .rechargeAddBalanceButton{
+  margin:0 0 0 auto!important;
+}
+/* Five columns start at the right with logo, then name/account in one column. */
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow{
+  display:grid!important;direction:rtl!important;text-align:right!important;
+  grid-template-columns:56px minmax(150px,2.4fr) minmax(85px,.8fr) minmax(85px,.8fr) minmax(148px,1fr)!important;
+  grid-template-rows:auto auto!important;grid-template-areas:none!important;
+  align-items:center;gap:3px 12px;padding:12px 15px!important;padding-left:15px!important;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentImage{
+  grid-area:auto!important;grid-column:1!important;grid-row:1 / span 2!important;justify-self:end;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentName{
+  grid-area:auto!important;grid-column:2!important;grid-row:1!important;align-self:end;text-align:right!important;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentCustomer{
+  grid-area:auto!important;grid-column:2!important;grid-row:2!important;align-self:start;text-align:right!important;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentPrice{
+  grid-area:auto!important;grid-column:3!important;grid-row:1 / span 2!important;text-align:center!important;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentState{
+  grid-area:auto!important;grid-column:4!important;grid-row:1 / span 2!important;justify-self:center!important;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentChevron{
+  grid-area:auto!important;grid-column:5!important;grid-row:1!important;
+  position:static!important;left:auto!important;right:auto!important;top:auto!important;
+  transform:none!important;display:block!important;justify-self:center!important;align-self:end!important;
+  font-size:25px;line-height:1;
+}
+.ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentTime{
+  grid-area:auto!important;grid-column:5!important;grid-row:2!important;
+  justify-self:center!important;align-self:start!important;text-align:center!important;
+  direction:ltr;unicode-bidi:isolate;margin:0!important;
+}
+@media(max-width:760px){
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow{
+    grid-template-columns:44px minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto auto!important;
+    gap:5px 9px!important;
+  }
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentImage{grid-column:1!important;grid-row:1 / span 2!important;}
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentName{grid-column:2!important;grid-row:1!important;}
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentCustomer{grid-column:2!important;grid-row:2!important;}
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentPrice{grid-column:3!important;grid-row:1!important;}
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentState{grid-column:3!important;grid-row:2!important;}
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentChevron{
+    grid-column:3!important;grid-row:3!important;justify-self:end!important;align-self:center!important;
+  }
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargeOrderRow .ordersRecentTime{
+    grid-column:1 / span 2!important;grid-row:3!important;justify-self:start!important;text-align:right!important;
+  }
+}
+@media(max-width:560px){
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargePageActions{flex-wrap:wrap;}
+  .ownerShell.ownerArabic .rechargePage.ownerArabicRecharge .rechargePageActions .rechargeAddBalanceButton{margin:0!important;}
+}
+/* Recharge order result: Arabic status badge is on the LEFT, label on the RIGHT. */
+.ownerArabicRechargeShade .rechargeDetailsModal .rechargeDetailLine > .rechargeCenteredStatus{
+  justify-content:flex-start!important;direction:ltr!important;text-align:left!important;
+}
