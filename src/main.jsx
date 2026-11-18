@@ -2060,9 +2060,9 @@ function OwnerArabicControls({testMode=false}){
      const raw=node.nodeValue;const trimmed=raw.trim();if(!trimmed)continue;
      const remembered=original.current.get(node);
      if(lang==='ar'){
-      const english=remembered&&raw.trim()===(testMode?(remembered.trim().startsWith('Welcome, ')?'مرحبًا، '+remembered.trim().slice(9):testAccountTranslation(remembered.trim())):OWNER_AR[remembered.trim()])?remembered:raw;
-      const value=(testMode&&english.trim().startsWith('Welcome, '))?'مرحبًا، '+english.trim().slice(9):(testMode?testAccountTranslation(english.trim()):OWNER_AR[english.trim()]);if(value){original.current.set(node,english);const next=english.replace(english.trim(),value);if(raw!==next)node.nodeValue=next;}
-     }else if(remembered&&raw.trim()===(testMode?(remembered.trim().startsWith('Welcome, ')?'مرحبًا، '+remembered.trim().slice(9):testAccountTranslation(remembered.trim())):OWNER_AR[remembered.trim()])){node.nodeValue=remembered;}
+      const english=remembered&&raw.trim()===(testMode?(remembered.trim()==='Welcome,'?'مرحباً بك،':remembered.trim().startsWith('Welcome, ')?'مرحباً بك، '+remembered.trim().slice(9):testAccountTranslation(remembered.trim())):OWNER_AR[remembered.trim()])?remembered:raw;
+      const value=(testMode&&english.trim()==='Welcome,')?'مرحباً بك،':(testMode&&english.trim().startsWith('Welcome, '))?'مرحباً بك، '+english.trim().slice(9):(testMode?testAccountTranslation(english.trim()):OWNER_AR[english.trim()]);if(value){original.current.set(node,english);const next=english.replace(english.trim(),value);if(raw!==next)node.nodeValue=next;}
+     }else if(remembered&&raw.trim()===(testMode?(remembered.trim()==='Welcome,'?'مرحباً بك،':remembered.trim().startsWith('Welcome, ')?'مرحباً بك، '+remembered.trim().slice(9):testAccountTranslation(remembered.trim())):OWNER_AR[remembered.trim()])){node.nodeValue=remembered;}
     }
     root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(el=>{
       if(!el.dataset.ownerEnglishPlaceholder)el.dataset.ownerEnglishPlaceholder=el.getAttribute('placeholder')||'';
