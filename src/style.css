@@ -4228,3 +4228,15 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
   transform:rotate(180deg);
   flex-shrink:0;
 }
+
+/* Arabic Products overview/category: TEST DEALER 469 and TEST SHOP 470 only. */
+.appShell.testLanguageEnabled.testArabic .productsCategoryHeader h2{display:flex;align-items:baseline;gap:7px;direction:rtl;flex-wrap:wrap}
+.appShell.testLanguageEnabled.testArabic .productsCategoryHeader h2>span{direction:rtl}
+.appShell.testLanguageEnabled.testArabic .productsCategoryHeader h2 .productsCountWord{font-size:0}
+.appShell.testLanguageEnabled.testArabic .productsCategoryHeader h2 .productsCountWord::after{content:"منتج";font-size:12px}
+.appShell.testLanguageEnabled.testArabic .productsCategoryHeader button{direction:rtl}
+.appShell.testLanguageEnabled.testArabic .productsCategoryHeader button svg{transform:rotate(180deg)}
+.appShell.testLanguageEnabled.testArabic .catalogBack{direction:rtl}
+.appShell.testLanguageEnabled.testArabic .catalogBack svg{transform:rotate(180deg)}
+.appShell.testLanguageEnabled.testArabic .productsGlobalSearch input,
+.appShell.testLanguageEnabled.testArabic .catalogSearch input{direction:rtl;text-align:right}

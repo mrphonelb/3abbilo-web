@@ -1127,7 +1127,7 @@ function ProductsOverview({categories,branch,accountType,dealerMrphone=false}){
    :categorized.length===0?<div className="catalogNotice">No products available.</div>
    :categorized.map(c=><section className="productsCategorySection" key={c.key}>
      <div className="productsCategoryHeader">
-      <h2>{c.title} <span style={{fontSize:"0.55em",fontWeight:600,color:"#74829c",whiteSpace:"nowrap"}}>({c.matches.length} products)</span></h2>
+      <h2>{c.title} <span style={{fontSize:"0.55em",fontWeight:600,color:"#74829c",whiteSpace:"nowrap"}}>(<span>{c.matches.length}</span> <span className="productsCountWord">products</span>)</span></h2>
       <button type="button" onClick={()=>writeNav({page:'Products',category:c.key,esim:''})}
        aria-label={'Show all '+c.title}>Show All <ChevronRight size={17}/></button>
      </div>
@@ -1951,6 +1951,7 @@ const TEST_ACCOUNT_AR={
  'Close Result':'إغلاق النتيجة','Order number':'رقم الطلب','Purchase successful':'تمت عملية الشراء بنجاح',
  'Purchase failed':'فشلت عملية الشراء','Loading…':'جارٍ التحميل…',
  'Loading...':'جارٍ التحميل...','Search':'بحث','Search products':'البحث عن المنتجات',
+ 'Search all products...':'بحث','Search products...':'بحث','Show All':'عرض الكل','All categories':'جميع الفئات',
  'All Products':'جميع المنتجات','All Categories':'جميع الفئات','All':'الكل',
  'My Shops':'متاجري','Create Shop':'إنشاء متجر','Shop Name':'اسم المتجر',
  'Shop':'متجر','Dealer':'موزع','Active':'نشط','Inactive':'غير نشط',
