@@ -4240,3 +4240,18 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .appShell.testLanguageEnabled.testArabic .catalogBack svg{transform:rotate(180deg)}
 .appShell.testLanguageEnabled.testArabic .productsGlobalSearch input,
 .appShell.testLanguageEnabled.testArabic .catalogSearch input{direction:rtl;text-align:right}
+
+/* TEST DEALER (469) Arabic My Shops: mirror Owner Accounts presentation. */
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic{direction:rtl;text-align:right}
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsActions{justify-content:flex-start}
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsFilter input{direction:rtl;text-align:right}
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListRow{direction:rtl;text-align:right;grid-template-columns:minmax(125px,1.3fr) minmax(150px,1.6fr) minmax(95px,.9fr) minmax(90px,.8fr) 86px 18px}
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListArrow{transform:rotate(180deg)}
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListBalance{direction:ltr;unicode-bidi:isolate}
+.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListStatus{justify-self:start}
+.dealerShopArabicModal .popupTitle,.dealerShopArabicModal .receiptHeading{direction:rtl}
+.dealerShopArabicModal .receiptRow{direction:rtl}
+.dealerShopArabicModal .receiptRow strong{direction:ltr;text-align:left;unicode-bidi:plaintext}
+.dealerShopArabicModal .createShopFields,.dealerShopArabicModal .createShopField{direction:rtl;text-align:right}
+@media(max-width:900px){.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListRow{grid-template-columns:minmax(105px,1.2fr) minmax(130px,1.5fr) minmax(80px,.9fr) minmax(80px,.8fr) 70px 16px}}
+@media(max-width:600px){.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListRow{grid-template-columns:minmax(0,1fr) auto auto}}

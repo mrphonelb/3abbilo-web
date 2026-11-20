@@ -1439,6 +1439,25 @@ function AccountAdminModal({record,endpoint,onClose,onSaved,ownerLang='en'}){
 }
 
 function DealerShopsPage({dealerBalance,onWalletTransferred}){
+ const [shopLang,setShopLang]=useState(()=>localStorage.getItem('3abbilo_test_lang')==='ar'?'ar':'en');
+ useEffect(()=>{const sync=()=>setShopLang(localStorage.getItem('3abbilo_test_lang')==='ar'?'ar':'en');window.addEventListener('3abbilo:test-language-changed',sync);return()=>window.removeEventListener('3abbilo:test-language-changed',sync)},[]);
+ const shopAr=shopLang==='ar';
+ const st=(en)=>shopAr?({
+ 'Add New Shop':'إضافة متجر جديد','Search shop name, email or phone...':'بحث',
+ 'No shops match your search.':'لا توجد متاجر مطابقة للبحث.',
+ 'No shops yet. Select Add New Shop to create one.':'لا توجد متاجر بعد. اختر إضافة متجر جديد لإنشاء متجر.',
+ 'Loading shops…':'جارٍ تحميل المتاجر…','Create Shop Account':'إنشاء حساب متجر',
+ 'Shop Name':'اسم المتجر','Phone Number':'رقم الهاتف','Email Address':'البريد الإلكتروني',
+ 'Password (minimum 8 characters)':'كلمة المرور (8 أحرف على الأقل)',
+ 'Creating shop…':'جارٍ إنشاء المتجر…','Account Details':'تفاصيل الحساب',
+ 'Active Account':'حساب نشط','Inactive Account':'حساب غير نشط',
+ 'Account':'الحساب','Type':'النوع','Parent':'الحساب الرئيسي','Your Dealer Account':'حساب الموزع الخاص بك',
+ 'Email':'البريد الإلكتروني','Phone':'الهاتف','Balance':'الرصيد','Status':'الحالة',
+ 'Active':'نشط','Inactive':'غير نشط','shop':'متجر',
+ 'Edit Account / Reset Password':'تعديل الحساب / إعادة تعيين كلمة المرور',
+ 'Deactivate Account':'تعطيل الحساب','Activate Account':'تفعيل الحساب',
+ 'Updating…':'جارٍ التحديث…','Account details and recorded wallet balance':'تفاصيل الحساب ورصيد المحفظة المسجل','active':'نشط','disabled':'غير نشط'
+ }[en]||en):en;
  const emptyForm={shop_name:'',phone:'',email:'',password:''};
  const [shops,setShops]=useState([]),[loading,setLoading]=useState(true),[message,setMessage]=useState(''),[messageType,setMessageType]=useState('success');
  const [search,setSearch]=useState(''),[creating,setCreating]=useState(false),[creatingBusy,setCreatingBusy]=useState(false),[createError,setCreateError]=useState('');
@@ -1495,43 +1514,43 @@ function DealerShopsPage({dealerBalance,onWalletTransferred}){
   finally{setCreatingBusy(false)}
  }
  function createField(key,label,type='text',required=false){return <label className="createShopField" key={key}><span>{label}</span><input name={key} type={type} autoComplete="off" required={required} minLength={key==='password'?8:undefined} value={form[key]} onChange={e=>setForm(value=>({...value,[key]:e.target.value}))}/></label>}
- return <div className="sectionPad dealerShopsPage">
-  <div className="dealerShopsActions"><button type="button" className="dealerShopsAddButton" onClick={openCreate}><Plus size={18}/> Add New Shop</button></div>
+ return <div className={"sectionPad dealerShopsPage"+(shopAr?" dealerShopsArabic":"")}>
+  <div className="dealerShopsActions"><button type="button" className="dealerShopsAddButton" onClick={openCreate}><Plus size={18}/> {st("Add New Shop")}</button></div>
   {message&&<div role="status" className={'dealerShopsNotice '+messageType}>{message}</div>}
-  <div className="dealerShopsFilter"><input type="search" aria-label="Search shops" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search shop name, email or phone..." /></div>
-  {loading?<div className="ordersLoading"><RefreshCw className="spin"/> Loading shops…</div>:
-   !filteredShops.length?<div className="shopEmpty">{shops.length?'No shops match your search.':'No shops yet. Select Add New Shop to create one.'}</div>:
+  <div className="dealerShopsFilter"><input type="search" aria-label="Search shops" value={search} onChange={e=>setSearch(e.target.value)} placeholder={st("Search shop name, email or phone...")} /></div>
+  {loading?<div className="ordersLoading"><RefreshCw className="spin"/> {st("Loading shops…")}</div>:
+   !filteredShops.length?<div className="shopEmpty">{st(shops.length?'No shops match your search.':'No shops yet. Select Add New Shop to create one.')}</div>:
    <div className="dealerShopsList">{filteredShops.map(shop=><button type="button" key={shop.id} className="dealerShopsListRow" onClick={()=>openDetails(shop)}>
     <strong className="dealerShopsListName">{shop.shop_name||'—'}</strong>
     <span className="dealerShopsListEmail">{shop.email||'—'}</span>
     <span className="dealerShopsListPhone">{shop.phone||'—'}</span>
     <strong className="dealerShopsListBalance">${Number(shop.balance||0).toFixed(4)}</strong>
-    <span className={'dealerShopsListStatus '+(String(shop.status||'active').toLowerCase()==='active'?'active':'inactive')}>{String(shop.status||'active').toLowerCase()==='active'?'Active':'Inactive'}</span>
+    <span className={'dealerShopsListStatus '+(String(shop.status||'active').toLowerCase()==='active'?'active':'inactive')}>{String(shop.status||'active').toLowerCase()==='active'?st('Active'):st('Inactive')}</span>
     <ChevronRight size={17} className="dealerShopsListArrow"/>
    </button>)}</div>}
-  {managedShop&&<AccountAdminModal record={managedShop} endpoint={'/api/wholesale/dealer/shops/'+encodeURIComponent(managedShop.id)} onClose={()=>setManagedShop(null)} onSaved={async d=>{if(d.account){setShops(prev=>prev.map(shop=>String(shop.id)===String(d.account.id)?{...shop,...d.account}:shop));}await loadShops();}}/>}
+  {managedShop&&<AccountAdminModal record={managedShop} endpoint={'/api/wholesale/dealer/shops/'+encodeURIComponent(managedShop.id)} onClose={()=>setManagedShop(null)} ownerLang={shopLang} onSaved={async d=>{if(d.account){setShops(prev=>prev.map(shop=>String(shop.id)===String(d.account.id)?{...shop,...d.account}:shop));}await loadShops();}}/>}
   {creating&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&closeCreate()}>
-   <div className="productModal dealerShopsCreateModal" role="dialog" aria-modal="true" aria-label="Create Shop Account">
+   <div className={"productModal dealerShopsCreateModal"+(shopAr?" ownerArabicAccountPopup dealerShopArabicModal":"") } dir={shopAr?"rtl":"ltr"} role="dialog" aria-modal="true" aria-label="Create Shop Account">
     <button type="button" className="modalClose" onClick={closeCreate} disabled={creatingBusy} aria-label="Close"><X size={21}/></button>
-    <div className="popupTitle"><Store size={30}/><h2>Create Shop Account</h2></div>
+    <div className="popupTitle"><Store size={30}/><h2>{st("Create Shop Account")}</h2></div>
     <form onSubmit={createShop}>
-     <div className="createShopFields">{createField('shop_name','Shop Name','text',true)}{createField('phone','Phone Number','tel',true)}{createField('email','Email Address','email',true)}{createField('password','Password (minimum 8 characters)','password',true)}</div>
+     <div className="createShopFields">{createField('shop_name',st('Shop Name'),'text',true)}{createField('phone',st('Phone Number'),'tel',true)}{createField('email',st('Email Address'),'email',true)}{createField('password',st('Password (minimum 8 characters)'),'password',true)}</div>
      {createError&&<div role="alert" className="dealerShopsFormError">{createError}</div>}
-     <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={creatingBusy}>{creatingBusy?'Creating shop…':'Create Shop Account'}</button>
+     <button type="submit" className="createShopSubmit dealerShopsSubmit" disabled={creatingBusy}>{st(creatingBusy?'Creating shop…':'Create Shop Account')}</button>
     </form>
    </div>
   </div>,document.body)}
   {selectedShop&&createPortal(<div className="modalShade" onMouseDown={e=>e.target===e.currentTarget&&!statusBusy&&setSelectedShop(null)}>
-   <div className="productModal compactModal orderResultModal ownerDetailModal ownerAccountModal" role="dialog" aria-modal="true" aria-label="Account Details">
+   <div className={"productModal compactModal orderResultModal ownerDetailModal ownerAccountModal"+(shopAr?" ownerArabicAccountPopup dealerShopArabicModal":"")} dir={shopAr?"rtl":"ltr"} role="dialog" aria-modal="true" aria-label="Account Details">
     <button type="button" className="modalClose" onClick={()=>setSelectedShop(null)} disabled={statusBusy} aria-label="Close"><X size={21}/></button>
-    <div className="popupTitle"><Store size={30}/><h2>Account Details</h2></div>
+    <div className="popupTitle"><Store size={30}/><h2>{st("Account Details")}</h2></div>
     <div className="unifiedReceipt">
-     <div className={'receiptHeading '+(String(selectedShop.status||'active').toLowerCase()==='active'?'receiptSuccess':'receiptPending')}><ShieldCheck size={28}/><div><h3>{String(selectedShop.status||'active').toLowerCase()==='active'?'Active Account':'Inactive Account'}</h3><p>Account details and recorded wallet balance</p></div></div>
-     {([['Account',selectedShop.shop_name],['Type','shop'],['Parent','Your Dealer Account'],['Email',selectedShop.email],['Phone',selectedShop.phone],['Balance','$'+Number(selectedShop.balance||0).toFixed(4)],['Status',selectedShop.status||'active']]).map(([key,value])=><div className="receiptRow" key={key}><span>{key}</span><strong>{value||'—'}</strong></div>)}
+     <div className={'receiptHeading '+(String(selectedShop.status||'active').toLowerCase()==='active'?'receiptSuccess':'receiptPending')}><ShieldCheck size={28}/><div><h3>{String(selectedShop.status||'active').toLowerCase()==='active'?st('Active Account'):st('Inactive Account')}</h3><p>{st('Account details and recorded wallet balance')}</p></div></div>
+     {([[st('Account'),selectedShop.shop_name],[st('Type'),st('shop')],[st('Parent'),st('Your Dealer Account')],[st('Email'),selectedShop.email],[st('Phone'),selectedShop.phone],[st('Balance'),'$'+Number(selectedShop.balance||0).toFixed(4)],[st('Status'),st(selectedShop.status||'active')]]).map(([key,value])=><div className="receiptRow" key={key}><span>{key}</span><strong>{value||'—'}</strong></div>)}
      <div className="ownerAccountActions">
       {statusError&&<div role="alert" className="catalogNotice error">{statusError}</div>}
-      <button type="button" className="popupSecondary" disabled={statusBusy} onClick={()=>{setManagedShop(selectedShop);setSelectedShop(null)}}>Edit Account / Reset Password</button>
-      <button type="button" className="popupSecondary" disabled={statusBusy} onClick={updateShopStatus}>{statusBusy?'Updating…':selectedShop.status==='active'?'Deactivate Account':'Activate Account'}</button>
+      <button type="button" className="popupSecondary" disabled={statusBusy} onClick={()=>{setManagedShop(selectedShop);setSelectedShop(null)}}>{st("Edit Account / Reset Password")}</button>
+      <button type="button" className="popupSecondary" disabled={statusBusy} onClick={updateShopStatus}>{st(statusBusy?'Updating…':selectedShop.status==='active'?'Deactivate Account':'Activate Account')}</button>
      </div>
     </div>
    </div>
@@ -2037,7 +2056,7 @@ const OWNER_ACCOUNT_AR={
  'Password (minimum 8 characters)':'كلمة المرور (8 أحرف على الأقل)','Creating account…':'جارٍ إنشاء الحساب…',
  'Edit Account / Reset Password':'تعديل الحساب / إعادة تعيين كلمة المرور',
  'Deactivate Account':'تعطيل الحساب','Activate Account':'تفعيل الحساب','Delete Account (if eligible)':'حذف الحساب (عند استيفاء الشروط)',
- 'Updating…':'جارٍ التحديث…','Close result':'إغلاق','Close':'إغلاق',
+ 'Updating…':'جارٍ التحديث…','Account details and recorded wallet balance':'تفاصيل الحساب ورصيد المحفظة المسجل','active':'نشط','disabled':'غير نشط','Close result':'إغلاق','Close':'إغلاق',
  'Manage Account':'إدارة الحساب','Edit Information':'تعديل المعلومات','Reset Password':'إعادة تعيين كلمة المرور',
  'Account Name':'اسم الحساب','New Temporary Password':'كلمة المرور المؤقتة الجديدة',
  'Confirm Password':'تأكيد كلمة المرور','Saving…':'جارٍ الحفظ…','Save Changes':'حفظ التغييرات',
@@ -2079,7 +2098,7 @@ function OwnerArabicControls({testMode=false}){
   translate();const observer=new MutationObserver(translate);observer.observe(root,{childList:true,subtree:true,characterData:true});
   return()=>{observer.disconnect();root.classList.remove(testMode?'testArabic':'ownerArabic');document.documentElement.dir='ltr';document.documentElement.lang='en';};
  },[lang,testMode]);
- function switchLanguage(){setConfirm(false);setSwitching(true);window.setTimeout(()=>{const next=lang==='en'?'ar':'en';localStorage.setItem(storageKey,next);if(!testMode)window.dispatchEvent(new CustomEvent('3abbilo:owner-language-changed',{detail:{lang:next}}));setLang(next);setSwitching(false);},550)}
+ function switchLanguage(){setConfirm(false);setSwitching(true);window.setTimeout(()=>{const next=lang==='en'?'ar':'en';localStorage.setItem(storageKey,next);window.dispatchEvent(new CustomEvent(testMode?'3abbilo:test-language-changed':'3abbilo:owner-language-changed',{detail:{lang:next}}));setLang(next);setSwitching(false);},550)}
  return <div className="ownerLanguageControls" dir="ltr"><button type="button" className="ownerLanguageButton" onClick={()=>setConfirm(true)} aria-label={lang==='en'?'Switch language to Arabic':'التبديل إلى الإنجليزية'}><span className={lang==='en'?'ownerLangActive':''}>EN</span><span className="ownerLangSeparator" aria-hidden="true"/><span className={lang==='ar'?'ownerLangActive':''}>AR</span></button>
  {confirm&&createPortal(<div className="ownerLanguageShade" role="presentation"><div className={"ownerLanguageDialog "+(lang==='ar'?'ownerLanguageDialogArabic':'')} dir={lang==='ar'?'rtl':'ltr'} role="dialog" aria-modal="true" aria-label="Change language"><h3>{lang==='en'?'Switch to Arabic?':'التبديل إلى الإنجليزية؟'}</h3><p>{lang==='en'?'Are you sure you want to switch to Arabic?':'هل أنت متأكد من التبديل إلى الإنجليزية؟'}</p><div className="ownerLanguageActions"><button type="button" onClick={()=>setConfirm(false)}>{lang==='en'?'Cancel':'إلغاء'}</button><button type="button" onClick={switchLanguage}>{lang==='en'?'Confirm':'تأكيد'}</button></div></div></div>,document.body)}
  {switching&&createPortal(<div className="ownerLanguageShade" role="status" aria-live="polite"><div className="ownerLanguageDialog ownerLanguageLoading"><RefreshCw className="spin" size={30}/><p>{lang==='en'?'Switching to Arabic…':'جارٍ التبديل إلى الإنجليزية…'}</p></div></div>,document.body)}
