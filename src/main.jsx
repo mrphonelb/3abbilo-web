@@ -960,7 +960,9 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
  const dayValid=!daily||(String(period).trim()!==''&&Number.isInteger(Number(period))&&Number(period)>=dayMin&&Number(period)<=dayMax);
  const days=daily&&dayValid?Number(period):1;
  const unitCost=Number(selected?.account_cost??selected?.recommended_selling_price??0);
- const totalCost=Number((unitCost*days).toFixed(2));
+ const discountTier=daily?(selected?.discount_rule?.periodRuleList||[]).find(r=>days>=Number(r.minDays)&&days<=Number(r.maxDays)):null;
+ const discountedTotal=(unit,period)=>{const tier=(selected?.discount_rule?.periodRuleList||[]).find(r=>period>=Number(r.minDays)&&period<=Number(r.maxDays));const ratio=tier?.payRatio==null?1:Number(tier.payRatio);return Number((Number(unit)*period*ratio).toFixed(2));};
+ const totalCost=daily?discountedTotal(unitCost,days):Number(unitCost.toFixed(2));
  const margin=branch ? 0 : (accountType==='dealer' ? 0.12 : 0.07);
  const suggested=Number((totalCost*(1+margin)).toFixed(2));
  const money2=v=>'$'+Number(v||0).toFixed(2);
@@ -984,11 +986,11 @@ function EsimCatalog({topup=false,close,branch=false,accountType="shop"}){
   if(v!==''&&!/^\d+$/.test(v))return;
   setPeriod(v);requestKey.current=null;
   const n=Number(v);
-  if(v!==''&&Number.isInteger(n)&&n>=dayMin&&n<=dayMax)setSelling(suggestedSelling(unitCost*n));
+  if(v!==''&&Number.isInteger(n)&&n>=dayMin&&n<=dayMax)setSelling(suggestedSelling(discountedTotal(unitCost,n)));
  }
  function commitDays(){
   const n=Number(period);const normalized=String(period).trim()!==''&&Number.isFinite(n)?Math.max(dayMin,Math.min(dayMax,Math.trunc(n))):dayMin;
-  setPeriod(String(normalized));setSelling(suggestedSelling(unitCost*normalized));requestKey.current=null;
+  setPeriod(String(normalized));setSelling(suggestedSelling(discountedTotal(unitCost,normalized)));requestKey.current=null;
  }
  async function load(destination=country){
   const serial=++loadSerial.current;
