@@ -1324,7 +1324,7 @@ function FinancialPage({owner=false,dealer=false,ownerLang="en"}){
  });
  const walletTitle=item=>{
   switch(item.wallet_type){
-   case 'deposit':return item.is_dealer_commission?'Dealer Commission Received':'Wallet Recharge';
+   case 'deposit':return item.is_dealer_commission?'Dealer Commission Received'+(item.order_id?' · Order #'+item.order_id:''):'Wallet Recharge';
    case 'purchase':return item.order_id?'Order #'+item.order_id:'Purchase';
    case 'dealer_profit':return 'Dealer Commission';
    case 'adjustment_credit':return 'Wallet Correction';
@@ -1369,7 +1369,7 @@ function FinancialPage({owner=false,dealer=false,ownerLang="en"}){
    const cleanOwnerProfit=owner&&ownerProfit&&(view==='dealer_profit'||view==='shop_profit');
    const displayLabel=!owner&&view==='my_profit'&&purchase?'My Profit — Order #'+item.order_id:cleanOwnerProfit?'Order #'+item.order_id+(item.kind==='owner_profit_return'?' (Returned)':''):cleanOwnerSales?'Order #'+item.order_id+(returned?' (Returned)':''):cleanAccountSales?'Order #'+item.order_id+((item.wallet_type==='refund'||returned)?' (Returned)':''):label;
    const itemName=publicName(item.account_name),related=publicName(item.related_account);
-   const sub=wallet?(item.product?(item.product+(item.order_id&&!cleanOwnerSales&&!cleanAccountSales?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
+   const sub=wallet?(item.is_dealer_commission&&item.order_id?((item.commission_shop_name||item.shop_name)?publicName(item.commission_shop_name||item.shop_name)+' · ':'')+(item.product||'Order #'+item.order_id):item.product?(item.product+(item.order_id&&!cleanOwnerSales&&!cleanAccountSales?' · Order #'+item.order_id:'')):(related?(item.wallet_type==='dealer_transfer_out'?'To ':'From ')+related:(item.order_id?'Order #'+item.order_id:'Wallet'))):shop?(publicName(item.shop_name)+' · '+(item.product||'Sale')):(item.product||item.title||'Purchase');
    // A purchase is a wallet debit at its ACTUAL cost, never a profit credit.
    const amount=wallet?Number(item.amount):purchase?Number(item.amount??-Number(item.cost||0)):shop?Number(item.profit):owner?Number(item.amount):Number(item.profit);
    const shownAmount=!owner&&view==='my_profit'&&purchase?Number(item.profit||0):amount;
@@ -1391,6 +1391,8 @@ function FinancialPage({owner=false,dealer=false,ownerLang="en"}){
        {owner&&<div><span>{tx("Account")}</span><b>{itemName||'Shop'}</b></div>}
        {related&&<div><span>{tx(item.wallet_type==='dealer_transfer_out'?'Sent to':'Related account')}</span><b>{related}</b></div>}
        {item.order_id&&<div><span>{tx("Order")}</span><b>#{item.order_id}</b></div>}
+       {item.is_dealer_commission&&(item.commission_shop_name||item.shop_name)&&<div><span>{tx("Shop")}</span><b>{publicName(item.commission_shop_name||item.shop_name)}</b></div>}
+       {item.is_dealer_commission&&item.product&&<div><span>{tx("Package")}</span><b>{item.product}</b></div>}}
        <div><span>{tx("Amount")}</span><b>{signed(amount)}</b></div>
        <div><span>{tx("Balance before")}</span><b>{fmt(item.balance_before)}</b></div>
        <div><span>{tx("Balance after")}</span><b>{fmt(item.balance_after)}</b></div>
