@@ -1392,7 +1392,7 @@ function FinancialPage({owner=false,dealer=false,ownerLang="en"}){
        {related&&<div><span>{tx(item.wallet_type==='dealer_transfer_out'?'Sent to':'Related account')}</span><b>{related}</b></div>}
        {item.order_id&&<div><span>{tx("Order")}</span><b>#{item.order_id}</b></div>}
        {item.is_dealer_commission&&(item.commission_shop_name||item.shop_name)&&<div><span>{tx("Shop")}</span><b>{publicName(item.commission_shop_name||item.shop_name)}</b></div>}
-       {item.is_dealer_commission&&item.product&&<div><span>{tx("Package")}</span><b>{item.product}</b></div>}}
+       {item.is_dealer_commission&&item.product&&<div><span>{tx("Package")}</span><b>{item.product}</b></div>}
        <div><span>{tx("Amount")}</span><b>{signed(amount)}</b></div>
        <div><span>{tx("Balance before")}</span><b>{fmt(item.balance_before)}</b></div>
        <div><span>{tx("Balance after")}</span><b>{fmt(item.balance_after)}</b></div>
