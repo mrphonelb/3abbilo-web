@@ -4255,3 +4255,14 @@ body>.modalShade>.productModal.compactModal.rechargeTransferModal{
 .dealerShopArabicModal .createShopFields,.dealerShopArabicModal .createShopField{direction:rtl;text-align:right}
 @media(max-width:900px){.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListRow{grid-template-columns:minmax(105px,1.2fr) minmax(130px,1.5fr) minmax(80px,.9fr) minmax(80px,.8fr) 70px 16px}}
 @media(max-width:600px){.appShell.testLanguageEnabled.testArabic .dealerShopsArabic .dealerShopsListRow{grid-template-columns:minmax(0,1fr) auto auto}}
+
+/* Arabic order receipts for test dealer 469 and test shop 470: match Owner order modal. */
+.testOrderArabicPopup{direction:rtl;text-align:right}
+.testOrderArabicPopup .popupTitle{direction:rtl;text-align:center}
+.testOrderArabicPopup .receiptHeading{direction:rtl;text-align:right}
+.testOrderArabicPopup .receiptRow{direction:rtl;text-align:right}
+.testOrderArabicPopup .receiptRow>span{order:0;text-align:right}
+.testOrderArabicPopup .receiptRow>strong,.testOrderArabicPopup .receiptRow>a{order:1;text-align:left;unicode-bidi:plaintext}
+.testOrderArabicPopup .receiptRow strong{max-width:70%;overflow-wrap:anywhere}
+.testOrderArabicPopup .modalClose{left:14px;right:auto}
+.testOrderArabicPopup .receiptCode,.testOrderArabicPopup .esimValue,.testOrderArabicPopup .esimIccidCode{direction:ltr;unicode-bidi:plaintext}
